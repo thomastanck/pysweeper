@@ -9,88 +9,62 @@ class Timer:
     def __init__(self, master, pysweep3):
         self.master = master
         self.pysweep3 = pysweep3
-        self.hooks = {
-            "pysweep3BEFORE_WM_DELETE_WINDOW": [self.on_close],
-        }
+
         # This mod is pretty benign and doesn't do much except give other mods TimerObj's
         self.timers = [] # A list of timers it has made
         # self.master.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def get_timer(self, callback):
-        timerobj = TimerObj(callback)
+        timerobj = TimerObj(self.master, callback)
         self.timers.append(timerobj)
         return timerobj
 
-    def on_close(self, e):
-        for timer in self.timers:
-            timer.kill_timer()
-
 class TimerObj:
-    def __init__(self, callback, resolution=1):
+    def __init__(self, master, callback, resolution=1):
         # calls callback whenever the time changes more than resolution (which will be every second by default)
+        self.master = master
         self.callback = callback
         self.resolution = resolution
         self.start_time = 0
         self.current_time = 0
         self.stop_time = 0
         self.timing_mode = False
-        self.timer_threads = []
-        self.lock = threading.Lock()
-
-    def timer_thread(self):
-        while True:
-            with self.lock:
-                if self.timing_mode == False:
-                    return
-                curtime = time.time()
-                elapsed = curtime - self.start_time
-                sincelasttick = curtime - self.current_time
-                self.current_time = curtime
-                if elapsed > self.resolution:
-                    self.callback(elapsed, sincelasttick)
-            time.sleep(self.resolution / 100)
+        self.poll_freq = int(resolution/100*1000)
 
     def start_timer(self):
-        with self.lock:
-            self.start_time = time.time()
-            self.current_time = self.start_time
-            self.timing_mode = True
+        self.start_time = time.time()
+        self.current_time = self.start_time
+        self.timing_mode = True
 
-            for thread in self.timer_threads:
-                if thread.is_alive():
-                    break
-            else:
-                # None are alive
-                new_thread = threading.Thread(target=self.timer_thread)
-                self.timer_threads.append(new_thread)
-                new_thread.start()
+        self.callback(0, 0)
 
-            self.callback(0, 0)
+        self.master.after(self.poll_freq, self.poll_timer)
 
-    def stop_timer(self):
-        with self.lock:
-            if not self.timing_mode:
-                return # Do nothing if already stopped
-            self.stop_time = time.time()
-            self.timing_mode = False
-
+    def poll_timer(self):
+        if self.timing_mode == True:
             curtime = time.time()
             elapsed = curtime - self.start_time
             sincelasttick = curtime - self.current_time
-            self.current_time = curtime
-            self.stop_time = curtime
+            if sincelasttick > self.resolution:
+                self.current_time = curtime
+                self.callback(elapsed, sincelasttick)
 
-            self.callback(elapsed, sincelasttick)
+            self.master.after(self.poll_freq, self.poll_timer)
 
-            threads_to_remove = []
-            for timer_thread in self.timer_threads:
-                if not timer_thread.is_alive():
-                    threads_to_remove.append(timer_thread)
-            # print("Threads to remove:", threads_to_remove)
-            for thread in threads_to_remove:
-                self.timer_threads.remove(thread)
+    def stop_timer(self):
+        if not self.timing_mode:
+            return # Do nothing if already stopped
+        self.stop_time = time.time()
+        self.timing_mode = False
+
+        curtime = time.time()
+        elapsed = curtime - self.start_time
+        sincelasttick = curtime - self.current_time
+        self.current_time = curtime
+        self.stop_time = curtime
+
+        self.callback(elapsed, sincelasttick)
 
     def kill_timer(self):
         self.stop_timer()
-        for timer_thread in self.timer_threads:
-            timer_thread.join()
+        # We don't really need to clean up in this version
