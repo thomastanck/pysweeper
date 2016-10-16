@@ -16,14 +16,20 @@ class PySweep3:
     def bind_tkinter_event(self, event_name):
         if event_name not in self.bind_events:
             hook = self.hook_prefix + event_name
+            # self.master.bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
             self.master.bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
             self.bind_events.append(event_name)
 
     def bind_tkinter_protocol(self, protocol_name):
         if protocol_name not in self.bind_protocols:
             hook = self.hook_prefix + protocol_name
-            self.master.protocol(protocol_name, lambda e,hook=hook: self.handle_event(hook, e))
+            self.master.protocol(protocol_name, lambda e=None,hook=hook: self.handle_event(hook, e))
             self.bind_protocols.append(protocol_name)
+
+    def event_curry(e, hook):
+        def event_curry_(e):
+            self.handle_event(hook, e)
+        return event_curry_
 
     def load_mods(self):
         # Mods dictionary

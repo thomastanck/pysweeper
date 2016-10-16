@@ -3,22 +3,25 @@ import threading, time
 class Timer:
     hooks = {}
     required_events = []
-    required_protocols = ["WM_DELETE_WINDOW"]
+    required_protocols = []
+    # required_protocols = ["WM_DELETE_WINDOW"] # We depend on WindowCloser mod to trigger the pysweep3BEFOREWM_DELETE_WINDOW hook
 
-    def __init__(self, master, pysweeper3):
+    def __init__(self, master, pysweep3):
         self.master = master
-        self.pysweeper3 = pysweeper3
-        self.hook = {
-            "pysweeper3WM_DELETE_WINDOW": [self.on_close],
+        self.pysweep3 = pysweep3
+        self.hooks = {
+            "pysweep3BEFORE_WM_DELETE_WINDOW": [self.on_close],
         }
         # This mod is pretty benign and doesn't do much except give other mods TimerObj's
         self.timers = [] # A list of timers it has made
         # self.master.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def get_timer(self, callback):
-        return TimerObj(callback)
+        timerobj = TimerObj(callback)
+        self.timers.append(timerobj)
+        return timerobj
 
-    def on_close(self):
+    def on_close(self, e):
         for timer in self.timers:
             timer.kill_timer()
 
