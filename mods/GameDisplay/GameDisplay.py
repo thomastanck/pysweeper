@@ -17,6 +17,8 @@ class GameDisplayWrapper:
         self.hook_prefix = "boardcanvas"
         self.bind_events = []
 
+        self.center_window()
+
     def rebind_tkinter_events(self):
         for event_name in self.bind_events:
             hook = self.hook_prefix + event_name
@@ -41,6 +43,22 @@ class GameDisplayWrapper:
         self.display = GameDisplay(self.master, self.pysweep3, *self.size)
         self.board = self.display.board
         self.rebind_tkinter_events()
+
+    def center_window(self):
+
+        self.master.update_idletasks()
+        h = self.display.board.winfo_height()
+        w = self.display.board.winfo_width()
+
+        # get screen width and height
+        ws = self.master.winfo_screenwidth() # width of the screen
+        hs = self.master.winfo_screenheight() # height of the screen
+
+        # calculate x and y coordinates for the Tk root window
+        x = (ws/2) - (w/2)
+        y = (hs/2) - (h/2)
+
+        self.master.geometry('+%d+%d' % (x, y))
 
 class GameDisplay(tkinter.Frame):
     border_images = {}

@@ -4,7 +4,6 @@ class Timer:
     hooks = {}
     required_events = []
     required_protocols = []
-    # required_protocols = ["WM_DELETE_WINDOW"] # We depend on WindowCloser mod to trigger the pysweep3BEFOREWM_DELETE_WINDOW hook
 
     def __init__(self, master, pysweep3):
         self.master = master
@@ -12,7 +11,6 @@ class Timer:
 
         # This mod is pretty benign and doesn't do much except give other mods TimerObj's
         self.timers = [] # A list of timers it has made
-        # self.master.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def get_timer(self, callback):
         timerobj = TimerObj(self.master, callback)
