@@ -26,11 +26,6 @@ class PySweep3:
             self.master.protocol(protocol_name, lambda e=None,hook=hook: self.handle_event(hook, e))
             self.bind_protocols.append(protocol_name)
 
-    def event_curry(e, hook):
-        def event_curry_(e):
-            self.handle_event(hook, e)
-        return event_curry_
-
     def load_mods(self):
         # Mods dictionary
         # Key is the module name (directory name if package, filename without .py extension if file)
