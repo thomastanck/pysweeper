@@ -30,6 +30,10 @@ class TimerObj:
         # calls callback whenever the time changes more than resolution (which will be every second by default)
         self.callback = callback
         self.resolution = resolution
+        self.start_time = 0
+        self.current_time = 0
+        self.stop_time = 0
+        self.timing_mode = False
         self.timer_threads = []
 
     def timer_thread(self):
@@ -54,6 +58,8 @@ class TimerObj:
         self.callback(0, 0)
 
     def stop_timer(self):
+        if not self.timing_mode:
+            return # Do nothing if already stopped
         self.stop_time = time.time()
         self.timing_mode = False
 
