@@ -1,5 +1,15 @@
 class Debugger:
     hooks = {}
+    required_events = [
+        "<ButtonPress-1>",
+        "<Motion>",
+        "<Enter>",
+        "<ButtonRelease-1>",
+        "<KeyPress>",
+        "<KeyRelease>",
+    ]
+    required_protocols = []
+
     def __init__(self, master, pysweep3):
         self.master = master
         self.pysweep3 = pysweep3

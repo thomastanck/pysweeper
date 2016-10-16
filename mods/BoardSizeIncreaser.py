@@ -1,5 +1,7 @@
 class BoardSizeIncreaser:
     hooks = {}
+    required_events = ["<KeyPress>"]
+    required_protocols = []
 
     def __init__(self, master, pysweep3):
         self.master = master
@@ -8,6 +10,7 @@ class BoardSizeIncreaser:
             "pysweep3<KeyPress>": [self.increaseboardsize],
             "AllModsLoaded": [self.modsloaded],
         }
+
         self.temporarily_down = []
 
     def modsloaded(self, e):

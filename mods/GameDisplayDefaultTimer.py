@@ -1,12 +1,16 @@
-
 class GameDisplayDefaultTimer:
     hooks = {}
+    required_events = [
+        "<ButtonPress-1>",
+        "<ButtonRelease-1>",
+    ]
+    required_protocols = []
 
     def __init__(self, master, pysweep3):
         self.master = master
         self.pysweep3 = pysweep3
         self.hooks = {
-            "pysweep3<ButtonPress-1>": [self.onpress],
+            "pysweep3<ButtonPress-1>":   [self.onpress],
             "pysweep3<ButtonRelease-1>": [self.onrelease],
             "AllModsLoaded": [self.modsloaded],
         }

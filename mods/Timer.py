@@ -2,12 +2,18 @@ import threading, time
 
 class Timer:
     hooks = {}
+    required_events = []
+    required_protocols = ["WM_DELETE_WINDOW"]
+
     def __init__(self, master, pysweeper3):
         self.master = master
         self.pysweeper3 = pysweeper3
+        self.hook = {
+            "pysweeper3WM_DELETE_WINDOW": [self.on_close],
+        }
         # This mod is pretty benign and doesn't do much except give other mods TimerObj's
         self.timers = [] # A list of timers it has made
-        self.master.protocol("WM_DELETE_WINDOW", self.on_close)
+        # self.master.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def get_timer(self, callback):
         return TimerObj(callback)

@@ -8,7 +8,22 @@ import tkinter
 class PySweep3:
     def __init__(self, master):
         self.master = master
+        self.hook_prefix = "pysweep3"
+        self.bind_events = []
+        self.bind_protocols = []
         self.load_mods()
+
+    def bind_tkinter_event(self, event_name):
+        if event_name not in self.bind_events:
+            hook = self.hook_prefix + event_name
+            self.master.bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
+            self.bind_events.append(event_name)
+
+    def bind_tkinter_protocol(self, protocol_name):
+        if protocol_name not in self.bind_protocols:
+            hook = self.hook_prefix + protocol_name
+            self.master.protocol(protocol_name, lambda e,hook=hook: self.handle_event(hook, e))
+            self.bind_protocols.append(protocol_name)
 
     def load_mods(self):
         # Mods dictionary
@@ -22,18 +37,18 @@ class PySweep3:
         # A dictionary with hook strings as keys and a list of callbacks as values
         self.hooks = {}
 
-        pysweep3hooklist = [
-            ("<ButtonPress-1>", "pysweep3<ButtonPress-1>"),
-            ("<B1-Motion>", "pysweep3<B1-Motion>"),
-            ("<ButtonRelease-1>", "pysweep3<ButtonRelease-1>"),
-            ("<Motion>", "pysweep3<Motion>"),
-            ("<Enter>", "pysweep3<Enter>"),
-            ("<Leave>", "pysweep3<Leave>"),
-            ("<KeyPress>", "pysweep3<KeyPress>"),
-            ("<KeyRelease>", "pysweep3<KeyRelease>"),
-        ]
-        for hook in pysweep3hooklist:
-            self.master.bind(hook[0], lambda e,hook=hook[1]: self.handle_event(hook, e))
+        # pysweep3hooklist = [
+        #     ("<ButtonPress-1>", "pysweep3<ButtonPress-1>"),
+        #     ("<B1-Motion>", "pysweep3<B1-Motion>"),
+        #     ("<ButtonRelease-1>", "pysweep3<ButtonRelease-1>"),
+        #     ("<Motion>", "pysweep3<Motion>"),
+        #     ("<Enter>", "pysweep3<Enter>"),
+        #     ("<Leave>", "pysweep3<Leave>"),
+        #     ("<KeyPress>", "pysweep3<KeyPress>"),
+        #     ("<KeyRelease>", "pysweep3<KeyRelease>"),
+        # ]
+        # for hook in pysweep3hooklist:
+        #     self.master.bind(hook[0], lambda e,hook=hook[1]: self.handle_event(hook, e))
 
         # load mods here
         alreadyfound = self.get_mods('mods')
@@ -81,8 +96,16 @@ class PySweep3:
                 return moduleinstance
         return None
 
-
     def register_hooks(self, moduleinstance):
+        # First check if it requires any event or protocol bindings.
+        if hasattr(moduleinstance, "required_events"):
+            for event_name in moduleinstance.required_events:
+                self.bind_tkinter_event(event_name)
+        if hasattr(moduleinstance, "required_protocols"):
+            for protocol_name in moduleinstance.required_protocols:
+                self.bind_tkinter_protocol(protocol_name)
+
+        # Then register their callbacks into our hooks dict
         for hook in moduleinstance.hooks:
             if hook in self.hooks:
                 self.hooks[hook].extend(moduleinstance.hooks[hook])

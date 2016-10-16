@@ -2,26 +2,10 @@ import tkinter
 from PIL import Image, ImageTk
 import time
 
-# class Core:
-#     hooks = {}
-#     def __init__(self, master):
-#         self.master = master
-#         self.app = MainContainer(self.master)
-#         # self.app = Application(self.master)
-
-# class MainContainer(tkinter.Frame):
-#     def create_widgets(self):
-#         self.sub_frame = GameDisplay(self, 30, 16)
-#         self.master.board = self.sub_frame.board
-
-#     def __init__(self, master=None):
-#         super().__init__(master, width=200, height=200, background="green")
-#         self.pack()
-#         self.config(borderwidth=0)
-#         self.create_widgets()
-
 class GameDisplayWrapper:
     hooks = {}
+    required_events = []
+    required_protocols = []
 
     def __init__(self, master, pysweep3):
         self.master = master
@@ -30,6 +14,25 @@ class GameDisplayWrapper:
         self.display = GameDisplay(master, self.pysweep3, *self.size)
         self.board = self.display.board
 
+        self.hook_prefix = "boardcanvas"
+        self.bind_events = []
+
+    def rebind_tkinter_events(self):
+        for event_name in self.bind_events:
+            hook = self.hook_prefix + event_name
+            self.board.canvas.bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
+
+    def bind_tkinter_event(self, event_name):
+        if event_name not in self.bind_events:
+            hook = self.hook_prefix + event_name
+            self.board.canvas.bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
+            self.bind_events.append(event_name)
+
+    def handle_event(self, hook, e):
+        e.row = e.y//16
+        e.col = e.x//16
+        self.pysweep3.handle_event(hook, e)
+
     def set_size(self, width, height):
         # Warning, completely kills GameDisplay. You'll have to give it new data after this
         self.size = (width, height)
@@ -37,6 +40,7 @@ class GameDisplayWrapper:
         self.display.destroy()
         self.display = GameDisplay(self.master, self.pysweep3, *self.size)
         self.board = self.display.board
+        self.rebind_tkinter_events()
 
 class GameDisplay(tkinter.Frame):
     border_images = {}
@@ -194,20 +198,6 @@ class Board(tkinter.Frame):
         for i in range(width):
             for j in range(height):
                 self.set_tile(j, i, "unopened")
-
-        boardcanvashooklist = [
-            ("<ButtonPress-1>", "boardcanvas<ButtonPress-1>"),
-            ("<B1-Motion>", "boardcanvas<B1-Motion>"),
-            ("<ButtonRelease-1>", "boardcanvas<ButtonRelease-1>"),
-            ("<Motion>", "boardcanvas<Motion>"),
-        ]
-        for hook in boardcanvashooklist:
-            self.canvas.bind(hook[0], lambda e,hook=hook[1]: self.handle_event(hook, e))
-
-    def handle_event(self, hook, e):
-        e.row = e.y//16
-        e.col = e.x//16
-        self.master.pysweep3.handle_event(hook, e)
 
 class Counter(tkinter.Frame):
     border_images = {}
