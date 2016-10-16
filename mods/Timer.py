@@ -35,49 +35,60 @@ class TimerObj:
         self.stop_time = 0
         self.timing_mode = False
         self.timer_threads = []
+        self.lock = threading.Lock()
 
     def timer_thread(self):
-        while self.timing_mode:
+        while True:
+            with self.lock:
+                if self.timing_mode == False:
+                    return
+                curtime = time.time()
+                elapsed = curtime - self.start_time
+                sincelasttick = curtime - self.current_time
+                self.current_time = curtime
+                if elapsed > self.resolution:
+                    self.callback(elapsed, sincelasttick)
+            time.sleep(self.resolution / 100)
+
+    def start_timer(self):
+        with self.lock:
+            self.start_time = time.time()
+            self.current_time = self.start_time
+            self.timing_mode = True
+
+            for thread in self.timer_threads:
+                if thread.is_alive():
+                    break
+            else:
+                # None are alive
+                new_thread = threading.Thread(target=self.timer_thread)
+                self.timer_threads.append(new_thread)
+                new_thread.start()
+
+            self.callback(0, 0)
+
+    def stop_timer(self):
+        with self.lock:
+            if not self.timing_mode:
+                return # Do nothing if already stopped
+            self.stop_time = time.time()
+            self.timing_mode = False
+
             curtime = time.time()
             elapsed = curtime - self.start_time
             sincelasttick = curtime - self.current_time
             self.current_time = curtime
-            if elapsed > self.resolution:
-                self.callback(elapsed, sincelasttick)
-            time.sleep(self.resolution / 100)
+            self.stop_time = curtime
 
-    def start_timer(self):
-        self.start_time = time.time()
-        self.current_time = self.start_time
-        self.timing_mode = True
+            self.callback(elapsed, sincelasttick)
 
-        new_thread = threading.Thread(target=self.timer_thread)
-        self.timer_threads.append(new_thread)
-        new_thread.start()
-
-        self.callback(0, 0)
-
-    def stop_timer(self):
-        if not self.timing_mode:
-            return # Do nothing if already stopped
-        self.stop_time = time.time()
-        self.timing_mode = False
-
-        curtime = time.time()
-        elapsed = curtime - self.start_time
-        sincelasttick = curtime - self.current_time
-        self.current_time = curtime
-        self.stop_time = curtime
-
-        self.callback(elapsed, sincelasttick)
-
-        threads_to_remove = []
-        for timer_thread in self.timer_threads:
-            if not timer_thread.is_alive():
-                threads_to_remove.append(timer_thread)
-        # print("Threads to remove:", threads_to_remove)
-        for thread in threads_to_remove:
-            self.timer_threads.remove(thread)
+            threads_to_remove = []
+            for timer_thread in self.timer_threads:
+                if not timer_thread.is_alive():
+                    threads_to_remove.append(timer_thread)
+            # print("Threads to remove:", threads_to_remove)
+            for thread in threads_to_remove:
+                self.timer_threads.remove(thread)
 
     def kill_timer(self):
         self.stop_timer()
