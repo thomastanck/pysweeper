@@ -14,12 +14,12 @@ class Debugger:
         self.master = master
         self.pysweep3 = pysweep3
         self.hooks = {
-            "pysweep3<ButtonPress-1>":   [self.handlebuttonpress],
-            "pysweep3<Motion>":          [self.handlemotion],
-            "pysweep3<Enter>":           [self.handleenter],
-            "pysweep3<ButtonRelease-1>": [self.handlebuttonrelease],
-            "pysweep3<KeyPress>":        [self.handledown],
-            "pysweep3<KeyRelease>":      [self.handleup],
+            ("pysweep3", "<ButtonPress-1>"):   [self.handlebuttonpress],
+            ("pysweep3", "<Motion>"):          [self.handlemotion],
+            ("pysweep3", "<Enter>"):           [self.handleenter],
+            ("pysweep3", "<ButtonRelease-1>"): [self.handlebuttonrelease],
+            ("pysweep3", "<KeyPress>"):        [self.handledown],
+            ("pysweep3", "<KeyRelease>"):      [self.handleup],
         }
         print("hi!")
     def handlebuttonpress(self, hn, e):

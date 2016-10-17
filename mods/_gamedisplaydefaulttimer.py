@@ -10,9 +10,9 @@ class GameDisplayDefaultTimer:
         self.master = master
         self.pysweep3 = pysweep3
         self.hooks = {
-            "pysweep3<ButtonPress-1>":   [self.onpress],
-            "pysweep3<ButtonRelease-1>": [self.onrelease],
-            "AllModsLoaded": [self.modsloaded],
+            ("pysweep3", "<ButtonPress-1>"):   [self.onpress],
+            ("pysweep3", "<ButtonRelease-1>"): [self.onrelease],
+            ("pysweep3", "AllModsLoaded"): [self.modsloaded],
         }
 
     def modsloaded(self, hn, e):

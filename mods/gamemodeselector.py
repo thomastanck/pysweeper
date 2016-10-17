@@ -9,7 +9,7 @@ class GameModeSelector:
         self.master = master
         self.pysweep3 = pysweep3
         self.hooks = {
-            "AllModsLoaded": [self.modsloaded],
+            ("pysweep3", "AllModsLoaded"): [self.modsloaded],
         }
 
         self.gamemodes = []
@@ -30,7 +30,7 @@ class GameModeSelector:
 
     def register_game_mode(self, gamemodename):
         if not self.menumod:
-            self.modsloaded("AllModsLoaded", None)
+            self.modsloaded(("pysweep3", "AllModsLoaded"), None)
 
         self.menu.insert_radiobutton(len(self.gamemodes), label=gamemodename, command=lambda gamemodename=gamemodename: self.set_game_mode(gamemodename))
         self.gamemodes.append(gamemodename)

@@ -24,20 +24,20 @@ class DummyGameMode:
         self.master = master
         self.pysweep3 = pysweep3
         self.hooks = {
-            "board<ButtonPress-1>":   [self.onpress],
-            "board<B1-Motion>":       [self.onmove],
-            "board<ButtonRelease-1>": [self.onrelease],
+            ("board", "<ButtonPress-1>"):   [self.onpress],
+            ("board", "<B1-Motion>"):       [self.onmove],
+            ("board", "<ButtonRelease-1>"): [self.onrelease],
 
-            "face_button<ButtonPress-1>":   [self.onpress_timer],
-            "face_button<ButtonRelease-1>": [self.onrelease_timer],
+            ("face_button", "<ButtonPress-1>"):   [self.onpress_timer],
+            ("face_button", "<ButtonRelease-1>"): [self.onrelease_timer],
 
-            "pysweep3<KeyPress>":   [self.onpress_timer],
-            "pysweep3<KeyRelease>": [self.onrelease_timer],
+            ("pysweep3", "<KeyPress>"):   [self.onpress_timer],
+            ("pysweep3", "<KeyRelease>"): [self.onrelease_timer],
 
-            "mine_counter<ButtonPress-1>":   [self.randomiseminecounter],
-            "timer<ButtonPress-1>":          [self.randomisetimer],
+            ("mine_counter", "<ButtonPress-1>"):   [self.randomiseminecounter],
+            ("timer", "<ButtonPress-1>"):          [self.randomisetimer],
 
-            "AllModsLoaded": [self.modsloaded],
+            ("pysweep3", "AllModsLoaded"): [self.modsloaded],
         }
         self.temporarily_down = []
 

@@ -11,10 +11,10 @@ class KeyboardClicker:
         self.master = master
         self.pysweep3 = pysweep3
         self.hooks = {
-            "pysweep3<KeyPress>":   [self.onpress],
-            "pysweep3<Motion>":     [self.onmove],
-            "pysweep3<KeyRelease>": [self.onrelease],
-            "AllModsLoaded": [self.modsloaded],
+            ("pysweep3", "<KeyPress>"):   [self.onpress],
+            ("pysweep3", "<Motion>"):     [self.onmove],
+            ("pysweep3", "<KeyRelease>"): [self.onrelease],
+            ("pysweep3", "AllModsLoaded"): [self.modsloaded],
         }
         self.temporarily_down = []
 
@@ -29,7 +29,7 @@ class KeyboardClicker:
         if self.clicking == 0 and hasattr(e, "char") and e.char == 'a':
             e.x, e.y = self.currentposition
             e.col, e.row = e.x//16, e.y//16
-            self.pysweep3.handle_event("board<ButtonPress-1>", e)
+            self.pysweep3.handle_event(("board", "<ButtonPress-1>"), e)
 
         if self.clicking < 2:
             self.clicking = 2
@@ -44,7 +44,7 @@ class KeyboardClicker:
             self.clicking = 0
             e.x, e.y = self.currentposition
             e.col, e.row = e.x//16, e.y//16
-            self.pysweep3.handle_event("board<ButtonRelease-1>", e)
+            self.pysweep3.handle_event(("board", "<ButtonRelease-1>"), e)
 
     def onmove(self, hn, e):
         self.currentposition = (
@@ -54,6 +54,6 @@ class KeyboardClicker:
         e.x, e.y = self.currentposition
         if self.clicking > 0:
             e.col, e.row = e.x//16, e.y//16
-            self.pysweep3.handle_event("board<B1-Motion>", e)
+            self.pysweep3.handle_event(("board", "<B1-Motion>"), e)
 
 mods = {"KeyboardClicker": KeyboardClicker}

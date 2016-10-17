@@ -19,13 +19,13 @@ class PySweep3:
     # In this case, it's "pysweep3".
     def bind_tkinter_event(self, event_name):
         if event_name not in self.bind_events:
-            hook = self.widget_bindname + event_name
+            hook = (self.widget_bindname, event_name)
             self.master.bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
             self.bind_events.append(event_name)
 
     def bind_tkinter_protocol(self, protocol_name):
         if protocol_name not in self.bind_protocols:
-            hook = self.widget_bindname + protocol_name
+            hook = (self.widget_bindname, protocol_name)
             self.master.protocol(protocol_name, lambda e=None,hook=hook: self.handle_event(hook, e))
             self.bind_protocols.append(protocol_name)
 
@@ -73,7 +73,7 @@ class PySweep3:
         for name, mod in self.mods.items():
             self.register_bindings(mod)
 
-        self.handle_event("AllModsLoaded", None)
+        self.handle_event(("pysweep3", "AllModsLoaded"), None)
 
     def is_mod(self, path):
         if os.path.isdir(path):
@@ -118,6 +118,7 @@ class PySweep3:
 
         # Then register their callbacks into our hooks dict
         for hook in moduleinstance.hooks:
+            print(type(hook))
             if hook in self.hooks:
                 self.hooks[hook].extend(moduleinstance.hooks[hook])
             else:

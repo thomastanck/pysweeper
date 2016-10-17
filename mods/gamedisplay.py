@@ -37,7 +37,7 @@ class GameDisplayWrapper:
             "timer":        self.display.panel.timer.canvas,
         }
         for event_name, widget_name in self.bind_events:
-            hook = widget_name + event_name
+            hook = (widget_name, event_name)
             widgets[widget_name].bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
 
     def bind_tkinter_event(self, event_name, widget_name):
@@ -49,7 +49,7 @@ class GameDisplayWrapper:
             "timer":        self.display.panel.timer.canvas,
         }
         if (event_name, widget_name) not in self.bind_events:
-            hook = widget_name + event_name
+            hook = (widget_name, event_name)
             widgets[widget_name].bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
             self.bind_events.append((event_name, widget_name))
 

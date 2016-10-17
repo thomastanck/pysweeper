@@ -7,8 +7,8 @@ class BoardSizeIncreaser:
         self.master = master
         self.pysweep3 = pysweep3
         self.hooks = {
-            "pysweep3<KeyPress>": [self.increaseboardsize],
-            "AllModsLoaded": [self.modsloaded],
+            ("pysweep3", "<KeyPress>"): [self.increaseboardsize],
+            ("pysweep3", "AllModsLoaded"): [self.modsloaded],
         }
 
         self.temporarily_down = []

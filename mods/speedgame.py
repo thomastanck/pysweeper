@@ -25,17 +25,17 @@ class SpeedGame:
         self.master = master
         self.pysweep3 = pysweep3
         self.hooks = {
-            "board<ButtonPress-1>":   [self.onpress],
-            "board<B1-Motion>":       [self.onmove],
-            "board<ButtonRelease-1>": [self.onrelease],
+            ("board", "<ButtonPress-1>"):   [self.onpress],
+            ("board", "<B1-Motion>"):       [self.onmove],
+            ("board", "<ButtonRelease-1>"): [self.onrelease],
 
-            "face_button<ButtonPress-1>":   [self.press_smiley],
-            "face_button<ButtonRelease-1>": [self.new_game],
+            ("face_button", "<ButtonPress-1>"):   [self.press_smiley],
+            ("face_button", "<ButtonRelease-1>"): [self.new_game],
 
-            "pysweep3<F2>": [self.new_game],
-            "pysweep3<F3>": [(lambda hn,e:self.reset_game())],
+            ("pysweep3", "<F2>"): [self.new_game],
+            ("pysweep3", "<F3>"): [(lambda hn,e:self.reset_game())],
 
-            "AllModsLoaded": [self.modsloaded],
+            ("pysweep3", "AllModsLoaded"): [self.modsloaded],
         }
         self.temporarily_down = []
         self.speed_game_squares = []
