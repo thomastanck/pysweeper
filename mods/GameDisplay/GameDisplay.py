@@ -24,6 +24,9 @@ class GameDisplayWrapper:
         self.bind_events = []
 
         self.center_window()
+        self.master.withdraw()
+        self.display.pack()
+        self.master.deiconify()
 
     def rebind_tkinter_events(self):
         widgets = {
@@ -64,9 +67,9 @@ class GameDisplayWrapper:
         self.rebind_tkinter_events()
 
     def center_window(self):
-        self.master.update_idletasks()
-        h = self.master.winfo_height()
-        w = self.master.winfo_width()
+        self.display.update_idletasks()
+        h = self.display.winfo_reqheight()
+        w = self.display.winfo_reqwidth()
 
         # get screen width and height
         ws = self.master.winfo_screenwidth() # width of the screen
@@ -187,8 +190,7 @@ class GameDisplay(tkinter.Frame):
         self.pysweep3 = pysweep3
         self.board_width = board_width
         self.board_height = board_height
-        super().__init__(master, width=board_width*16+24, height=board_height*16)
-        self.pack()
+        super().__init__(master, width=board_width*16+24, height=board_height*16+67)
         self.create_widgets()
 
     def set_timer(self, t):
