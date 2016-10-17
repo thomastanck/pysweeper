@@ -18,3 +18,7 @@ class Menu:
         self.menus.append((label, menu))
         self.menubar.add_cascade(label=label, menu=menu)
 
+    def remove_menu(self, label, menu):
+        if (label, menu) in self.menus:
+            i = self.menus.index((label, menu))
+            self.menubar.delete[i]

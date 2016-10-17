@@ -228,6 +228,13 @@ class Board(tkinter.Frame):
             self.canvas.itemconfig(tile_id, image=self.tile_images[tile_type])
             tile.state = tile_type
 
+    def reset_board(self):
+        width = self.board_width
+        height = self.board_height
+        for i in range(height):
+            for j in range(width):
+                self.set_tile(i, j, "unopened")
+
     def __init__(self, master, width, height):
         super().__init__(master)
         self.board_width = width
