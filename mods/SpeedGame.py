@@ -13,8 +13,8 @@ class SpeedGame:
         ("face_button", "<ButtonPress-1>"),
         ("face_button", "<ButtonRelease-1>"),
 
-        ("pysweep3", "<KeyPress>"),
-        ("pysweep3", "<KeyRelease>"),
+        ("pysweep3", "<F2>"),
+        ("pysweep3", "<F3>"),
 
         ("mine_counter", "<ButtonPress-1>"),
         ("timer", "<ButtonPress-1>"),
@@ -30,10 +30,10 @@ class SpeedGame:
             "board<ButtonRelease-1>": [self.onrelease],
 
             "face_button<ButtonPress-1>":   [self.press_smiley],
-            "face_button<ButtonRelease-1>": [self.release_smiley, self.new_game],
+            "face_button<ButtonRelease-1>": [self.new_game],
 
             "pysweep3<F2>": [self.new_game],
-            "pysweep3<F3>": [self.reset_game],
+            "pysweep3<F3>": [(lambda hn,e:self.reset_game())],
 
             "AllModsLoaded": [self.modsloaded],
         }
@@ -58,11 +58,6 @@ class SpeedGame:
             return
         self.gamedisplay.display.panel.face_button.set_face("pressed")
 
-    def release_smiley(self, hn, e):
-        if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
-            return
-        self.gamedisplay.display.panel.face_button.set_face("happy")
-
     def new_game(self, hn, e):
         if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
             return
@@ -77,8 +72,10 @@ class SpeedGame:
             if rand not in squares:
                 squares.append(rand)
                 i += 1
-        self.speed_game_squares = squares
+        self.speed_game_squares = squares[:]
+        self.speed_game_original = squares[:]
         self.reset_game()
+        self.gamedisplay.display.panel.face_button.set_face("happy")
         self.timer.start_timer()
 
     def reset_game(self):
@@ -86,12 +83,16 @@ class SpeedGame:
             return
         width, height = self.gamedisplay.size
         area = width*height
-        squares = self.speed_game_squares
+        print(self.speed_game_original)
+        squares = self.speed_game_original[:]
+        self.speed_game_squares = squares[:]
         for i in range(area):
             row = i//width
             col = i%width
             tile = "unopened" if i in squares else "tile_0"
             self.set_tile(row, col, tile)
+        self.gamedisplay.display.panel.face_button.set_face("happy")
+        self.timer.start_timer()
 
     def onpress(self, hn, e):
         if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
