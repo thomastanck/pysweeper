@@ -8,17 +8,32 @@ class GameModeSelector:
     def __init__(self, master, pysweep3):
         self.master = master
         self.pysweep3 = pysweep3
-        self.window = tkinter.Toplevel(self.master)
-        self.window.title("Game Mode")
-        # self.window
+        self.hooks = {
+            "AllModsLoaded": [self.modsloaded],
+        }
+
         self.gamemodes = []
+        self.currentgamemode = None
+        self.menumod = None
+
+    def modsloaded(self, e):
+        if not self.menumod:
+            self.menumod = self.pysweep3.mods["Menu"]
+            self.menu = tkinter.Menu(self.menumod.menubar, tearoff=0)
+            self.menu.add_separator()
+            self.menu.add_radiobutton(label="None", command=self.cancel)
+            self.menu.invoke(1)
+            self.menumod.add_menu("Game", self.menu)
+
+    def cancel(self):
         self.currentgamemode = None
 
     def register_game_mode(self, gamemodename):
-        self.gamemodes.append(gamemodename)
-        button = tkinter.Button(self.window, text=gamemodename, command=lambda gamemodename=gamemodename: self.set_game_mode(gamemodename))
+        if not self.menumod:
+            self.modsloaded(None)
 
-        button.pack()
+        self.menu.insert_radiobutton(len(self.gamemodes), label=gamemodename, command=lambda gamemodename=gamemodename: self.set_game_mode(gamemodename))
+        self.gamemodes.append(gamemodename)
 
     def set_game_mode(self, gamemodename):
         self.currentgamemode = gamemodename
