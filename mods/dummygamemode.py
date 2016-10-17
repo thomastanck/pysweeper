@@ -104,6 +104,7 @@ class DummyGameMode:
                 self.set_tile(row, col, "tile_0")
 
     def onmove(self, hn, e):
+        print(e.state)
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
         self.onpress(hn, e)
