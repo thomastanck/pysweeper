@@ -83,7 +83,6 @@ class SpeedGame:
             return
         width, height = self.gamedisplay.size
         area = width*height
-        print(self.speed_game_original)
         squares = self.speed_game_original[:]
         self.speed_game_squares = squares[:]
         for i in range(area):

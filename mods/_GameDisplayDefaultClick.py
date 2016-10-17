@@ -1,16 +1,15 @@
 class GameDisplayDefaultClick:
     hooks = {}
-    required_events = [] # We don't need events from master, we need events from board.canvas!
+    required_events = [
+        ("board", "<ButtonPress-1>"),
+        ("board", "<B1-Motion>"),
+        ("board", "<ButtonRelease-1>"),
+    ]
     required_protocols = []
 
     def __init__(self, master, pysweep3):
         self.master = master
         self.pysweep3 = pysweep3
-        self.necessaryboardbindings = [
-            ("board", "<ButtonPress-1>"),
-            ("board", "<B1-Motion>"),
-            ("board", "<ButtonRelease-1>"),
-        ]
         self.hooks = {
             "board<ButtonPress-1>":   [self.onpress],
             "board<B1-Motion>":       [self.onmove],
@@ -21,10 +20,6 @@ class GameDisplayDefaultClick:
 
     def modsloaded(self, hn, e):
         self.gamedisplay = self.pysweep3.mods["GameDisplay"]
-
-        # request board to bind our stuff
-        for event_name in self.necessaryboardbindings:
-            self.gamedisplay.bind_tkinter_event(event_name)
 
     def get_tile_type(self, i, j):
         board = self.gamedisplay.board

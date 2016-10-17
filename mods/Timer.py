@@ -27,7 +27,7 @@ class TimerObj:
         self.current_time = 0
         self.stop_time = 0
         self.timing_mode = False
-        self.poll_freq = max(int(resolution/100*1000), 1)
+        self.poll_freq = max(int(resolution/100*1000), 1) # poll 100 times faster than the requested resolution, then convert to milliseconds. not sure if we should do this.
 
     def start_timer(self):
         self.start_time = time.time()
