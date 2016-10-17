@@ -24,15 +24,15 @@ def powoftwo(n):
 
 class HashRandom:
     def __init__(self):
-        self.entropy = ''
+        self.source = ''
         self.hasher = hashlib.sha512()
 
     def update(self, updatestring):
-        self.entropy += updatestring
+        self.source += updatestring
         self.hasher.update(updatestring.encode('utf-8'))
 
-    def get_entropy(self):
-        return self.entropy
+    def get_source(self):
+        return self.source
 
     def random(self, numerator, denominator, updatestring="CATS"):
         # numerator = number of mines
@@ -42,7 +42,7 @@ class HashRandom:
         i = 0
         while True:
             update = "{} {}\n".format(updatestring, str(i))
-            self.entropy += update
+            self.source += update
             self.hasher.update(update.encode('utf-8'))
 
             digest = self.hasher.hexdigest()
