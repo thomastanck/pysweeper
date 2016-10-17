@@ -11,7 +11,7 @@ class DummyGameMode:
         self.necessaryboardbindings = [
             "<ButtonPress-1>",
             "<B1-Motion>",
-            "<ButtonRelease-1>"
+            "<ButtonRelease-1>",
         ]
         self.hooks = {
             "boardcanvas<ButtonPress-1>":   [self.onpress],

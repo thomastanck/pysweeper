@@ -11,12 +11,11 @@ class PySweep3:
         self.hook_prefix = "pysweep3"
         self.bind_events = []
         self.bind_protocols = []
-        self.load_mods()
+        self.load_pysweep3_mods()
 
     def bind_tkinter_event(self, event_name):
         if event_name not in self.bind_events:
             hook = self.hook_prefix + event_name
-            # self.master.bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
             self.master.bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
             self.bind_events.append(event_name)
 
@@ -26,7 +25,7 @@ class PySweep3:
             self.master.protocol(protocol_name, lambda e=None,hook=hook: self.handle_event(hook, e))
             self.bind_protocols.append(protocol_name)
 
-    def load_mods(self):
+    def load_pysweep3_mods(self):
         # Mods dictionary
         # Key is the module name (directory name if package, filename without .py extension if file)
         # Value is a tuple containing the path to the module and either imp.PY_SOURCE or imp.PKG_DIRECTORY
@@ -38,21 +37,8 @@ class PySweep3:
         # A dictionary with hook strings as keys and a list of callbacks as values
         self.hooks = {}
 
-        # pysweep3hooklist = [
-        #     ("<ButtonPress-1>", "pysweep3<ButtonPress-1>"),
-        #     ("<B1-Motion>", "pysweep3<B1-Motion>"),
-        #     ("<ButtonRelease-1>", "pysweep3<ButtonRelease-1>"),
-        #     ("<Motion>", "pysweep3<Motion>"),
-        #     ("<Enter>", "pysweep3<Enter>"),
-        #     ("<Leave>", "pysweep3<Leave>"),
-        #     ("<KeyPress>", "pysweep3<KeyPress>"),
-        #     ("<KeyRelease>", "pysweep3<KeyRelease>"),
-        # ]
-        # for hook in pysweep3hooklist:
-        #     self.master.bind(hook[0], lambda e,hook=hook[1]: self.handle_event(hook, e))
-
         # load mods here
-        alreadyfound = self.get_mods('mods')
+        alreadyfound = self.find_mods('mods')
         print("Files found: {}".format(alreadyfound))
         print("Mods found: {}".format(self.mods_list))
 
@@ -61,11 +47,9 @@ class PySweep3:
             if hasattr(module, name):
                 moduleclass = getattr(module, name)
                 print("Attempting to load mod {}".format(name))
-                moduleinstance = self.get_moduleinstance(moduleclass)
+                moduleinstance = self.load_mod(moduleclass, name)
                 if moduleinstance != None:
                     print("Loaded mod {}".format(name))
-                    self.mods[name] = moduleinstance
-                    self.register_hooks(moduleinstance)
                 else:
                     print("{} is an invalid mod".format(name))
         print("Mods loaded: {}".format(list(self.mods.keys())))
@@ -90,10 +74,12 @@ class PySweep3:
     def ignore_file(self, path):
         return os.path.basename(path).startswith(".")
 
-    def get_moduleinstance(self, moduleclass):
+    def load_mod(self, moduleclass, name):
         if inspect.isclass(moduleclass):
             moduleinstance = moduleclass(self.master, self)
             if (hasattr(moduleinstance, "hooks") and isinstance(moduleclass.hooks, dict)):
+                self.mods[name] = moduleinstance
+                self.register_hooks(moduleinstance)
                 return moduleinstance
         return None
 
@@ -113,7 +99,7 @@ class PySweep3:
             else:
                 self.hooks[hook] = moduleinstance.hooks[hook]
 
-    def get_mods(self, path, alreadyfound=[]):
+    def find_mods(self, path, alreadyfound=[]):
         # Finds mods in path recursively
         # alreadyfound keeps track of every file and directory we've accessed
         for mod in os.listdir(path):
@@ -134,7 +120,7 @@ class PySweep3:
                         self.mods_list[modname] = (mod, imp.PKG_DIRECTORY)
                     else:
                         # Was not a package mod, recurse to find more mods inside
-                        alreadyfound = self.get_mods(mod, alreadyfound)
+                        alreadyfound = self.find_mods(mod, alreadyfound)
 
             elif os.path.isfile(mod) and not self.ignore_file(mod):
                 # FILE
