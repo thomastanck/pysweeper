@@ -28,8 +28,8 @@ class DummyGameMode:
             ("board", "<B1-Motion>"):       [self.onmove],
             ("board", "<ButtonRelease-1>"): [self.onrelease],
 
-            ("face_button", "<ButtonPress-1>"):   [self.onpress_timer],
-            ("face_button", "<ButtonRelease-1>"): [self.onrelease_timer],
+            ("face_button", "<ButtonPress-1>"):   [self.onpress_smiley],
+            ("face_button", "<ButtonRelease-1>"): [self.onrelease_smiley],
 
             ("pysweep3", "<KeyPress>"):   [self.onpress_timer],
             ("pysweep3", "<KeyRelease>"): [self.onrelease_timer],
@@ -62,6 +62,18 @@ class DummyGameMode:
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
         self.timer.stop_timer()
+
+    def onpress_smiley(self, hn, e):
+        if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
+            return
+        self.gamedisplay.display.panel.face_button.set_face("pressed")
+        self.gamedisplay.display.board.reset_board()
+
+    def onrelease_smiley(self, hn, e):
+        if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
+            return
+        self.gamedisplay.display.panel.face_button.set_face("happy")
+        self.gamedisplay.display.board.reset_board()
 
     def randomiseminecounter(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
