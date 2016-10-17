@@ -72,11 +72,8 @@ class SpeedGame:
             if rand not in squares:
                 squares.append(rand)
                 i += 1
-        self.speed_game_squares = squares[:]
         self.speed_game_original = squares[:]
         self.reset_game()
-        self.gamedisplay.display.panel.face_button.set_face("happy")
-        self.timer.start_timer()
 
     def reset_game(self):
         if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):

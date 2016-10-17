@@ -32,11 +32,11 @@ class TimerObj:
     def start_timer(self):
         self.start_time = time.time()
         self.current_time = self.start_time
-        self.timing_mode = True
-
         self.callback(0, 0)
 
-        self.poll_timer()
+        if self.timing_mode == False:
+            self.timing_mode = True
+            self.poll_timer()
         # self.master.after(self.poll_freq, self.poll_timer)
 
     def poll_timer(self):

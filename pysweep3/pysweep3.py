@@ -118,7 +118,6 @@ class PySweep3:
 
         # Then register their callbacks into our hooks dict
         for hook in moduleinstance.hooks:
-            print(type(hook))
             if hook in self.hooks:
                 self.hooks[hook].extend(moduleinstance.hooks[hook])
             else:
