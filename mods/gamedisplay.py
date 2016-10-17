@@ -23,9 +23,9 @@ class GameDisplayWrapper:
         }
         self.bind_events = []
 
-        self.center_window()
         self.master.withdraw()
         self.display.pack()
+        self.center_window()
         self.master.deiconify()
 
     def rebind_tkinter_events(self):
