@@ -26,13 +26,15 @@ class KeyboardClicker:
         pass
 
     def onpress(self, hn, e):
-        if self.clicking == 0 and hasattr(e, "char") and e.char == 'a':
-            e.x, e.y = self.currentposition
-            e.col, e.row = e.x//16, e.y//16
-            self.pysweep3.handle_event(("board", "<ButtonPress-1>"), e)
+        if hasattr(e, "char") and e.char == 'a':
+            if self.clicking == 0:
+                e.x, e.y = self.currentposition
+                e.col, e.row = e.x//16, e.y//16
+                self.pysweep3.handle_event(("board", "<ButtonPress-1>"), e)
 
-        if self.clicking < 2:
-            self.clicking = 2
+            if self.clicking < 2:
+                print("Keyboard Click!")
+                self.clicking = 2
 
     def onrelease(self, hn, e):
         if hasattr(e, "char") and e.char == 'a':
