@@ -7,14 +7,14 @@ class GameDisplayDefaultClick:
         self.master = master
         self.pysweep3 = pysweep3
         self.necessaryboardbindings = [
-            "<ButtonPress-1>",
-            "<B1-Motion>",
-            "<ButtonRelease-1>"
+            ("board", "<ButtonPress-1>"),
+            ("board", "<B1-Motion>"),
+            ("board", "<ButtonRelease-1>"),
         ]
         self.hooks = {
-            "boardcanvas<ButtonPress-1>":   [self.onpress],
-            "boardcanvas<B1-Motion>":       [self.onmove],
-            "boardcanvas<ButtonRelease-1>": [self.onrelease],
+            "board<ButtonPress-1>":   [self.onpress],
+            "board<B1-Motion>":       [self.onmove],
+            "board<ButtonRelease-1>": [self.onrelease],
             "AllModsLoaded": [self.modsloaded],
         }
         self.temporarily_down = []

@@ -1,7 +1,7 @@
 class WindowCloser:
     hooks = {}
     required_events = []
-    required_protocols = ["WM_DELETE_WINDOW"]
+    required_protocols = [("pysweep3", "WM_DELETE_WINDOW")]
 
     def __init__(self, master, pysweep3):
         self.master = master

@@ -1,6 +1,6 @@
 class BoardSizeIncreaser:
     hooks = {}
-    required_events = ["<KeyPress>"]
+    required_events = [("pysweep3", "<KeyPress>")]
     required_protocols = []
 
     def __init__(self, master, pysweep3):

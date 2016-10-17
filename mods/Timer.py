@@ -12,13 +12,13 @@ class Timer:
         # This mod is pretty benign and doesn't do much except give other mods TimerObj's
         self.timers = [] # A list of timers it has made
 
-    def get_timer(self, callback):
-        timerobj = TimerObj(self.master, callback)
+    def get_timer(self, callback, resolution=1):
+        timerobj = TimerObj(self.master, callback, resolution)
         self.timers.append(timerobj)
         return timerobj
 
 class TimerObj:
-    def __init__(self, master, callback, resolution=1):
+    def __init__(self, master, callback, resolution):
         # calls callback whenever the time changes more than resolution (which will be every second by default)
         self.master = master
         self.callback = callback
@@ -27,7 +27,7 @@ class TimerObj:
         self.current_time = 0
         self.stop_time = 0
         self.timing_mode = False
-        self.poll_freq = int(resolution/100*1000)
+        self.poll_freq = max(int(resolution/100*1000), 1)
 
     def start_timer(self):
         self.start_time = time.time()
@@ -36,7 +36,8 @@ class TimerObj:
 
         self.callback(0, 0)
 
-        self.master.after(self.poll_freq, self.poll_timer)
+        self.poll_timer()
+        # self.master.after(self.poll_freq, self.poll_timer)
 
     def poll_timer(self):
         if self.timing_mode == True:

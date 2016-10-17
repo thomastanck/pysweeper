@@ -4,6 +4,7 @@ import time
 
 class GameDisplayWrapper:
     hooks = {}
+    bindable_widgets = {}
     required_events = []
     required_protocols = []
 
@@ -12,23 +13,42 @@ class GameDisplayWrapper:
         self.pysweep3 = pysweep3
         self.size = (30, 16) # Default size is expert
         self.display = GameDisplay(master, self.pysweep3, *self.size)
-        self.board = self.display.board
 
-        self.hook_prefix = "boardcanvas"
+        self.bindable_widgets = {
+            "board":        {"bindevent": lambda e_n,widget_name="board":        self.bind_tkinter_event(e_n, widget_name)},
+            "panel":        {"bindevent": lambda e_n,widget_name="panel":        self.bind_tkinter_event(e_n, widget_name)},
+            "mine_counter": {"bindevent": lambda e_n,widget_name="mine_counter": self.bind_tkinter_event(e_n, widget_name)},
+            "face_button":  {"bindevent": lambda e_n,widget_name="face_button":  self.bind_tkinter_event(e_n, widget_name)},
+            "timer":        {"bindevent": lambda e_n,widget_name="timer":        self.bind_tkinter_event(e_n, widget_name)},
+        }
         self.bind_events = []
 
         self.center_window()
 
     def rebind_tkinter_events(self):
-        for event_name in self.bind_events:
-            hook = self.hook_prefix + event_name
-            self.board.canvas.bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
+        widgets = {
+            "board":        self.display.board.canvas,
+            "panel":        self.display.panel,
+            "mine_counter": self.display.panel.mine_counter.canvas,
+            "face_button":  self.display.panel.face_button.canvas,
+            "timer":        self.display.panel.timer.canvas,
+        }
+        for event_name, widget_name in self.bind_events:
+            hook = widget_name + event_name
+            widgets[widget_name].bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
 
-    def bind_tkinter_event(self, event_name):
-        if event_name not in self.bind_events:
-            hook = self.hook_prefix + event_name
-            self.board.canvas.bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
-            self.bind_events.append(event_name)
+    def bind_tkinter_event(self, event_name, widget_name):
+        widgets = {
+            "board":        self.display.board.canvas,
+            "panel":        self.display.panel,
+            "mine_counter": self.display.panel.mine_counter.canvas,
+            "face_button":  self.display.panel.face_button.canvas,
+            "timer":        self.display.panel.timer.canvas,
+        }
+        if (event_name, widget_name) not in self.bind_events:
+            hook = widget_name + event_name
+            widgets[widget_name].bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
+            self.bind_events.append((event_name, widget_name))
 
     def handle_event(self, hook, e):
         e.row = e.y//16
@@ -41,14 +61,12 @@ class GameDisplayWrapper:
         self.display.pack_forget()
         self.display.destroy()
         self.display = GameDisplay(self.master, self.pysweep3, *self.size)
-        self.board = self.display.board
         self.rebind_tkinter_events()
 
     def center_window(self):
-
         self.master.update_idletasks()
-        h = self.display.board.winfo_height()
-        w = self.display.board.winfo_width()
+        h = self.master.winfo_height()
+        w = self.master.winfo_width()
 
         # get screen width and height
         ws = self.master.winfo_screenwidth() # width of the screen
@@ -63,6 +81,7 @@ class GameDisplayWrapper:
 class GameDisplay(tkinter.Frame):
     border_images = {}
     def create_widgets(self):
+        # Grid row 0: Top border
         grid_row = 0
         self.border_top_left = tkinter.Canvas(self, width=12, height=15,
                                               highlightthickness=0)
@@ -73,6 +92,8 @@ class GameDisplay(tkinter.Frame):
         self.border_top_left.grid(row=grid_row, column=0)
         self.border_top.grid(row=grid_row, column=1)
         self.border_top_right.grid(row=grid_row, column=2)
+
+        # Grid row 1: Left and right borders, Panel
         grid_row = 1
         self.border_panel_left = tkinter.Canvas(self, width=12, height=26,
                                              highlightthickness=0)
@@ -83,6 +104,7 @@ class GameDisplay(tkinter.Frame):
         self.panel.grid(row=grid_row, column=1, sticky="nesw")
         self.border_panel_right.grid(row=grid_row, column=2)
 
+        # Grid row 2: Middle divider between Panel and Board
         grid_row = 2
         self.border_mid_left = tkinter.Canvas(self, width=12, height=14,
                                               highlightthickness=0)
@@ -94,6 +116,7 @@ class GameDisplay(tkinter.Frame):
         self.border_mid.grid(row=grid_row, column=1)
         self.border_mid_right.grid(row=grid_row, column=2)
 
+        # Set up Board widget
         self.border_left = tkinter.Canvas(self, width=12,
                                           height=16*self.board_height)
         self.border_left.config(highlightthickness=0)
@@ -102,11 +125,13 @@ class GameDisplay(tkinter.Frame):
                                            height=16*self.board_height)
         self.border_right.config(highlightthickness=0)
 
+        # Grid row 3: Left and right board boarder, Board
         grid_row = 3
         self.border_left.grid(row=grid_row, column=0)
         self.board.grid(row=grid_row, column=1)
         self.border_right.grid(row=grid_row, column=2)
 
+        # Grid row 4: Bottom board border
         grid_row = 4
         self.border_bot_left = tkinter.Canvas(self, width=12, height=12,
                                               highlightthickness=0)
@@ -118,9 +143,7 @@ class GameDisplay(tkinter.Frame):
         self.border_bot.grid(row=grid_row, column=1)
         self.border_bot_right.grid(row=grid_row, column=2)
 
-
         self.init_border()
-
 
     def init_border(self):
         for key in ('l', 'r', 'bot_l', 'bot', 'bot_r', 'mid_l', 'mid', 'mid_r',
@@ -222,29 +245,43 @@ class Counter(tkinter.Frame):
     def create_widgets(self):
         self.digits = []
         display_width = self.display_width
-        for i in range(display_width):
-            digit = Digit(self)
-            digit.grid(row=1, column=i+1)
-            self.digits.append(digit)
 
+        # Digits canvas. I put them all in the same canvas so we can bind
+        # events to this canvas rather than many events to each individual digit.
+        # Another way would be to use bind tags so we can listen to events from
+        # the parent container (Counter), but it doesn't fit in nicely with
+        # the current events system.
+        self.canvas = tkinter.Canvas(self, width=13*display_width, height=23,
+                         highlightthickness=0)
+        for i in range(display_width):
+            digit = Digit(self.canvas, i)
+            self.digits.append(digit)
+        self.canvas.grid(row=1,column=1,columnspan=display_width)
+
+        # Left border
         self.border_left = tkinter.Canvas(self, width=1, height=25,
                                           highlightthickness=0)
         self.border_left.create_image((0,0), anchor='nw',
                                       image=self.border_images['l'])
+        # Top border
         self.border_top = tkinter.Canvas(self, width=13*display_width,
                                          height=1, highlightthickness=0)
         for i in range(display_width):
             self.border_top.create_image((13*i,0), anchor='nw',
                                          image=self.border_images['t'])
+        # Bottom border
         self.border_bot = tkinter.Canvas(self, width=13*display_width,
                                          height=1, highlightthickness=0)
         for i in range(display_width):
             self.border_bot.create_image((13*i,0), anchor='nw',
                                          image=self.border_images['b'])
+        # Right border
         self.border_right = tkinter.Canvas(self, width=1, height=25,
                                            highlightthickness=0)
         self.border_right.create_image((0,0), anchor='nw',
                                        image=self.border_images['r'])
+
+        # Grid the borders in
         self.border_left.grid(column=0, rowspan=3, row=0)
         self.border_top.grid(column=1, row=0, columnspan=display_width)
         self.border_right.grid(column=display_width+1, rowspan=3, row=0)
@@ -288,23 +325,23 @@ class Counter(tkinter.Frame):
             self.digits[digits-1-j].set_value('off')
 
 
-class Digit(tkinter.Canvas):
+class Digit:
     digits = {}
-    def __init__(self, master):
-        super().__init__(master, width=13, height=23,
-                         highlightthickness=0)
+    def __init__(self, mastercanvas, i):
+        self.mastercanvas = mastercanvas
+        self.i = i
         self.init_digits()
-        self.image_reference = self.create_image((0, 0), anchor='nw')
+        self.image_reference = self.mastercanvas.create_image((i*13, 0), anchor='nw')
         self.set_value(0)
 
     def init_digits(self):
-        if not self.digits:
+        if not Digit.digits:
             for i in list(range(10)) + ['-', 'off']:
                 img = Image.open("images/counter_{}.png".format(i))
                 Digit.digits[i] = ImageTk.PhotoImage(img)
 
     def set_value(self, n):
-        self.itemconfig(self.image_reference, image=self.digits[n])
+        self.mastercanvas.itemconfig(self.image_reference, image=Digit.digits[n])
 
 class Panel(tkinter.Frame):
     def __init__(self, master, board_width):

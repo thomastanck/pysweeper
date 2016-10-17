@@ -1,12 +1,12 @@
 class Debugger:
     hooks = {}
     required_events = [
-        "<ButtonPress-1>",
-        "<Motion>",
-        "<Enter>",
-        "<ButtonRelease-1>",
-        "<KeyPress>",
-        "<KeyRelease>",
+        ("pysweep3", "<ButtonPress-1>"),
+        ("pysweep3", "<Motion>"),
+        ("pysweep3", "<Enter>"),
+        ("pysweep3", "<ButtonRelease-1>"),
+        ("pysweep3", "<KeyPress>"),
+        ("pysweep3", "<KeyRelease>"),
     ]
     required_protocols = []
 

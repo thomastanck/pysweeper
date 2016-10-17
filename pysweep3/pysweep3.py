@@ -8,20 +8,24 @@ import tkinter
 class PySweep3:
     def __init__(self, master):
         self.master = master
-        self.hook_prefix = "pysweep3"
         self.bind_events = []
         self.bind_protocols = []
+        self.widget_bindname = "pysweep3"
+        self.bindable_widgets = {"pysweep3": {"bindevent": self.bind_tkinter_event, "bindprotocol": self.bind_tkinter_protocol}}
         self.load_pysweep3_mods()
 
+    # this is a bindable_widgets so it must implement these two functions.
+    # The "name" of the bindable widget is also the prefix to the event_name used for the hook.
+    # In this case, it's "pysweep3".
     def bind_tkinter_event(self, event_name):
         if event_name not in self.bind_events:
-            hook = self.hook_prefix + event_name
+            hook = self.widget_bindname + event_name
             self.master.bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
             self.bind_events.append(event_name)
 
     def bind_tkinter_protocol(self, protocol_name):
         if protocol_name not in self.bind_protocols:
-            hook = self.hook_prefix + protocol_name
+            hook = self.widget_bindname + protocol_name
             self.master.protocol(protocol_name, lambda e=None,hook=hook: self.handle_event(hook, e))
             self.bind_protocols.append(protocol_name)
 
@@ -53,6 +57,9 @@ class PySweep3:
                 else:
                     print("{} is an invalid mod".format(name))
         print("Mods loaded: {}".format(list(self.mods.keys())))
+        print("Registering bindings")
+        for name, mod in self.mods.items():
+            self.register_bindings(mod)
 
         self.handle_event("AllModsLoaded", None)
 
@@ -83,14 +90,19 @@ class PySweep3:
                 return moduleinstance
         return None
 
-    def register_hooks(self, moduleinstance):
-        # First check if it requires any event or protocol bindings.
+    def register_bindings(self, moduleinstance):
         if hasattr(moduleinstance, "required_events"):
-            for event_name in moduleinstance.required_events:
-                self.bind_tkinter_event(event_name)
+            for widget_name, event_name in moduleinstance.required_events:
+                self.bindable_widgets[widget_name]["bindevent"](event_name)
         if hasattr(moduleinstance, "required_protocols"):
-            for protocol_name in moduleinstance.required_protocols:
-                self.bind_tkinter_protocol(protocol_name)
+            for widget_name, protocol_name in moduleinstance.required_protocols:
+                self.bindable_widgets[widget_name]["bindprotocol"](protocol_name)
+
+    def register_hooks(self, moduleinstance):
+        # Check if they have any widgets they want to allow other mods to bind to.
+        if hasattr(moduleinstance, "bindable_widgets"):
+            for name, widget in moduleinstance.bindable_widgets.items():
+                self.bindable_widgets[name] = widget
 
         # Then register their callbacks into our hooks dict
         for hook in moduleinstance.hooks:

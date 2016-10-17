@@ -1,8 +1,8 @@
 class GameDisplayDefaultTimer:
     hooks = {}
     required_events = [
-        "<ButtonPress-1>",
-        "<ButtonRelease-1>",
+        ("pysweep3", "<ButtonPress-1>"),
+        ("pysweep3", "<ButtonRelease-1>"),
     ]
     required_protocols = []
 
