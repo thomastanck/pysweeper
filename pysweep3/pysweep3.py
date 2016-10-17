@@ -31,9 +31,13 @@ class PySweep3:
 
     def load_pysweep3_mods(self):
         # Mods dictionary
-        # Key is the module name (directory name if package, filename without .py extension if file)
+        # Key is the package name (directory name if package, filename without .py extension if file)
         # Value is a tuple containing the path to the module and either imp.PY_SOURCE or imp.PKG_DIRECTORY
-        self.mods_list = {}
+        self.mods_path_dict = {}
+
+        # Mod classes dict
+        # Key is mod name, value is the mod's class
+        self.mod_classes = {}
 
         # Dict of mods we've loaded (name: moduleinstance)
         self.mods = {}
@@ -44,18 +48,26 @@ class PySweep3:
         # load mods here
         alreadyfound = self.find_mods('mods')
         print("Files found: {}".format(alreadyfound))
-        print("Mods found: {}".format(self.mods_list))
+        print("Mods found: {}".format(self.mods_path_dict))
 
-        for name, mod in self.mods_list.items():
-            module, _ = self.import_mod(name, mod[0], mod[1])
-            if hasattr(module, name):
-                moduleclass = getattr(module, name)
-                print("Attempting to load mod {}".format(name))
-                moduleinstance = self.load_mod(moduleclass, name)
-                if moduleinstance != None:
-                    print("Loaded mod {}".format(name))
-                else:
-                    print("{} is an invalid mod".format(name))
+        # Paths -> Classes
+        for package_name, mod in self.mods_path_dict.items():
+            module, _ = self.import_mod(package_name, mod[0], mod[1])
+            if hasattr(module, "mods"):
+                for modname, modclass in module.mods.items():
+                    self.mod_classes[modname] = modclass
+            else:
+                print("Could not find mods in {}".format(package_name))
+
+        # Classes -> Instances
+        for name, modclass in self.mod_classes.items():
+            print("Attempting to load mod {}".format(name))
+            moduleinstance = self.load_mod(modclass, name)
+            if moduleinstance != None:
+                print("Loaded mod {}".format(name))
+            else:
+                print("{} is an invalid mod".format(name))
+
         print("Mods loaded: {}".format(list(self.mods.keys())))
         print("Registering bindings")
         for name, mod in self.mods.items():
@@ -129,7 +141,7 @@ class PySweep3:
                     alreadyfound.append(mod)
                     if self.is_package_mod(mod):
                         modname = os.path.basename(mod)
-                        self.mods_list[modname] = (mod, imp.PKG_DIRECTORY)
+                        self.mods_path_dict[modname] = (mod, imp.PKG_DIRECTORY)
                     else:
                         # Was not a package mod, recurse to find more mods inside
                         alreadyfound = self.find_mods(mod, alreadyfound)
@@ -146,7 +158,7 @@ class PySweep3:
                     alreadyfound.append(mod)
                     if self.is_file_mod(mod):
                         modname = os.path.basename(mod)[:-3]
-                        self.mods_list[modname] = (mod, imp.PY_SOURCE)
+                        self.mods_path_dict[modname] = (mod, imp.PY_SOURCE)
         return alreadyfound
 
     def import_mod(self, name, path, type_):

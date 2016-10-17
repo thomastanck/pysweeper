@@ -56,3 +56,4 @@ class KeyboardClicker:
             e.col, e.row = e.x//16, e.y//16
             self.pysweep3.handle_event("board<B1-Motion>", e)
 
+mods = {"KeyboardClicker": KeyboardClicker}

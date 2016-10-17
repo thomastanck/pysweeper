@@ -20,3 +20,5 @@ class BoardSizeIncreaser:
         width, height = self.gamedisplay.size
         width += 1
         self.gamedisplay.set_size(width, height)
+
+mods = {"BoardSizeIncreaser": BoardSizeIncreaser}

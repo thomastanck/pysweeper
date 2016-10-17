@@ -67,3 +67,5 @@ class TimerObj:
     def kill_timer(self):
         self.stop_timer()
         # We don't really need to clean up in this version
+
+mods = {"Timer": Timer}

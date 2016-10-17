@@ -36,3 +36,4 @@ class Debugger:
     def handleup(self, hn, e):
         print("up {}".format(e.keycode))
 
+mods = {"Debugger": Debugger}

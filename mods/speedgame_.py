@@ -153,3 +153,5 @@ class SpeedGame:
             self.set_tile(x, y, "unopened")
         if add_back:
             self.temporarily_down.append((avoid_x, avoid_y))
+
+mods = {"SpeedGame": SpeedGame}

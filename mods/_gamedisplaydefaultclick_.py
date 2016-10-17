@@ -71,3 +71,5 @@ class GameDisplayDefaultClick:
         height = board.board_height
         if (0 <= col < width and 0 <= row < height):
             self.set_tile(row, col, "tile_0")
+
+mods = {"GameDisplayDefaultClick": GameDisplayDefaultClick}

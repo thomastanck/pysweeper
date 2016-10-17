@@ -40,3 +40,5 @@ class GameModeSelector:
 
     def is_enabled(self, gamemodename):
         return self.currentgamemode == gamemodename
+
+mods = {"GameModeSelector": GameModeSelector}

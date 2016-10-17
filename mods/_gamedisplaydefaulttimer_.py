@@ -28,3 +28,5 @@ class GameDisplayDefaultTimer:
 
     def onrelease(self, hn, e):
         self.timer.stop_timer()
+
+mods = {"GameDisplayDefaultTimer": GameDisplayDefaultTimer}
