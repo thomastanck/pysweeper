@@ -23,6 +23,9 @@ class BoardGeneratorTest:
             ("pysweep3", "<F2>"): [self.generate_mines],
 
             ("pysweep3", "AllModsLoaded"): [self.modsloaded],
+
+            ("gamemode", "EnableGameMode"): [self.log],
+            ("gamemode", "DisableGameMode"): [self.log],
         }
 
     def modsloaded(self, hn, e):
@@ -54,6 +57,7 @@ class BoardGeneratorTest:
         squares_left = area
         for row in range(height):
             for col in range(width):
+                self.rng.update("GEN {} {}\n".format(row, col))
                 ismine = self.rng.random(mines_left, squares_left)
                 squares_left -= 1
                 if ismine:
@@ -64,6 +68,9 @@ class BoardGeneratorTest:
                     self.set_tile(row, col, "unopened")
         self.gamedisplay.display.panel.mine_counter.set_value(self.minecount)
         self.gamedisplay.display.panel.face_button.set_face("happy")
+
+    def log(self, hn, e):
+        print(hn, e, type(e))
 
     def get_tile_type(self, i, j):
         board = self.gamedisplay.display.board

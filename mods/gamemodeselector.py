@@ -26,6 +26,8 @@ class GameModeSelector:
             self.menumod.add_menu("Game", self.menu)
 
     def cancel(self):
+        if (self.currentgamemode != None):
+            self.pysweep3.handle_event(("gamemode", "DisableGameMode"), self.currentgamemode)
         self.currentgamemode = None
 
     def register_game_mode(self, gamemodename):
@@ -36,7 +38,11 @@ class GameModeSelector:
         self.gamemodes.append(gamemodename)
 
     def set_game_mode(self, gamemodename):
-        self.currentgamemode = gamemodename
+        if (self.currentgamemode != gamemodename):
+            if (self.currentgamemode != None):
+                self.pysweep3.handle_event(("gamemode", "DisableGameMode"), self.currentgamemode)
+            self.pysweep3.handle_event(("gamemode", "EnableGameMode"), gamemodename)
+            self.currentgamemode = gamemodename
 
     def is_enabled(self, gamemodename):
         return self.currentgamemode == gamemodename
