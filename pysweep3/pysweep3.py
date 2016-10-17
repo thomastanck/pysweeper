@@ -162,4 +162,4 @@ class PySweep3:
     def handle_event(self, hookname, event):
         if hookname in self.hooks:
             for callab in self.hooks[hookname]:
-                callab(event)
+                callab(hookname, event)

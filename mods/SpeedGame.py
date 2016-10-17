@@ -41,7 +41,7 @@ class SpeedGame:
         self.speed_game_squares = []
         self.num_squares = 5
 
-    def modsloaded(self, e):
+    def modsloaded(self, hn, e):
         self.gamemodeselector = self.pysweep3.mods["GameModeSelector"]
         self.gamemodeselector.register_game_mode(SpeedGame.game_mode_name)
 
@@ -53,17 +53,17 @@ class SpeedGame:
     def timercallback(self, elapsed, sincelasttick):
         self.gamedisplay.display.set_timer(int(elapsed*1000))
 
-    def press_smiley(self, e):
+    def press_smiley(self, hn, e):
         if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
             return
         self.gamedisplay.display.panel.face_button.set_face("pressed")
 
-    def release_smiley(self, e):
+    def release_smiley(self, hn, e):
         if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
             return
         self.gamedisplay.display.panel.face_button.set_face("happy")
 
-    def new_game(self, e):
+    def new_game(self, hn, e):
         if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
             return
         width, height = self.gamedisplay.size
@@ -93,7 +93,7 @@ class SpeedGame:
             tile = "unopened" if i in squares else "tile_0"
             self.set_tile(row, col, tile)
 
-    def onpress(self, e):
+    def onpress(self, hn, e):
         if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
             return
         board = self.gamedisplay.display.board
@@ -110,12 +110,12 @@ class SpeedGame:
                 self.temporarily_down.append((row, col))
                 self.set_tile(row, col, "tile_0")
 
-    def onmove(self, e):
+    def onmove(self, hn, e):
         if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
             return
-        self.onpress(e)
+        self.onpress(hn, e)
 
-    def onrelease(self, e):
+    def onrelease(self, hn, e):
         if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
             return
         board = self.gamedisplay.display.board

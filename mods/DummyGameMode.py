@@ -41,7 +41,7 @@ class DummyGameMode:
         }
         self.temporarily_down = []
 
-    def modsloaded(self, e):
+    def modsloaded(self, hn, e):
         self.gamemodeselector = self.pysweep3.mods["GameModeSelector"]
         self.gamemodeselector.register_game_mode("Dummy Game Mode")
 
@@ -53,27 +53,27 @@ class DummyGameMode:
     def timercallback(self, elapsed, sincelasttick):
         self.gamedisplay.display.set_timer(int(elapsed*1000))
 
-    def onpress_timer(self, e):
+    def onpress_timer(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
         self.timer.start_timer()
 
-    def onrelease_timer(self, e):
+    def onrelease_timer(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
         self.timer.stop_timer()
 
-    def randomiseminecounter(self, e):
+    def randomiseminecounter(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
         self.gamedisplay.display.panel.mine_counter.set_value(random.randint(0,100000000))
 
-    def randomisetimer(self, e):
+    def randomisetimer(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
         self.gamedisplay.display.set_timer(random.randint(0,100000000))
 
-    def onpress(self, e):
+    def onpress(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
         board = self.gamedisplay.display.board
@@ -91,12 +91,12 @@ class DummyGameMode:
                 self.temporarily_down.append((row, col))
                 self.set_tile(row, col, "tile_0")
 
-    def onmove(self, e):
+    def onmove(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
-        self.onpress(e)
+        self.onpress(hn, e)
 
-    def onrelease(self, e):
+    def onrelease(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
         board = self.gamedisplay.display.board

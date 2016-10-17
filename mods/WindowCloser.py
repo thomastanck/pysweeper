@@ -10,6 +10,6 @@ class WindowCloser:
             "pysweep3WM_DELETE_WINDOW": [self.on_close],
         }
 
-    def on_close(self, e):
+    def on_close(self, hn, e):
         self.pysweep3.handle_event("pysweep3BEFORE_WM_DELETE_WINDOW", None)
         self.master.destroy()

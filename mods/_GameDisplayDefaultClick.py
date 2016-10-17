@@ -19,7 +19,7 @@ class GameDisplayDefaultClick:
         }
         self.temporarily_down = []
 
-    def modsloaded(self, e):
+    def modsloaded(self, hn, e):
         self.gamedisplay = self.pysweep3.mods["GameDisplay"]
 
         # request board to bind our stuff
@@ -44,7 +44,7 @@ class GameDisplayDefaultClick:
         if add_back:
             self.temporarily_down.append((avoid_x, avoid_y))
 
-    def onpress(self, e):
+    def onpress(self, hn, e):
         board = self.gamedisplay.board
 
         col = e.col
@@ -60,10 +60,10 @@ class GameDisplayDefaultClick:
                 self.temporarily_down.append((row, col))
                 self.set_tile(row, col, "tile_0")
 
-    def onmove(self, e):
-        self.onpress(e)
+    def onmove(self, hn, e):
+        self.onpress(hn, e)
 
-    def onrelease(self, e):
+    def onrelease(self, hn, e):
         self.gamedisplay = self.pysweep3.mods["GameDisplay"]
         board = self.gamedisplay.board
 
