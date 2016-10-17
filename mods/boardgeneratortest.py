@@ -66,6 +66,7 @@ class BoardGeneratorTest:
                     self.set_tile(row, col, "mine")
                 else:
                     self.set_tile(row, col, "unopened")
+        # print(self.rng.get_entropy())
         self.gamedisplay.display.panel.mine_counter.set_value(self.minecount)
         self.gamedisplay.display.panel.face_button.set_face("happy")
 

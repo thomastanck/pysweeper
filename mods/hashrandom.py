@@ -41,7 +41,7 @@ class HashRandom:
 
         i = 0
         while True:
-            update = "{} {}".format(updatestring, str(i))
+            update = "{} {}\n".format(updatestring, str(i))
             self.entropy += update
             self.hasher.update(update.encode('utf-8'))
 
@@ -51,6 +51,7 @@ class HashRandom:
             dividend = powoftwo(denominator)
             remainder = number % dividend
             if remainder >= denominator:
+                i += 1
                 continue
             elif remainder < numerator:
                 return True
