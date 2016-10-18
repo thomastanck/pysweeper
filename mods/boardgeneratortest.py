@@ -23,9 +23,6 @@ class BoardGeneratorTest:
             ("pysweep", "<F2>"): [self.generate_mines],
 
             ("pysweep", "AllModsLoaded"): [self.modsloaded],
-
-            ("gamemode", "EnableGameMode"): [self.log],
-            ("gamemode", "DisableGameMode"): [self.log],
         }
 
     def modsloaded(self, hn, e):
@@ -33,7 +30,6 @@ class BoardGeneratorTest:
         self.gamemodeselector.register_game_mode(game_mode_name)
 
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
-        width, height = self.gamedisplay.display.board_width, self.gamedisplay.display.board_height
 
         self.rngmod = self.pysweep.mods["HashRandom"]
 
@@ -72,9 +68,6 @@ class BoardGeneratorTest:
         # print(self.rng.get_source())
         self.gamedisplay.display.panel.mine_counter.set_value(self.minecount)
         self.gamedisplay.display.panel.face_button.set_face("happy")
-
-    def log(self, hn, e):
-        print(hn, e, type(e))
 
     def get_tile_type(self, i, j):
         board = self.gamedisplay.display.board
