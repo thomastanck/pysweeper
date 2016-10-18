@@ -40,6 +40,7 @@ class HashRandom:
         # returns 1 with probability of a mine
 
         i = 0
+        dividend = powoftwo(denominator)
         while True:
             update = "{} {}\n".format(updatestring, str(i))
             self.source += update
@@ -47,15 +48,12 @@ class HashRandom:
 
             digest = self.hasher.hexdigest()
             number = int(digest, 16)
-
-            dividend = powoftwo(denominator)
+            
             remainder = number % dividend
             if remainder >= denominator:
                 i += 1
                 continue
-            elif remainder < numerator:
-                return True
-            else:
-                return False
+
+            return remainder < numerator
 
 mods = {"HashRandom": HashRandomFactory}
