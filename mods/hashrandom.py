@@ -47,7 +47,7 @@ class HashRandom:
     def get_source(self):
         return self.source
 
-    def random(self, numerator, denominator, updatestring="CATS"):
+    def random(self, numerator, denominator):
         # numerator = number of mines
         # denominator = number of undetermined squares
         # returns 1 with probability of a mine
@@ -71,8 +71,7 @@ class HashRandom:
                 self.current_digest //= mask
                 self.bits_remaining -= bits_required
             else:
-                updatestr = "{} {}\n".format(updatestring, self.updates_to_copy)
-                self.hash_copy.update(updatestr.encode('utf-8'))
+                self.hash_copy.update(b'\x00')
                 self.current_digest = int(self.hash_copy.hexdigest(), 16)
                 self.bits_remaining = 8*self.hash_copy.digest_size
                 self.updates_to_copy += 1
