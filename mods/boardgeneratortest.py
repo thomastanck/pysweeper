@@ -57,7 +57,10 @@ class BoardGeneratorTest:
         squares_left = area
         for row in range(height):
             for col in range(width):
-                self.rng.update("GEN {} {}\n".format(row, col))
+                # NB: No need to put in self-generated entropy per square we calculate.
+                # There is no actual new entropy here between each cycle. This is handled
+                # in the HashRandom class
+                # self.rng.update("GEN {} {}\n".format(row, col))
                 ismine = self.rng.random(mines_left, squares_left)
                 squares_left -= 1
                 if ismine:

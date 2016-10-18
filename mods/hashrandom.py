@@ -1,3 +1,4 @@
+import fractions
 import hashlib
 
 class HashRandomFactory:
@@ -28,10 +29,20 @@ class HashRandom:
     def __init__(self):
         self.source = ''
         self.hasher = hashlib.sha512()
+        self.hash_copy = None
+        self.updates_to_copy = 0
+        self.current_digest = None
+        self.bits_remaining = 0
 
     def update(self, updatestring):
+        if not updatestring:
+            return
         self.source += updatestring
         self.hasher.update(updatestring.encode('utf-8'))
+        self.hash_copy = self.hasher.copy()
+        self.bits_remaining = 0 # forces us to digest if we want rands
+        self.updates_to_copy = 0
+        
 
     def get_source(self):
         return self.source
@@ -41,25 +52,31 @@ class HashRandom:
         # denominator = number of undetermined squares
         # returns 1 with probability of a mine
 
-        i = 0
-        bits_needed, dividend = powoftwo(denominator)
-        
-        while True:
-            update = "{} {}\n".format(updatestring, str(i))
-            self.source += update
-            self.hasher.update(update.encode('utf-8'))
+        if denominator == 0:
+            raise ZeroDivisionError("denominator most be positive")
+        if numerator == 0: return False # Will never be true
+        if numerator == denominator: return True # will always be true
 
-            digest = self.hasher.hexdigest()
-            current_number = int(digest, 16)            
-            bits_remaining = 8*self.hasher.digest_size
-            while bits_remaining >= bits_needed:            
-                remainder = current_number % dividend
-                current_number //= dividend
-                bits_remaining -= bits_needed
-                if remainder >= denominator:
-                    i += 1
-                    continue
+        # We reduce the fraction numerator/denominator so that we
+        # require as few bits as possible to get our random number.
+        d = fractions.gcd(numerator, denominator)
+        numerator = numerator//d
+        denominator = denominator//d
 
-                return remainder < numerator
+        bits_required, mask = powoftwo(denominator)
+        remainder = denominator
+        while remainder >= denominator:
+            if self.bits_remaining >= bits_required:
+                remainder = self.current_digest % mask
+                self.current_digest //= mask
+                self.bits_remaining -= bits_required
+            else:
+                updatestr = "{} {}\n".format(updatestring, self.updates_to_copy)
+                self.hash_copy.update(updatestr.encode('utf-8'))
+                self.current_digest = int(self.hash_copy.hexdigest(), 16)
+                self.bits_remaining = 8*self.hash_copy.digest_size
+                self.updates_to_copy += 1
+        return remainder < numerator
+
 
 mods = {"HashRandom": HashRandomFactory}
