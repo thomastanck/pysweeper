@@ -18,9 +18,11 @@ class HashRandomFactory:
 
 def powoftwo(n):
     i = 1
+    order  = 0
     while i < n:
+        order += 1
         i *= 2
-    return i
+    return order, i
 
 class HashRandom:
     def __init__(self):
@@ -40,20 +42,24 @@ class HashRandom:
         # returns 1 with probability of a mine
 
         i = 0
-        dividend = powoftwo(denominator)
+        bits_needed, dividend = powoftwo(denominator)
+        
         while True:
             update = "{} {}\n".format(updatestring, str(i))
             self.source += update
             self.hasher.update(update.encode('utf-8'))
 
             digest = self.hasher.hexdigest()
-            number = int(digest, 16)
-            
-            remainder = number % dividend
-            if remainder >= denominator:
-                i += 1
-                continue
+            current_number = int(digest, 16)            
+            bits_remaining = 8*self.hasher.digest_size
+            while bits_remaining >= bits_needed:            
+                remainder = current_number % dividend
+                current_number //= dividend
+                bits_remaining -= bits_needed
+                if remainder >= denominator:
+                    i += 1
+                    continue
 
-            return remainder < numerator
+                return remainder < numerator
 
 mods = {"HashRandom": HashRandomFactory}
