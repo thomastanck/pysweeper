@@ -20,3 +20,6 @@ Client can also simply send the entire video file to the server for the server t
 18:12:42 aradesh: .memo gracefu why don't we have unactive modules unregister their hooks, and completely deactivate. but have a function which registers them when we want them activated?
 19:45:16 gracefu: aradesh: also maybe unique ID's associated with hooks
 19:45:28 gracefu: that way you can pass in lambdas then remove them later
+
+Video file records precise motions but we only use some of the data to calculate the hash/seed hashrandom. We can also periodically use a hash of the whole video file as a defense against editing video files after the fact (make solvers look natural?) but this shouldn't be done too frequently to prevent fiddling with the source to affect mine positions.
+
