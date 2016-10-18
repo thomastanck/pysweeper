@@ -1,1 +1,1 @@
-Run `python3 pysweeper3.py` to see what happens
+Run `python3 pysweeper.py` to see what happens

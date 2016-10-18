@@ -5,9 +5,9 @@ class Menu:
     required_events = []
     required_protocols = []
 
-    def __init__(self, master, pysweep3):
+    def __init__(self, master, pysweep):
         self.master = master
-        self.pysweep3 = pysweep3
+        self.pysweep = pysweep
 
         self.menubar = tkinter.Menu(self.master)
         self.master.config(menu=self.menubar)

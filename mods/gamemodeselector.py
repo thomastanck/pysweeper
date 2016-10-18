@@ -5,11 +5,11 @@ class GameModeSelector:
     required_events = []
     required_protocols = []
 
-    def __init__(self, master, pysweep3):
+    def __init__(self, master, pysweep):
         self.master = master
-        self.pysweep3 = pysweep3
+        self.pysweep = pysweep
         self.hooks = {
-            ("pysweep3", "AllModsLoaded"): [self.modsloaded],
+            ("pysweep", "AllModsLoaded"): [self.modsloaded],
         }
 
         self.gamemodes = []
@@ -18,7 +18,7 @@ class GameModeSelector:
 
     def modsloaded(self, hn, e):
         if not self.menumod:
-            self.menumod = self.pysweep3.mods["Menu"]
+            self.menumod = self.pysweep.mods["Menu"]
             self.menu = tkinter.Menu(self.menumod.menubar, tearoff=0)
             self.menu.add_separator()
             self.menu.add_radiobutton(label="None", command=self.cancel)
@@ -27,12 +27,12 @@ class GameModeSelector:
 
     def cancel(self):
         if (self.currentgamemode != None):
-            self.pysweep3.handle_event(("gamemode", "DisableGameMode"), self.currentgamemode)
+            self.pysweep.handle_event(("gamemode", "DisableGameMode"), self.currentgamemode)
         self.currentgamemode = None
 
     def register_game_mode(self, gamemodename):
         if not self.menumod:
-            self.modsloaded(("pysweep3", "AllModsLoaded"), None)
+            self.modsloaded(("pysweep", "AllModsLoaded"), None)
 
         self.menu.insert_radiobutton(len(self.gamemodes), label=gamemodename, command=lambda gamemodename=gamemodename: self.set_game_mode(gamemodename))
         self.gamemodes.append(gamemodename)
@@ -40,8 +40,8 @@ class GameModeSelector:
     def set_game_mode(self, gamemodename):
         if (self.currentgamemode != gamemodename):
             if (self.currentgamemode != None):
-                self.pysweep3.handle_event(("gamemode", "DisableGameMode"), self.currentgamemode)
-            self.pysweep3.handle_event(("gamemode", "EnableGameMode"), gamemodename)
+                self.pysweep.handle_event(("gamemode", "DisableGameMode"), self.currentgamemode)
+            self.pysweep.handle_event(("gamemode", "EnableGameMode"), gamemodename)
             self.currentgamemode = gamemodename
 
     def is_enabled(self, gamemodename):

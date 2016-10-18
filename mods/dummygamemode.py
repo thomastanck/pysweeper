@@ -12,17 +12,17 @@ class DummyGameMode:
         ("face_button", "<ButtonPress-1>"),
         ("face_button", "<ButtonRelease-1>"),
 
-        ("pysweep3", "<KeyPress>"),
-        ("pysweep3", "<KeyRelease>"),
+        ("pysweep", "<KeyPress>"),
+        ("pysweep", "<KeyRelease>"),
 
         ("mine_counter", "<ButtonPress-1>"),
         ("timer", "<ButtonPress-1>"),
     ]
     required_protocols = []
 
-    def __init__(self, master, pysweep3):
+    def __init__(self, master, pysweep):
         self.master = master
-        self.pysweep3 = pysweep3
+        self.pysweep = pysweep
         self.hooks = {
             ("board", "<ButtonPress-1>"):   [self.onpress],
             ("board", "<B1-Motion>"):       [self.onmove],
@@ -31,23 +31,23 @@ class DummyGameMode:
             ("face_button", "<ButtonPress-1>"):   [self.onpress_smiley],
             ("face_button", "<ButtonRelease-1>"): [self.onrelease_smiley],
 
-            ("pysweep3", "<KeyPress>"):   [self.onpress_timer],
-            ("pysweep3", "<KeyRelease>"): [self.onrelease_timer],
+            ("pysweep", "<KeyPress>"):   [self.onpress_timer],
+            ("pysweep", "<KeyRelease>"): [self.onrelease_timer],
 
             ("mine_counter", "<ButtonPress-1>"):   [self.randomiseminecounter],
             ("timer", "<ButtonPress-1>"):          [self.randomisetimer],
 
-            ("pysweep3", "AllModsLoaded"): [self.modsloaded],
+            ("pysweep", "AllModsLoaded"): [self.modsloaded],
         }
         self.temporarily_down = []
 
     def modsloaded(self, hn, e):
-        self.gamemodeselector = self.pysweep3.mods["GameModeSelector"]
+        self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
         self.gamemodeselector.register_game_mode("Dummy Game Mode")
 
-        self.gamedisplay = self.pysweep3.mods["GameDisplay"]
+        self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
-        self.timermod = self.pysweep3.mods["Timer"]
+        self.timermod = self.pysweep.mods["Timer"]
         self.timer = self.timermod.get_timer(self.timercallback, resolution=0.001)
 
     def timercallback(self, elapsed, sincelasttick):

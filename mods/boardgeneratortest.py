@@ -13,29 +13,29 @@ class BoardGeneratorTest:
     ]
     required_protocols = []
 
-    def __init__(self, master, pysweep3):
+    def __init__(self, master, pysweep):
         self.master = master
-        self.pysweep3 = pysweep3
+        self.pysweep = pysweep
         self.hooks = {
             ("face_button", "<ButtonPress-1>"):   [self.press_smiley],
             ("face_button", "<ButtonRelease-1>"): [self.generate_mines],
 
-            ("pysweep3", "<F2>"): [self.generate_mines],
+            ("pysweep", "<F2>"): [self.generate_mines],
 
-            ("pysweep3", "AllModsLoaded"): [self.modsloaded],
+            ("pysweep", "AllModsLoaded"): [self.modsloaded],
 
             ("gamemode", "EnableGameMode"): [self.log],
             ("gamemode", "DisableGameMode"): [self.log],
         }
 
     def modsloaded(self, hn, e):
-        self.gamemodeselector = self.pysweep3.mods["GameModeSelector"]
+        self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
         self.gamemodeselector.register_game_mode(game_mode_name)
 
-        self.gamedisplay = self.pysweep3.mods["GameDisplay"]
+        self.gamedisplay = self.pysweep.mods["GameDisplay"]
         width, height = self.gamedisplay.display.board_width, self.gamedisplay.display.board_height
 
-        self.rngmod = self.pysweep3.mods["HashRandom"]
+        self.rngmod = self.pysweep.mods["HashRandom"]
 
     def press_smiley(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):

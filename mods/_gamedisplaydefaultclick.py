@@ -7,19 +7,19 @@ class GameDisplayDefaultClick:
     ]
     required_protocols = []
 
-    def __init__(self, master, pysweep3):
+    def __init__(self, master, pysweep):
         self.master = master
-        self.pysweep3 = pysweep3
+        self.pysweep = pysweep
         self.hooks = {
             ("board", "<ButtonPress-1>"):   [self.onpress],
             ("board", "<B1-Motion>"):       [self.onmove],
             ("board", "<ButtonRelease-1>"): [self.onrelease],
-            ("pysweep3", "AllModsLoaded"): [self.modsloaded],
+            ("pysweep", "AllModsLoaded"): [self.modsloaded],
         }
         self.temporarily_down = []
 
     def modsloaded(self, hn, e):
-        self.gamedisplay = self.pysweep3.mods["GameDisplay"]
+        self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
     def get_tile_type(self, i, j):
         board = self.gamedisplay.board
@@ -59,7 +59,7 @@ class GameDisplayDefaultClick:
         self.onpress(hn, e)
 
     def onrelease(self, hn, e):
-        self.gamedisplay = self.pysweep3.mods["GameDisplay"]
+        self.gamedisplay = self.pysweep.mods["GameDisplay"]
         board = self.gamedisplay.board
 
         col = e.col

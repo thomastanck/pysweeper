@@ -13,17 +13,17 @@ class SpeedGame:
         ("face_button", "<ButtonPress-1>"),
         ("face_button", "<ButtonRelease-1>"),
 
-        ("pysweep3", "<F2>"),
-        ("pysweep3", "<F3>"),
+        ("pysweep", "<F2>"),
+        ("pysweep", "<F3>"),
 
         ("mine_counter", "<ButtonPress-1>"),
         ("timer", "<ButtonPress-1>"),
     ]
     required_protocols = []
 
-    def __init__(self, master, pysweep3):
+    def __init__(self, master, pysweep):
         self.master = master
-        self.pysweep3 = pysweep3
+        self.pysweep = pysweep
         self.hooks = {
             ("board", "<ButtonPress-1>"):   [self.onpress],
             ("board", "<B1-Motion>"):       [self.onmove],
@@ -32,22 +32,22 @@ class SpeedGame:
             ("face_button", "<ButtonPress-1>"):   [self.press_smiley],
             ("face_button", "<ButtonRelease-1>"): [self.new_game],
 
-            ("pysweep3", "<F2>"): [self.new_game],
-            ("pysweep3", "<F3>"): [(lambda hn,e:self.reset_game())],
+            ("pysweep", "<F2>"): [self.new_game],
+            ("pysweep", "<F3>"): [(lambda hn,e:self.reset_game())],
 
-            ("pysweep3", "AllModsLoaded"): [self.modsloaded],
+            ("pysweep", "AllModsLoaded"): [self.modsloaded],
         }
         self.temporarily_down = []
         self.speed_game_squares = []
         self.num_squares = 5
 
     def modsloaded(self, hn, e):
-        self.gamemodeselector = self.pysweep3.mods["GameModeSelector"]
+        self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
         self.gamemodeselector.register_game_mode(SpeedGame.game_mode_name)
 
-        self.gamedisplay = self.pysweep3.mods["GameDisplay"]
+        self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
-        self.timermod = self.pysweep3.mods["Timer"]
+        self.timermod = self.pysweep.mods["Timer"]
         self.timer = self.timermod.get_timer(self.timercallback, resolution=0.001)
 
     def timercallback(self, elapsed, sincelasttick):

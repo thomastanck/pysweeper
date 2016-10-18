@@ -10,7 +10,7 @@ import tkinter
 from PIL import Image, ImageTk
 import time
 
-class PySweeper3:
+class PySweeper:
     def __init__(self, master):
         self.master = master
         self.mainapp = Demo1(self.master)
@@ -39,7 +39,7 @@ class Demo2:
 def main():
     root = tkinter.Tk()
     root.title('PySweeper')
-    app = PySweeper3(root)
+    app = PySweeper(root)
     pushwindowtotop()
     root.mainloop()
     try:

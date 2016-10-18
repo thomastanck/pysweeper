@@ -1,6 +1,6 @@
 import os, platform
 import tkinter
-from pysweep3 import PySweep3
+from pysweep import PySweep
 
 def pushwindowtotop():
     if platform.system() == 'Darwin':  # How Mac OS X is identified by Python
@@ -8,9 +8,9 @@ def pushwindowtotop():
 
 def main():
     root = tkinter.Tk()
-    root.title('PySweeper3')
+    root.title('PySweeper')
     root.grab_set()
-    app = PySweep3(root)
+    app = PySweep(root)
     pushwindowtotop()
     root.mainloop()
     try:

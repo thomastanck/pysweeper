@@ -5,18 +5,18 @@ import inspect
 
 import tkinter
 
-class PySweep3:
+class PySweep:
     def __init__(self, master):
         self.master = master
         self.bind_events = []
         self.bind_protocols = []
-        self.widget_bindname = "pysweep3"
-        self.bindable_widgets = {"pysweep3": {"bindevent": self.bind_tkinter_event, "bindprotocol": self.bind_tkinter_protocol}}
-        self.load_pysweep3_mods()
+        self.widget_bindname = "pysweep"
+        self.bindable_widgets = {"pysweep": {"bindevent": self.bind_tkinter_event, "bindprotocol": self.bind_tkinter_protocol}}
+        self.load_pysweep_mods()
 
     # this is a bindable_widgets so it must implement these two functions.
     # The "name" of the bindable widget is also the prefix to the event_name used for the hook.
-    # In this case, it's "pysweep3".
+    # In this case, it's "pysweep".
     def bind_tkinter_event(self, event_name):
         if event_name not in self.bind_events:
             hook = (self.widget_bindname, event_name)
@@ -29,7 +29,7 @@ class PySweep3:
             self.master.protocol(protocol_name, lambda e=None,hook=hook: self.handle_event(hook, e))
             self.bind_protocols.append(protocol_name)
 
-    def load_pysweep3_mods(self):
+    def load_pysweep_mods(self):
         # Mods dictionary
         # Key is the package name (directory name if package, filename without .py extension if file)
         # Value is a tuple containing the path to the module and either imp.PY_SOURCE or imp.PKG_DIRECTORY
@@ -73,7 +73,7 @@ class PySweep3:
         for name, mod in self.mods.items():
             self.register_bindings(mod)
 
-        self.handle_event(("pysweep3", "AllModsLoaded"), None)
+        self.handle_event(("pysweep", "AllModsLoaded"), None)
 
     def is_mod(self, path):
         if os.path.isdir(path):

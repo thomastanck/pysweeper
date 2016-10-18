@@ -1,25 +1,25 @@
 class Debugger:
     hooks = {}
     required_events = [
-        ("pysweep3", "<ButtonPress-1>"),
-        ("pysweep3", "<Motion>"),
-        ("pysweep3", "<Enter>"),
-        ("pysweep3", "<ButtonRelease-1>"),
-        ("pysweep3", "<KeyPress>"),
-        ("pysweep3", "<KeyRelease>"),
+        ("pysweep", "<ButtonPress-1>"),
+        ("pysweep", "<Motion>"),
+        ("pysweep", "<Enter>"),
+        ("pysweep", "<ButtonRelease-1>"),
+        ("pysweep", "<KeyPress>"),
+        ("pysweep", "<KeyRelease>"),
     ]
     required_protocols = []
 
-    def __init__(self, master, pysweep3):
+    def __init__(self, master, pysweep):
         self.master = master
-        self.pysweep3 = pysweep3
+        self.pysweep = pysweep
         self.hooks = {
-            ("pysweep3", "<ButtonPress-1>"):   [self.handlebuttonpress],
-            ("pysweep3", "<Motion>"):          [self.handlemotion],
-            ("pysweep3", "<Enter>"):           [self.handleenter],
-            ("pysweep3", "<ButtonRelease-1>"): [self.handlebuttonrelease],
-            ("pysweep3", "<KeyPress>"):        [self.handledown],
-            ("pysweep3", "<KeyRelease>"):      [self.handleup],
+            ("pysweep", "<ButtonPress-1>"):   [self.handlebuttonpress],
+            ("pysweep", "<Motion>"):          [self.handlemotion],
+            ("pysweep", "<Enter>"):           [self.handleenter],
+            ("pysweep", "<ButtonRelease-1>"): [self.handlebuttonrelease],
+            ("pysweep", "<KeyPress>"):        [self.handledown],
+            ("pysweep", "<KeyRelease>"):      [self.handleup],
         }
         print("hi!")
     def handlebuttonpress(self, hn, e):

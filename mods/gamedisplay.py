@@ -8,11 +8,11 @@ class GameDisplayWrapper:
     required_events = []
     required_protocols = []
 
-    def __init__(self, master, pysweep3):
+    def __init__(self, master, pysweep):
         self.master = master
-        self.pysweep3 = pysweep3
+        self.pysweep = pysweep
         self.size = (30, 16) # Default size is expert
-        self.display = GameDisplay(master, self.pysweep3, *self.size)
+        self.display = GameDisplay(master, self.pysweep, *self.size)
 
         self.bindable_widgets = {
             "board":        {"bindevent": lambda e_n,widget_name="board":        self.bind_tkinter_event(e_n, widget_name)},
@@ -56,14 +56,14 @@ class GameDisplayWrapper:
     def handle_event(self, hook, e):
         e.row = e.y//16
         e.col = e.x//16
-        self.pysweep3.handle_event(hook, e)
+        self.pysweep.handle_event(hook, e)
 
     def set_size(self, width, height):
         # Warning, completely kills GameDisplay. You'll have to give it new data after this
         self.size = (width, height)
         self.display.pack_forget()
         self.display.destroy()
-        self.display = GameDisplay(self.master, self.pysweep3, *self.size)
+        self.display = GameDisplay(self.master, self.pysweep, *self.size)
         self.rebind_tkinter_events()
 
     def center_window(self):
@@ -186,8 +186,8 @@ class GameDisplay(tkinter.Frame):
         self.border_bot_right.create_image((0,0), image=border, anchor='nw')
 
 
-    def __init__(self, master, pysweep3, board_width=16, board_height=16):
-        self.pysweep3 = pysweep3
+    def __init__(self, master, pysweep, board_width=16, board_height=16):
+        self.pysweep = pysweep
         self.board_width = board_width
         self.board_height = board_height
         super().__init__(master, width=board_width*16+24, height=board_height*16+67)

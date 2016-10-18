@@ -1,23 +1,23 @@
 class GameDisplayDefaultTimer:
     hooks = {}
     required_events = [
-        ("pysweep3", "<ButtonPress-1>"),
-        ("pysweep3", "<ButtonRelease-1>"),
+        ("pysweep", "<ButtonPress-1>"),
+        ("pysweep", "<ButtonRelease-1>"),
     ]
     required_protocols = []
 
-    def __init__(self, master, pysweep3):
+    def __init__(self, master, pysweep):
         self.master = master
-        self.pysweep3 = pysweep3
+        self.pysweep = pysweep
         self.hooks = {
-            ("pysweep3", "<ButtonPress-1>"):   [self.onpress],
-            ("pysweep3", "<ButtonRelease-1>"): [self.onrelease],
-            ("pysweep3", "AllModsLoaded"): [self.modsloaded],
+            ("pysweep", "<ButtonPress-1>"):   [self.onpress],
+            ("pysweep", "<ButtonRelease-1>"): [self.onrelease],
+            ("pysweep", "AllModsLoaded"): [self.modsloaded],
         }
 
     def modsloaded(self, hn, e):
-        self.gamedisplay = self.pysweep3.mods["GameDisplay"]
-        self.timermod = self.pysweep3.mods["Timer"]
+        self.gamedisplay = self.pysweep.mods["GameDisplay"]
+        self.timermod = self.pysweep.mods["Timer"]
         self.timer = self.timermod.get_timer(self.timercallback)
 
     def timercallback(self, elapsed, sincelasttick):
