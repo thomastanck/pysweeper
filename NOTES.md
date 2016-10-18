@@ -15,3 +15,8 @@ Client will also use the time the game was started, mouse movements shortly befo
 Try to have sources of entropy that are hard to tamper with in real time. For example, cursor movements are hard to tamper with as trying to do so will make them jittery and unrealistic. On the other hand, high resolution time is probably not a good source as it's not very random in the first place and also allows an attacker to modify the position of mines right before a click if they can change a few bits in the time.
 
 Client can also simply send the entire video file to the server for the server to sign. This way, a client can't request pings while playing normally then use the same pings while cheating, as the signature would be invalidated.
+
+
+18:12:42 aradesh: .memo gracefu why don't we have unactive modules unregister their hooks, and completely deactivate. but have a function which registers them when we want them activated?
+19:45:16 gracefu: aradesh: also maybe unique ID's associated with hooks
+19:45:28 gracefu: that way you can pass in lambdas then remove them later
