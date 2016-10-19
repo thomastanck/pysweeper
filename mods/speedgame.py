@@ -2,13 +2,13 @@ import tkinter
 
 import random
 
+game_mode_name = "Speed Game"
 class SpeedGame:
-    game_mode_name = "Speed Game"
     hooks = {}
     required_events = [
-        ("board", "<ButtonPress-1>"),
-        ("board", "<B1-Motion>"),
-        ("board", "<ButtonRelease-1>"),
+        ("pysweep", "<ButtonPress-1>"),
+        ("pysweep", "<B1-Motion>"),
+        ("pysweep", "<ButtonRelease-1>"),
 
         ("face_button", "<ButtonPress-1>"),
         ("face_button", "<ButtonRelease-1>"),
@@ -25,14 +25,12 @@ class SpeedGame:
         self.master = master
         self.pysweep = pysweep
         self.hooks = {
-            ("board", "<ButtonPress-1>"):   [self.on_mouse_event],
-            ("board", "<B1-Motion>"):       [self.on_mouse_event],
-            ("board", "<ButtonRelease-1>"): [self.on_mouse_event],
+            ("pysweep", "<ButtonPress-1>"):   [self.on_mouse_event],
+            ("pysweep", "<B1-Motion>"):       [self.on_mouse_event],
+            ("pysweep", "<ButtonRelease-1>"): [self.on_mouse_event],
 
-            ("boardmanager", "TileClicked"): [self.tile_clicked],
-
-            ("face_button", "<ButtonPress-1>"):   [self.press_smiley],
-            ("face_button", "<ButtonRelease-1>"): [self.new_game],
+            ("gamedisplaymanager", "TileClicked"): [self.tile_clicked],
+            ("gamedisplaymanager", "FaceClicked"): [self.new_game],
 
             ("pysweep", "<F2>"): [self.new_game],
             ("pysweep", "<F3>"): [(lambda hn,e:self.reset_game())],
@@ -45,11 +43,11 @@ class SpeedGame:
 
     def modsloaded(self, hn, e):
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
-        self.gamemodeselector.register_game_mode(SpeedGame.game_mode_name)
+        self.gamemodeselector.register_game_mode(game_mode_name)
 
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
-        self.boardmanager = self.pysweep.mods["BoardManager"]
+        self.gamedisplaymanager = self.pysweep.mods["GameDisplayManager"]
 
         self.timermod = self.pysweep.mods["Timer"]
         self.timer = self.timermod.get_timer(self.timercallback, resolution=0.001)
@@ -57,13 +55,8 @@ class SpeedGame:
     def timercallback(self, elapsed, sincelasttick):
         self.gamedisplay.display.set_timer(int(elapsed*1000))
 
-    def press_smiley(self, hn, e):
-        if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
-            return
-        self.gamedisplay.display.panel.face_button.set_face("pressed")
-
     def new_game(self, hn, e):
-        if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
             return
         width, height = self.gamedisplay.size
         area = width*height
@@ -80,7 +73,7 @@ class SpeedGame:
         self.reset_game()
 
     def reset_game(self):
-        if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
             return
         width, height = self.gamedisplay.size
         area = width*height
@@ -90,14 +83,14 @@ class SpeedGame:
             row = i//width
             col = i%width
             if i in squares:
-                self.boardmanager.set_tile_unopened(row, col)
+                self.gamedisplaymanager.set_tile_unopened(row, col)
             else:
-                self.boardmanager.set_tile_number(row, col, 0)
+                self.gamedisplaymanager.set_tile_number(row, col, 0)
         self.gamedisplay.display.panel.face_button.set_face("happy")
         self.timer.start_timer()
 
     def tile_clicked(self, hn, e):
-        if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
             return
 
         row, col = e.row, e.col
@@ -106,7 +99,7 @@ class SpeedGame:
         width = board.board_width
         height = board.board_height
         if (0 <= col < width and 0 <= row < height):
-            self.boardmanager.set_tile_number(row, col, 0)
+            self.gamedisplaymanager.set_tile_number(row, col, 0)
             i = row*width + col
             if i in self.speed_game_squares:
                 self.speed_game_squares.remove(i)
@@ -115,8 +108,8 @@ class SpeedGame:
                 self.gamedisplay.display.panel.face_button.set_face("cool")
 
     def on_mouse_event(self, hn, e):
-        if not self.gamemodeselector.is_enabled(SpeedGame.game_mode_name):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
             return
-        self.boardmanager.handle_mouse_event(hn, e)
+        self.gamedisplaymanager.handle_mouse_event(hn, e)
 
 mods = {"SpeedGame": SpeedGame}
