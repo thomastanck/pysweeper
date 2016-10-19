@@ -3,6 +3,9 @@
 # ("boardmanager", "TileClicked")
 # Triggered when a player releases his mouse (thus clicking it) on top of a certain cell.
 
+# ("boardmanager", "FaceClicked")
+# Triggered when the player released his mouse on top of the face (NOT YET IMPLEMENTED)
+
 class BoardManager:
     hooks = {}
     required_events = []
@@ -30,15 +33,31 @@ class BoardManager:
         elif hn[1] == "<ButtonRelease-1>":
             self.onrelease(hn, e)
 
+    def set_tile_mine(self, row, col):
+        self.set_tile(row, col, "mine")
+        print("untested")
+
+    def set_tile_blast(self, row, col):
+        self.set_tile(row, col, "blast")
+        print("untested")
+
+    def set_tile_flag(self, row, col):
+        self.set_tile(row, col, "flag")
+        print("untested")
+
+    def set_tile_flag_wrong(self, row, col):
+        self.set_tile(row, col, "flag_wrong")
+        print("untested")
+
+    def set_tile_unopened(self, row, col):
+        self.set_tile(row, col, "unopened")
+
     def set_tile_number(self, row, col, number):
         # number: 0..8
         if 0 <= number and number < 9:
             self.set_tile(row, col, "tile_{}".format(number))
         else:
             raise ValueError('Tile number {} does not exist'.format(number))
-
-    def set_tile_unopened(self, row, col):
-        self.set_tile(row, col, "unopened")
 
     def get_tile_type(self, i, j):
         board = self.gamedisplay.display.board
