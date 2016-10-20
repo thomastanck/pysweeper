@@ -199,36 +199,63 @@ class GameDisplay(tkinter.Frame):
 
 
 class Tile:
-    tile_images = {}
-    def __init__(self, tile_id, state=None):
-        self.tile_id = tile_id
+    def __init__(self, row, column, state=None):
+        self.row = row
+        self.column = column
         self.state = state
 
 
 class Board(tkinter.Frame):
+    def __init__(self, master, width, height):
+        super().__init__(master)
+        self.board_width = width
+        self.board_height = height
+        self.canvas = tkinter.Canvas(self, width=16*width, height=16*height,
+                                     highlightthickness=0)
+        self.canvas_rgb = Image.new(size=(16*width, 16*height), mode="RGB")
+        self.canvas_img = ImageTk.PhotoImage(self.canvas_rgb)
+        self.canvas_img_ref = self.canvas.create_image((0,0), anchor="nw",
+                                                       image=self.canvas_img)
+        
+        self.canvas.pack()
+        self.load_tiles()
+
     def load_tiles(self):
         tile_images = {}
         tile_names = ["tile_{}".format(i) for i in range(9)]
         for key in tile_names + ["unopened", "flag", "blast", "flag_wrong", "mine"]:
             img = Image.open("images/{}.png".format(key))
-            tile_images[key] = ImageTk.PhotoImage(img)
+            tile_images[key] = img
         self.tile_images = tile_images
 
         width = self.board_width
         height = self.board_height
-        tiles = [[Tile(self.canvas.create_image((i*16,j*16), anchor="nw"))
-                  for i in range(width)] for j in range(height)]
+        tiles = [[Tile(r, c, None) for c in range(width)]
+                 for r in range(height)]        
         self.tiles = tiles
+        for row in range(height):
+            for col in range(width):
+                self.draw_tile(row, col, 'unopened')
+        self.update_canvas()
 
     def get_tile_type(self, i, j):
         return self.tiles[i][j].state
 
-    def set_tile(self, i, j, tile_type):
-        tile = self.tiles[i][j]
-        tile_id = self.tiles[i][j].tile_id
-        if tile_type != tile.state:
-            self.canvas.itemconfig(tile_id, image=self.tile_images[tile_type])
-            tile.state = tile_type
+    def draw_tile(self, row, col, state):
+        tile = self.tiles[row][col]
+        if tile.state == state:
+            return False
+        tile.state = state
+        tile_img = self.tile_images[state]
+        self.canvas_rgb.paste(tile_img, box=(col*16, row*16))
+        return True
+        
+    def set_tile(self, *args):
+        if self.draw_tile(*args):
+            self.update_canvas()
+
+    def update_canvas(self):
+        self.canvas_img.paste(self.canvas_rgb)
 
     def reset_board(self):
         width = self.board_width
@@ -237,17 +264,6 @@ class Board(tkinter.Frame):
             for j in range(width):
                 self.set_tile(i, j, "unopened")
 
-    def __init__(self, master, width, height):
-        super().__init__(master)
-        self.board_width = width
-        self.board_height = height
-        self.canvas = tkinter.Canvas(self, width=16*width, height=16*height,
-                                     highlightthickness=0)
-        self.canvas.pack()
-        self.load_tiles()
-        for i in range(width):
-            for j in range(height):
-                self.set_tile(j, i, "unopened")
 
 class Counter(tkinter.Frame):
     border_images = {}
