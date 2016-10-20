@@ -84,6 +84,5 @@ class DummyGameMode:
             return
         row, col = e.y//16, e.x//16
         self.gamedisplaymanager.set_tile_number(row, col, 0)
-        self.gamedisplaymanager.update()
 
 mods = {"DummyGameMode": DummyGameMode}

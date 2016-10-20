@@ -87,9 +87,6 @@ class GameDisplayManager:
         board = self.gamedisplay.display.board
         board.draw_tile(i, j, tile_type)
 
-    def update(self):
-        self.gamedisplay.display.board.update_canvas()
-
     def reset_board(self):
         # reset the board to all unopened
         board = self.gamedisplay.display.board
@@ -100,7 +97,6 @@ class GameDisplayManager:
         for row in range(height):
             for col in range(width):
                 self.set_tile_unopened(row, col)
-        board.update_canvas()
 
 
 
@@ -193,7 +189,6 @@ class GameDisplayManager:
             if self.get_tile_type(row, col) == "unopened":
                 self.temporarily_down.append((row, col))
                 self.set_tile(row, col, "tile_0")
-                self.update()
 
     def board_release(self, hn, e):
         board = self.gamedisplay.display.board
@@ -216,7 +211,6 @@ class GameDisplayManager:
         while self.temporarily_down:
             x, y = self.temporarily_down.pop()
             self.set_tile(x, y, "unopened")
-            self.update()
         if add_back:
             self.temporarily_down.append((avoid_x, avoid_y))
 

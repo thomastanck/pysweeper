@@ -216,7 +216,8 @@ class Board(tkinter.Frame):
         self.canvas_img = ImageTk.PhotoImage(self.canvas_rgb)
         self.canvas_img_ref = self.canvas.create_image((0,0), anchor="nw",
                                                        image=self.canvas_img)
-        
+
+        self.update_canvas_queued = False
         self.canvas.pack()
         self.load_tiles()
 
@@ -231,12 +232,11 @@ class Board(tkinter.Frame):
         width = self.board_width
         height = self.board_height
         tiles = [[Tile(r, c, None) for c in range(width)]
-                 for r in range(height)]        
+                 for r in range(height)]
         self.tiles = tiles
         for row in range(height):
             for col in range(width):
                 self.draw_tile(row, col, 'unopened')
-        self.update_canvas()
 
     def get_tile_type(self, i, j):
         return self.tiles[i][j].state
@@ -248,13 +248,13 @@ class Board(tkinter.Frame):
         tile.state = state
         tile_img = self.tile_images[state]
         self.canvas_rgb.paste(tile_img, box=(col*16, row*16))
+        if not self.update_canvas_queued:
+            self.update_canvas_queued = True
+            self.master.after(0, self.update_canvas)
         return True
-        
-    def set_tile(self, *args):
-        if self.draw_tile(*args):
-            self.update_canvas()
 
     def update_canvas(self):
+        self.update_canvas_queued = False
         self.canvas_img.paste(self.canvas_rgb)
 
     def reset_board(self):
