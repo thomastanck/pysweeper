@@ -6,18 +6,8 @@ game_mode_name = "Speed Game"
 class SpeedGame:
     hooks = {}
     required_events = [
-        ("pysweep", "<ButtonPress-1>"),
-        ("pysweep", "<B1-Motion>"),
-        ("pysweep", "<ButtonRelease-1>"),
-
-        ("face_button", "<ButtonPress-1>"),
-        ("face_button", "<ButtonRelease-1>"),
-
         ("pysweep", "<F2>"),
         ("pysweep", "<F3>"),
-
-        ("mine_counter", "<ButtonPress-1>"),
-        ("timer", "<ButtonPress-1>"),
     ]
     required_protocols = []
 
@@ -25,10 +15,6 @@ class SpeedGame:
         self.master = master
         self.pysweep = pysweep
         self.hooks = {
-            ("pysweep", "<ButtonPress-1>"):   [self.on_mouse_event],
-            ("pysweep", "<B1-Motion>"):       [self.on_mouse_event],
-            ("pysweep", "<ButtonRelease-1>"): [self.on_mouse_event],
-
             ("gamedisplaymanager", "TileClicked"): [self.tile_clicked],
             ("gamedisplaymanager", "FaceClicked"): [self.new_game],
 
@@ -106,10 +92,5 @@ class SpeedGame:
             if len(self.speed_game_squares) == 0:
                 self.timer.stop_timer()
                 self.gamedisplay.display.panel.face_button.set_face("cool")
-
-    def on_mouse_event(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
-        self.gamedisplaymanager.handle_mouse_event(hn, e)
 
 mods = {"SpeedGame": SpeedGame}

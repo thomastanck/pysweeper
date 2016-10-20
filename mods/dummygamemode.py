@@ -5,10 +5,6 @@ import random
 class DummyGameMode:
     hooks = {}
     required_events = [
-        ("pysweep", "<ButtonPress-1>"),
-        ("pysweep", "<B1-Motion>"),
-        ("pysweep", "<ButtonRelease-1>"),
-
         ("pysweep", "<KeyPress>"),
         ("pysweep", "<KeyRelease>"),
     ]
@@ -18,13 +14,9 @@ class DummyGameMode:
         self.master = master
         self.pysweep = pysweep
         self.hooks = {
-            ("pysweep", "<ButtonPress-1>"):   [self.handle_mouse_event],
-            ("pysweep", "<B1-Motion>"):       [self.handle_mouse_event],
-            ("pysweep", "<ButtonRelease-1>"): [self.handle_mouse_event],
+            ("gamedisplaymanager", "TileClicked"): [self.tile_clicked],
 
-            ("gamedisplaymanager", "TileClicked"): [self.onrelease],
-
-            ("gamedisplaymanager", "FaceClicked"): [self.onrelease_smiley],
+            ("gamedisplaymanager", "FaceClicked"): [self.face_clicked],
 
             ("pysweep", "<KeyPress>"):   [self.onpress_timer],
             ("pysweep", "<KeyRelease>"): [self.onrelease_timer],
@@ -64,7 +56,7 @@ class DummyGameMode:
             return
         self.timer.stop_timer()
 
-    def onrelease_smiley(self, hn, e):
+    def face_clicked(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
         self.gamedisplay.display.board.reset_board()
@@ -79,7 +71,7 @@ class DummyGameMode:
             return
         self.gamedisplay.display.set_timer(random.randint(0,100000000))
 
-    def onrelease(self, hn, e):
+    def tile_clicked(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
         row, col = e.y//16, e.x//16

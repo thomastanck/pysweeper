@@ -63,7 +63,7 @@ class Clicker:
         # to avoid key repetition behaviour
         self.lmb = 0
         self.rmb = 0
-        self.current_position = (0, 0)
+        self.currentposition = (0, 0)
 
     def modsloaded(self, hn, e):
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
@@ -81,6 +81,8 @@ class Clicker:
         )
         e.widget = self.gamedisplay.display
         e.x, e.y = self.currentposition
+        e.lmb = self.lmb > 0
+        e.rmb = self.rmb > 0
         self.pysweep.handle_event(("clicker", "Move"), e)
         if self.lmb > 0:
             self.pysweep.handle_event(("clicker", "LMBMove"), e)

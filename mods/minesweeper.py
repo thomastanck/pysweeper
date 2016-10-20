@@ -7,15 +7,6 @@ game_mode_name = "Minesweeper"
 class Minesweeper:
     hooks = {}
     required_events = [
-        ("pysweep", "<ButtonPress-1>"),
-        ("pysweep", "<B1-Motion>"),
-        ("pysweep", "<ButtonRelease-1>"),
-
-        ("pysweep", "<Motion>"),
-
-        ("face_button", "<ButtonPress-1>"),
-        ("face_button", "<ButtonRelease-1>"),
-
         ("pysweep", "<F2>"),
         ("pysweep", "<F3>"),
     ]
@@ -30,16 +21,13 @@ class Minesweeper:
         self.master = master
         self.pysweep = pysweep
         self.hooks = {
-            ("pysweep", "<ButtonPress-1>"):   [self.on_mouse_event],
-            ("pysweep", "<B1-Motion>"):       [self.on_mouse_event],
-            ("pysweep", "<ButtonRelease-1>"): [self.on_mouse_event],
-
-            ("pysweep", "<Motion>"): [self.on_mouse_move],
+            ("clicker", "Move"): [self.on_mouse_move],
 
             ("gamedisplaymanager", "TileClicked"): [self.tile_clicked],
             ("gamedisplaymanager", "FaceClicked"): [self.new_game],
 
             ("pysweep", "<F2>"): [self.new_game],
+            ("pysweep", "<F3>"): [self.new_game], # TODO: Create a UPK game
 
             ("pysweep", "AllModsLoaded"): [self.modsloaded],
         }

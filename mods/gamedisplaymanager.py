@@ -24,6 +24,13 @@ class GameDisplayManager:
         self.master = master
         self.pysweep = pysweep
         self.hooks = {
+            ("clicker", "LMBDown"): [self.handle_mouse_event],
+            ("clicker", "LMBMove"): [self.handle_mouse_event],
+            ("clicker", "LMBUp"):   [self.handle_mouse_event],
+            ("clicker", "RMBDown"): [self.handle_mouse_event],
+            ("clicker", "RMBMove"): [self.handle_mouse_event],
+            ("clicker", "RMBUp"):   [self.handle_mouse_event],
+
             ("pysweep", "AllModsLoaded"): [self.modsloaded],
         }
 
@@ -107,8 +114,8 @@ class GameDisplayManager:
     def handle_mouse_event(self, hn, e):
         # Other mods should call pysweep.mods["GameDisplayManager"].handle_mouse_event(hn, e)
         # when they receive button events (<ButtonPress-1>, <B1-Motion>, and <ButtonRelease-1>)
-        if hn[0] != "pysweep":
-            raise ValueError("GameDisplayManager handles pysweep events! (not board or gamedisplay events)")
+        # if hn[0] != "pysweep":
+        #     raise ValueError("GameDisplayManager handles pysweep events! (not board or gamedisplay events)")
         widget_handlers = [
             (self.gamedisplay.display.board,              self.handle_board),
             (self.gamedisplay.display.panel.face_button,  self.handle_face),
@@ -147,17 +154,21 @@ class GameDisplayManager:
 
     def handle_board(self, hn, e):
         # As these are more complicated, we split them up.
-        if hn[1] == "<ButtonPress-1>" or hn[1] == "<B1-Motion>":
-            self.board_press(hn, e)
-        elif hn[1] == "<ButtonRelease-1>":
-            self.board_release(hn, e)
+        if hn[1] == "LMBDown" or hn[1] == "LMBMove":
+            self.board_press_lmb(hn, e)
+        elif hn[1] == "LMBUp":
+            self.board_release_lmb(hn, e)
+        elif hn[1] == "RMBDown" or hn[1] == "RMBMove":
+            self.board_press_rmb(hn, e)
+        elif hn[1] == "RMBUp":
+            self.board_release_rmb(hn, e)
 
     def handle_face(self, hn, e):
         face_button = self.gamedisplay.display.panel.face_button
         if e.inbounds:
-            if hn[1] == "<ButtonPress-1>" or hn[1] == "<B1-Motion>":
+            if hn[1] == "LMBDown" or hn[1] == "LMBMove":
                 face_button.set_face("pressed")
-            elif hn[1] == "<ButtonRelease-1>":
+            elif hn[1] == "LMBUp":
                 self.pysweep.handle_event(("gamedisplaymanager", "FaceClicked"), e)
                 face_button.set_face("happy")
         else:
@@ -165,21 +176,21 @@ class GameDisplayManager:
 
     # Click only handlers
     def handle_mine(self, hn, e):
-        if hn[1] == "<ButtonRelease-1>":
+        if hn[1] == "LMBUp":
             self.pysweep.handle_event(("gamedisplaymanager", "MineCounterClicked"), e)
     def handle_timer(self, hn, e):
-        if hn[1] == "<ButtonRelease-1>":
+        if hn[1] == "LMBUp":
             self.pysweep.handle_event(("gamedisplaymanager", "TimerClicked"), e)
     def handle_panel(self, hn, e):
-        if hn[1] == "<ButtonRelease-1>":
+        if hn[1] == "LMBUp":
             self.pysweep.handle_event(("gamedisplaymanager", "PanelClicked"), e)
     def handle_display(self, hn, e):
-        if hn[1] == "<ButtonRelease-1>":
+        if hn[1] == "LMBUp":
             self.pysweep.handle_event(("gamedisplaymanager", "DisplayClicked"), e)
 
 
 
-    def board_press(self, hn, e):
+    def board_press_lmb(self, hn, e):
         board = self.gamedisplay.display.board
 
         col = e.x // 16
@@ -194,7 +205,7 @@ class GameDisplayManager:
                 self.temporarily_down.append((row, col))
                 self.set_tile(row, col, "tile_0")
 
-    def board_release(self, hn, e):
+    def board_release_lmb(self, hn, e):
         board = self.gamedisplay.display.board
 
         col = e.x // 16
@@ -219,7 +230,7 @@ class GameDisplayManager:
         height = board.board_height
         if (0 <= col < width and 0 <= row < height):
             e.row, e.col = row, col
-            self.pysweep.handle_event(("gamedisplaymanager", "TileClicked"), e)
+            self.pysweep.handle_event(("gamedisplaymanager", "TileRightClicked"), e)
 
     def board_reset_depressed(self, avoid_x=-1, avoid_y=-1):
         add_back = (avoid_x, avoid_y) in self.temporarily_down

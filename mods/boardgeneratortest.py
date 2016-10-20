@@ -7,11 +7,7 @@ game_mode_name = "Board Generator Test"
 class BoardGeneratorTest:
     hooks = {}
     required_events = [
-        ("pysweep", "<ButtonPress-1>"),
-        ("pysweep", "<B1-Motion>"),
-        ("pysweep", "<ButtonRelease-1>"),
-        ("face_button", "<ButtonPress-1>"),
-        ("face_button", "<ButtonRelease-1>"),
+        ("pysweep", "<F2>"),
     ]
     required_protocols = []
 
@@ -19,10 +15,6 @@ class BoardGeneratorTest:
         self.master = master
         self.pysweep = pysweep
         self.hooks = {
-            ("pysweep", "<ButtonPress-1>"):   [self.handle_mouse_event],
-            ("pysweep", "<B1-Motion>"):       [self.handle_mouse_event],
-            ("pysweep", "<ButtonRelease-1>"): [self.handle_mouse_event],
-
             ("gamedisplaymanager", "FaceClicked"): [self.generate_mines],
 
             ("pysweep", "<F2>"): [self.generate_mines],
@@ -39,11 +31,6 @@ class BoardGeneratorTest:
         self.gamedisplaymanager = self.pysweep.mods["GameDisplayManager"]
 
         self.rngmod = self.pysweep.mods["HashRandom"]
-
-    def handle_mouse_event(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
-        self.gamedisplaymanager.handle_mouse_event(hn, e)
 
     def generate_mines(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
