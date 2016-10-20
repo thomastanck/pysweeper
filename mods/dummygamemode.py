@@ -80,6 +80,8 @@ class DummyGameMode:
         self.gamedisplay.display.set_timer(random.randint(0,100000000))
 
     def onrelease(self, hn, e):
+        if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
+            return
         row, col = e.y//16, e.x//16
         self.gamedisplaymanager.set_tile_number(row, col, 0)
 
