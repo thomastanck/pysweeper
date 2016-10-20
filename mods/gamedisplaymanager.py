@@ -48,6 +48,10 @@ class GameDisplayManager:
     def get_timer(self):
         return self.gamedisplay.display.panel.timer
 
+    # Get size
+    def get_size(self):
+        return self.gamedisplay.size
+
     # Face button setters
     def set_face_happy(self):
         self.get_face_button().set_face("happy")

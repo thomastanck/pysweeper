@@ -37,9 +37,7 @@ class Minesweeper:
             ("pysweep", "<Motion>"): [self.on_mouse_move],
 
             ("gamedisplaymanager", "TileClicked"): [self.tile_clicked],
-
-            ("face_button", "<ButtonPress-1>"):   [self.press_smiley],
-            ("face_button", "<ButtonRelease-1>"): [self.new_game],
+            ("gamedisplaymanager", "FaceClicked"): [self.new_game],
 
             ("pysweep", "<F2>"): [self.new_game],
 
@@ -49,6 +47,7 @@ class Minesweeper:
         self.opened = []
         self.determined = []
         self.mines = []
+        self.num_mines = 99
         self.state = "notstarted"
         # notstarted means before first click,
         # started means after the first click,
@@ -81,34 +80,57 @@ class Minesweeper:
         # TODO: implement enable/disable hooks in GameModeSelector
         self.new_game(hn, e)
 
-    def press_smiley(self, hn, e):
-        # TODO: implement smiley presses in GameDisplayManager
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
-        self.gamedisplay.display.panel.face_button.set_face("pressed")
-
     def new_game(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
-        width, height = self.gamedisplay.size
-        for row in range(height):
-            for col in range(width):
-                self.gamedisplaymanager.set_tile_unopened(row, col)
+        width, height = self.gamedisplaymanager.get_size()
+        self.gamedisplaymanager.reset_board()
         self.state = "notstarted"
-        self.gamedisplay.display.panel.face_button.set_face("happy")
+
+        area = width*height
+        if self.num_mines > area - 1:
+            raise ValueException('More mines than spaces')
+
+        # for now let's just generate all mines on game start.
+        while len(self.mines) < self.num_mines:
+            row = int(random.random() * height)
+            col = int(random.random() * width)
+            if (row, col) not in self.mines:
+                self.mines.append((row, col))
 
     def tile_clicked(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
 
-        row, col = e.row, e.col
-
         board = self.gamedisplay.display.board
         width = board.board_width
         height = board.board_height
-        self.gamedisplaymanager.set_tile_number(row, col, 0)
+
+        row, col = e.row, e.col
+
+        if not (0 <= row < height and 0 <= col < width):
+            return
+
+        if (row, col) in self.opened:
+            return
+        self.opened.append((row, col))
+        if (row, col) in self.mines:
+            self.gamedisplaymanager.set_face_blast()
+            self.gamedisplaymanager.set_tile_blast(row, col)
+            return
+        number = 0
+        for (minerow, minecol) in self.mines:
+            if abs(minerow - row) <= 1 and abs(minecol - col) <= 1:
+                number += 1
+        self.gamedisplaymanager.set_tile_number(row, col, number)
+        if number == 0:
+            for drow in range(-1, 2):
+                for dcol in range(-1, 2):
+                    e.row, e.col = row + drow, col + dcol
+                    self.tile_clicked(hn, e)
 
         # TODO: more logic needed lol
+        # Done ish?
 
     def on_mouse_move(self, hn, e):
         pass # TODO: This will feed into the rng!
