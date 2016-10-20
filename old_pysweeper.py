@@ -111,7 +111,7 @@ class Application(tkinter.Frame):
 
 class MainContainer(tkinter.Frame):
     def create_widgets(self):
-        self.sub_frame = GameDisplay(self, 30, 16)
+        self.sub_frame = GameDisplay(self, 50, 100)
         self.master.board = self.sub_frame.board
 
     def __init__(self, master=None):
@@ -188,7 +188,7 @@ class GameDisplay(tkinter.Frame):
     def init_border(self):
         for key in ('l', 'r', 'bot_l', 'bot', 'bot_r', 'mid_l', 'mid', 'mid_r',
                     'panel_l', 'panel_r', 'top_l', 'top', 'top_r'):
-            img = Image.open("images/border_{}.bmp".format(key))
+            img = Image.open("images/border_{}.png".format(key))
             self.border_images[key] = ImageTk.PhotoImage(img)
         height = self.board_height
         width = self.board_width
@@ -247,7 +247,7 @@ class Board(tkinter.Frame):
         self.temporarily_down = []
         tile_names = ["tile_{}".format(i) for i in range(9)]
         for key in tile_names + ["unopened", "flag", "blast", "flag_wrong", "mine"]:
-            img = Image.open("images/{}.bmp".format(key))
+            img = Image.open("images/{}.png".format(key))
             tile_images[key] = img
             img.load()
         self.tile_images = tile_images
@@ -292,10 +292,7 @@ class Board(tkinter.Frame):
         
 
     def update_canvas(self):
-        self.canvas_rgba.paste(self.memory_rgba)
-        self.canvas_image = ImageTk.PhotoImage(self.canvas_rgba)
-        self.canvas.itemconfig(self.canvas_image_ref, image=self.canvas_image)
-        #self.canvas_image.paste(self.canvas_rgba)
+        self.canvas_image.paste(self.memory_rgba)
         
         
     def reset_depressed(self, avoid_x=-1, avoid_y=-1):
@@ -375,7 +372,7 @@ class Counter(tkinter.Frame):
     def init_border_images(self):
         if not self.border_images:
             for key in ('l', 'r', 't', 'b'):
-                img = Image.open("images/counter_border_{}.bmp".format(key))
+                img = Image.open("images/counter_border_{}.png".format(key))
                 self.border_images[key] = ImageTk.PhotoImage(img)
 
     def set_value(self, n):
@@ -416,7 +413,7 @@ class Digit(tkinter.Canvas):
     def init_digits(self):
         if not self.digits:
             for i in list(range(10)) + ['-', 'off']:
-                img = Image.open("images/counter_{}.bmp".format(i))
+                img = Image.open("images/counter_{}.png".format(i))
                 Digit.digits[i] = ImageTk.PhotoImage(img)
                 
 
@@ -455,7 +452,7 @@ class FaceButton(tkinter.Frame):
 
     def init_face_images(self):
         for key in ["happy", "pressed", "blast", "cool"]:
-            img = Image.open("images/face_{}.bmp".format(key))
+            img = Image.open("images/face_{}.png".format(key))
             self.face_images[key] = ImageTk.PhotoImage(img)
 
     def set_face(self, face):
