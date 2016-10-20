@@ -12,26 +12,29 @@ class Timer:
         # This mod is pretty benign and doesn't do much except give other mods TimerObj's
         self.timers = [] # A list of timers it has made
 
-    def get_timer(self, callback, resolution=1):
-        timerobj = TimerObj(self.master, callback, resolution)
+    def get_timer(self, callback, period=1, resolution=0.01):
+        timerobj = TimerObj(self.master, callback, period, resolution)
         self.timers.append(timerobj)
         return timerobj
 
 class TimerObj:
-    def __init__(self, master, callback, resolution):
-        # calls callback whenever the time changes more than resolution (which will be every second by default)
+    def __init__(self, master, callback, period, resolution):
+        # calls callback whenever the time changes more than period seconds (which will be every second by default), checking for this condition every resolution seconds (0.01 by default)
         self.master = master
         self.callback = callback
+        self.period = period
         self.resolution = resolution
         self.start_time = 0
-        self.current_time = 0
+        self.previous_tick_time = 0
+        self.next_tick_time = 0
         self.stop_time = 0
         self.timing_mode = False
-        self.poll_freq = max(int(resolution/100*1000), 1) # poll 100 times faster than the requested resolution, then convert to milliseconds. not sure if we should do this.
+        self.poll_freq = max(int(resolution*1000), 1) # poll at the requested resolution, converting to milliseconds.
 
     def start_timer(self):
         self.start_time = time.time()
-        self.current_time = self.start_time
+        self.previous_tick_time = self.start_time
+        self.next_tick_time = self.start_time + self.period
         self.callback(0, 0)
 
         if self.timing_mode == False:
@@ -43,9 +46,10 @@ class TimerObj:
         if self.timing_mode == True:
             curtime = time.time()
             elapsed = curtime - self.start_time
-            sincelasttick = curtime - self.current_time
-            if sincelasttick > self.resolution:
-                self.current_time = curtime
+            sincelasttick = curtime - self.previous_tick_time
+            if curtime > self.next_tick_time:
+                self.previous_tick_time = curtime
+                self.next_tick_time += self.period
                 self.callback(elapsed, sincelasttick)
 
             self.master.after(self.poll_freq, self.poll_timer)
@@ -58,8 +62,9 @@ class TimerObj:
 
         curtime = time.time()
         elapsed = curtime - self.start_time
-        sincelasttick = curtime - self.current_time
-        self.current_time = curtime
+        sincelasttick = curtime - self.previous_tick_time
+        self.previous_tick_time = curtime
+        self.next_tick_time = 0
         self.stop_time = curtime
 
         self.callback(elapsed, sincelasttick)

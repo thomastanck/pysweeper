@@ -50,7 +50,7 @@ class SpeedGame:
         self.gamedisplaymanager = self.pysweep.mods["GameDisplayManager"]
 
         self.timermod = self.pysweep.mods["Timer"]
-        self.timer = self.timermod.get_timer(self.timercallback, resolution=0.001)
+        self.timer = self.timermod.get_timer(self.timercallback, period=0.001, resolution=0.001)
 
     def timercallback(self, elapsed, sincelasttick):
         self.gamedisplay.display.set_timer(int(elapsed*1000))

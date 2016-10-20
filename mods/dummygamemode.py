@@ -44,7 +44,7 @@ class DummyGameMode:
         self.gamedisplaymanager = self.pysweep.mods["GameDisplayManager"]
 
         self.timermod = self.pysweep.mods["Timer"]
-        self.timer = self.timermod.get_timer(self.timercallback, resolution=0.001)
+        self.timer = self.timermod.get_timer(self.timercallback, period=0.001, resolution=0.001)
 
     def handle_mouse_event(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
