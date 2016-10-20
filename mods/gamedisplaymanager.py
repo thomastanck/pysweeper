@@ -208,6 +208,19 @@ class GameDisplayManager:
             e.row, e.col = row, col
             self.pysweep.handle_event(("gamedisplaymanager", "TileClicked"), e)
 
+    def board_press_rmb(self, hn, e):
+        pass
+
+    def board_release_rmb(self, hn, e):
+        board = self.gamedisplay.display.board
+        col = e.x // 16
+        row = e.y // 16
+        width = board.board_width
+        height = board.board_height
+        if (0 <= col < width and 0 <= row < height):
+            e.row, e.col = row, col
+            self.pysweep.handle_event(("gamedisplaymanager", "TileClicked"), e)
+
     def board_reset_depressed(self, avoid_x=-1, avoid_y=-1):
         add_back = (avoid_x, avoid_y) in self.temporarily_down
         if add_back:

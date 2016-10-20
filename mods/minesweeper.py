@@ -7,9 +7,9 @@ game_mode_name = "Minesweeper"
 class Minesweeper:
     hooks = {}
     required_events = [
-        ("board", "<ButtonPress-1>"),
-        ("board", "<B1-Motion>"),
-        ("board", "<ButtonRelease-1>"),
+        ("pysweep", "<ButtonPress-1>"),
+        ("pysweep", "<B1-Motion>"),
+        ("pysweep", "<ButtonRelease-1>"),
 
         ("pysweep", "<Motion>"),
 
