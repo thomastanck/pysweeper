@@ -23,6 +23,9 @@ class Clicker:
         self.pysweep = pysweep
         self.hooks = {
             ("pysweep", "<Motion>"):     [self.onmove],
+            ("pysweep", "<B1-Motion>"):  [self.onmove],
+            ("pysweep", "<B2-Motion>"):  [self.onmove],
+            ("pysweep", "<B3-Motion>"):  [self.onmove],
 
             ("pysweep", "<KeyPress>"):   [self.onpress_key],
             ("pysweep", "<KeyRelease>"): [self.onrelease_key],
@@ -39,8 +42,10 @@ class Clicker:
             ("pysweep", "AllModsLoaded"): [self.modsloaded],
 
             ("clicker", "LMBDown"): [self.debug],
+            ("clicker", "LMBMove"): [self.debug],
             ("clicker", "LMBUp"):   [self.debug],
             ("clicker", "RMBDown"): [self.debug],
+            ("clicker", "RMBMove"): [self.debug],
             ("clicker", "RMBUp"):   [self.debug],
         }
 
@@ -65,7 +70,8 @@ class Clicker:
         pass
 
     def debug(self, hn, e):
-        print(hn)
+        # print(hn)
+        return
 
     # POSITION
     def onmove(self, hn, e):
