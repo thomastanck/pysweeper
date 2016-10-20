@@ -94,6 +94,7 @@ class Minesweeper:
         for row in range(height):
             for col in range(width):
                 self.gamedisplaymanager.set_tile_unopened(row, col)
+        self.gamedisplaymanager.update()
         self.state = "notstarted"
         self.gamedisplay.display.panel.face_button.set_face("happy")
 
@@ -107,6 +108,7 @@ class Minesweeper:
         width = board.board_width
         height = board.board_height
         self.gamedisplaymanager.set_tile_number(row, col, 0)
+        self.gamedisplaymanager.update()
 
         # TODO: more logic needed lol
 
