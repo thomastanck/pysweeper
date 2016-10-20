@@ -91,20 +91,24 @@ class Minesweeper:
         if self.num_mines > area - 1:
             raise ValueException('More mines than spaces')
 
-        # for now let's just generate all mines on game start.
-        while len(self.mines) < self.num_mines:
-            row = int(random.random() * height)
-            col = int(random.random() * width)
-            if (row, col) not in self.mines:
-                self.mines.append((row, col))
+        self.opened = []
+        self.determined = []
+        self.mines = []
 
     def tile_clicked(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
 
-        board = self.gamedisplay.display.board
-        width = board.board_width
-        height = board.board_height
+        width, height = self.gamedisplaymanager.get_size()
+
+        if self.state == "notstarted":
+            self.state = "started"
+            # for now let's just generate all mines on game start.
+            while len(self.mines) < self.num_mines:
+                row = int(random.random() * height)
+                col = int(random.random() * width)
+                if (row, col) not in self.mines and (row, col) != (e.row, e.col):
+                    self.mines.append((row, col))
 
         row, col = e.row, e.col
 
@@ -115,6 +119,8 @@ class Minesweeper:
             return
         self.opened.append((row, col))
         if (row, col) in self.mines:
+            for (minerow, minecol) in self.mines:
+                self.gamedisplaymanager.set_tile_mine(minerow, minecol)
             self.gamedisplaymanager.set_face_blast()
             self.gamedisplaymanager.set_tile_blast(row, col)
             return
