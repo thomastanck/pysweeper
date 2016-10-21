@@ -24,12 +24,12 @@ class GameDisplayManager:
         self.master = master
         self.pysweep = pysweep
         self.hooks = {
-            ("clicker", "LMBDown"): [self.handle_mouse_event],
-            ("clicker", "LMBMove"): [self.handle_mouse_event],
-            ("clicker", "LMBUp"):   [self.handle_mouse_event],
-            ("clicker", "RMBDown"): [self.handle_mouse_event],
-            ("clicker", "RMBMove"): [self.handle_mouse_event],
-            ("clicker", "RMBUp"):   [self.handle_mouse_event],
+            ("clicker", "LD"): [self.handle_mouse_event],
+            ("clicker", "LM"): [self.handle_mouse_event],
+            ("clicker", "LU"):   [self.handle_mouse_event],
+            ("clicker", "RD"): [self.handle_mouse_event],
+            ("clicker", "RM"): [self.handle_mouse_event],
+            ("clicker", "RU"):   [self.handle_mouse_event],
 
             ("pysweep", "AllModsLoaded"): [self.modsloaded],
         }
@@ -154,21 +154,21 @@ class GameDisplayManager:
 
     def handle_board(self, hn, e):
         # As these are more complicated, we split them up.
-        if hn[1] == "LMBDown" or hn[1] == "LMBMove":
+        if hn[1] == "LD" or hn[1] == "LM":
             self.board_press_lmb(hn, e)
-        elif hn[1] == "LMBUp":
+        elif hn[1] == "LU":
             self.board_release_lmb(hn, e)
-        elif hn[1] == "RMBDown" or hn[1] == "RMBMove":
+        elif hn[1] == "RD" or hn[1] == "RM":
             self.board_press_rmb(hn, e)
-        elif hn[1] == "RMBUp":
+        elif hn[1] == "RU":
             self.board_release_rmb(hn, e)
 
     def handle_face(self, hn, e):
         face_button = self.gamedisplay.display.panel.face_button
         if e.inbounds:
-            if hn[1] == "LMBDown" or hn[1] == "LMBMove":
+            if hn[1] == "LD" or hn[1] == "LM":
                 face_button.set_face("pressed")
-            elif hn[1] == "LMBUp":
+            elif hn[1] == "LU":
                 self.pysweep.handle_event(("gamedisplaymanager", "FaceClicked"), e)
                 face_button.set_face("happy")
         else:
@@ -176,16 +176,16 @@ class GameDisplayManager:
 
     # Click only handlers
     def handle_mine(self, hn, e):
-        if hn[1] == "LMBUp":
+        if hn[1] == "LU":
             self.pysweep.handle_event(("gamedisplaymanager", "MineCounterClicked"), e)
     def handle_timer(self, hn, e):
-        if hn[1] == "LMBUp":
+        if hn[1] == "LU":
             self.pysweep.handle_event(("gamedisplaymanager", "TimerClicked"), e)
     def handle_panel(self, hn, e):
-        if hn[1] == "LMBUp":
+        if hn[1] == "LU":
             self.pysweep.handle_event(("gamedisplaymanager", "PanelClicked"), e)
     def handle_display(self, hn, e):
-        if hn[1] == "LMBUp":
+        if hn[1] == "LU":
             self.pysweep.handle_event(("gamedisplaymanager", "DisplayClicked"), e)
 
 
