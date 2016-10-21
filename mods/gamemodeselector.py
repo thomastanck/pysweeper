@@ -41,8 +41,8 @@ class GameModeSelector:
         if (self.currentgamemode != gamemodename):
             if (self.currentgamemode != None):
                 self.pysweep.handle_event(("gamemode", "DisableGameMode"), self.currentgamemode)
-            self.pysweep.handle_event(("gamemode", "EnableGameMode"), gamemodename)
             self.currentgamemode = gamemodename
+            self.pysweep.handle_event(("gamemode", "EnableGameMode"), gamemodename)
 
     def is_enabled(self, gamemodename):
         return self.currentgamemode == gamemodename
