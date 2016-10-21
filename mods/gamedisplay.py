@@ -81,109 +81,112 @@ class GameDisplayWrapper:
 
         self.master.geometry('+%d+%d' % (x, y))
 
+class BorderCanvas(tkinter.Canvas):
+    def __init__(self, master, image, copies=1, direction='h'):
+        """direction is the direction the image is copied, either 
+        h for horizontal, or v for vertical
+"""
+        self.original_image = image
+        self.copies = copies
+        self.direction = 'v' if direction.lower() == 'v' else 'h'
+
+        width, height = self.canvas_size
+
+        super().__init__(master, width=width, height=height,
+                         highlightthickness=0)
+
+        self.image_ref = self.create_image((0, 0), anchor='nw')
+        self.build_image()
+
+    def build_image(self):
+        new_image = Image.new(size=self.canvas_size, mode='RGB')
+        width, height = self.original_image.size
+        for col in range(self.grid_size[0]):
+            for row in range(self.grid_size[1]):
+                new_image.paste(self.original_image, box=(col*width, row*height))
+        self.image = ImageTk.PhotoImage(new_image)
+        self.itemconfig(self.image_ref, image=self.image)
+
+    def resize(self, copies):
+        self.copies = copies
+        self.build_image()
+        width, height = self.canvas_size
+        self.config(width=width, height=height)
+        
+
+    @property
+    def canvas_size(self):
+        w_factor, h_factor = self.grid_size
+        orig_size = self.original_image.size
+        w, h = orig_size[0]*w_factor, orig_size[1]*h_factor
+        return (w, h)
+
+    @property
+    def grid_size(self):
+        if self.direction.lower() == 'v':
+            return (1, self.copies)
+        else:
+            return (self.copies, 1)
+        
+
 class GameDisplay(tkinter.Frame):
     border_images = {}
     def create_widgets(self):
         # Grid row 0: Top border
+        border_images = self.border_images
         grid_row = 0
-        self.border_top_left = tkinter.Canvas(self, width=12, height=15,
-                                              highlightthickness=0)
-        self.border_top = tkinter.Canvas(self, width=16*self.board_width,
-                                         height=15, highlightthickness=0)
-        self.border_top_right = tkinter.Canvas(self, width=12, heigh=15,
-                                               highlightthickness=0)
-        self.border_top_left.grid(row=grid_row, column=0)
-        self.border_top.grid(row=grid_row, column=1)
-        self.border_top_right.grid(row=grid_row, column=2)
+        self.border_top_left = BorderCanvas(self, border_images['top_l'])
+        self.border_top = BorderCanvas(self, border_images['top'],
+                                       self.board_width*16, 'h')
+        self.border_top_right = BorderCanvas(self, border_images['top_r'])
+        for i, name in enumerate(('_left', '', '_right')):
+            getattr(self, "border_top{}".format(name)).grid(row=grid_row, column=i)
 
         # Grid row 1: Left and right borders, Panel
         grid_row = 1
-        self.border_panel_left = tkinter.Canvas(self, width=12, height=26,
-                                             highlightthickness=0)
+        self.border_panel_left = BorderCanvas(
+            self, border_images['panel_l'], 26, 'v')
         self.panel = Panel(self, board_width=self.board_width)
-        self.border_panel_right = tkinter.Canvas(self, width=12, height=26,
-                                                 highlightthickness=0)
+        self.border_panel_right = BorderCanvas(
+            self, border_images['panel_r'], 26, 'v')
         self.border_panel_left.grid(row=grid_row, column=0)
         self.panel.grid(row=grid_row, column=1, sticky="nesw")
         self.border_panel_right.grid(row=grid_row, column=2)
 
         # Grid row 2: Middle divider between Panel and Board
         grid_row = 2
-        self.border_mid_left = tkinter.Canvas(self, width=12, height=14,
-                                              highlightthickness=0)
-        self.border_mid = tkinter.Canvas(self, width=16*self.board_width,
-                                         height=14, highlightthickness=0)
-        self.border_mid_right = tkinter.Canvas(self, width=12, height=14,
-                                               highlightthickness=0)
-        self.border_mid_left.grid(row=grid_row, column=0)
-        self.border_mid.grid(row=grid_row, column=1)
-        self.border_mid_right.grid(row=grid_row, column=2)
-
-        # Set up Board widget
-        self.border_left = tkinter.Canvas(self, width=12,
-                                          height=16*self.board_height)
-        self.border_left.config(highlightthickness=0)
-        self.board = Board(self, self.board_width, self.board_height)
-        self.border_right = tkinter.Canvas(self, width=12,
-                                           height=16*self.board_height)
-        self.border_right.config(highlightthickness=0)
+        self.border_mid_left = BorderCanvas(self, border_images['mid_l'])
+        self.border_mid = BorderCanvas(self, border_images['mid'],
+                                     self.board_width*16, 'h')
+        self.border_mid_right = BorderCanvas(self, border_images['mid_r'])
+        for i, name in enumerate(('_left', '', '_right')):
+            getattr(self, "border_mid{}".format(name)).grid(row=grid_row, column=i)
 
         # Grid row 3: Left and right board boarder, Board
         grid_row = 3
+        self.border_left = BorderCanvas(self, border_images['l'],
+                                        self.board_height*16, 'v')
+        self.board = Board(self, self.board_width, self.board_height)
+        self.border_right = BorderCanvas(self, border_images['r'],
+                                         self.board_height*16, 'v')
         self.border_left.grid(row=grid_row, column=0)
         self.board.grid(row=grid_row, column=1)
         self.border_right.grid(row=grid_row, column=2)
 
         # Grid row 4: Bottom board border
         grid_row = 4
-        self.border_bot_left = tkinter.Canvas(self, width=12, height=12,
-                                              highlightthickness=0)
-        self.border_bot = tkinter.Canvas(self, width=16*self.board_width,
-                                         height=12, highlightthickness=0)
-        self.border_bot_right = tkinter.Canvas(self, width=12,
-                                               height=12, highlightthickness=0)
-        self.border_bot_left.grid(row=grid_row, column=0)
-        self.border_bot.grid(row=grid_row, column=1)
-        self.border_bot_right.grid(row=grid_row, column=2)
+        self.border_bot_left = BorderCanvas(self, border_images['bot_l'])
+        self.border_bot = BorderCanvas(self, border_images['bot'],
+                                       self.board_width*16, 'h')
+        self.border_bot_right = BorderCanvas(self, border_images['bot_r'])
+        for i, name in enumerate(('_left', '', '_right')):
+            getattr(self, "border_bot{}".format(name)).grid(row=grid_row, column=i)
 
-        self.init_border()
-
-    def init_border(self):
-        for key in ('l', 'r', 'bot_l', 'bot', 'bot_r', 'mid_l', 'mid', 'mid_r',
-                    'panel_l', 'panel_r', 'top_l', 'top', 'top_r'):
+    def load_border_images(self):
+        for key in ('l', 'r', 'top', 'mid', 'top_l', 'top_r', 'panel_l',
+                    'panel_r', 'mid_l', 'mid_r', 'bot', 'bot_l', 'bot_r'):
             img = Image.open("images/border_{}.png".format(key))
-            self.border_images[key] = ImageTk.PhotoImage(img)
-        height = self.board_height
-        width = self.board_width
-        for i in range(height):
-            border = self.border_images['l']
-            self.border_left.create_image((0, 16*i), image=border, anchor='nw')
-            border = self.border_images['r']
-            self.border_right.create_image((0, 16*i), image=border, anchor='nw')
-
-        for i in range(width):
-            border = self.border_images['top']
-            self.border_top.create_image((16*i, 0), image=border, anchor='nw')
-            border = self.border_images['mid']
-            self.border_mid.create_image((16*i, 0), image=border, anchor='nw')
-            border = self.border_images['bot']
-            self.border_bot.create_image((16*i, 0), image=border, anchor='nw')
-        border = self.border_images['top_l']
-        self.border_top_left.create_image((0, 0), image=border, anchor='nw')
-        border = self.border_images['top_r']
-        self.border_top_right.create_image((0, 0), image=border, anchor='nw')
-        border = self.border_images['panel_l']
-        self.border_panel_left.create_image((0, 0), image=border, anchor='nw')
-        border = self.border_images['panel_r']
-        self.border_panel_right.create_image((0, 0), image=border, anchor='nw')
-        border = self.border_images['mid_l']
-        self.border_mid_left.create_image((0,0), image=border, anchor='nw')
-        border = self.border_images['mid_r']
-        self.border_mid_right.create_image((0,0), image=border, anchor='nw')
-        border = self.border_images['bot_l']
-        self.border_bot_left.create_image((0,0), image=border, anchor='nw')
-        border = self.border_images['bot_r']
-        self.border_bot_right.create_image((0,0), image=border, anchor='nw')
+            self.border_images[key] = img        
 
 
     def __init__(self, master, pysweep, board_width=16, board_height=16):
@@ -191,6 +194,7 @@ class GameDisplay(tkinter.Frame):
         self.board_width = board_width
         self.board_height = board_height
         super().__init__(master, width=board_width*16+24, height=board_height*16+67)
+        self.load_border_images()
         self.create_widgets()
 
     def set_timer(self, t):
@@ -210,22 +214,45 @@ class Board(tkinter.Frame):
         super().__init__(master)
         self.board_width = width
         self.board_height = height
-        self.canvas = tkinter.Canvas(self, width=16*width, height=16*height,
+        self.tile_size = None
+        self.load_tiles()
+        w, h = self.canvas_size
+        self.canvas = tkinter.Canvas(self, width=w, height=h,
                                      highlightthickness=0)
-        self.canvas_rgb = Image.new(size=(16*width, 16*height), mode="RGB")
-        self.canvas_img = ImageTk.PhotoImage(self.canvas_rgb)
-        self.canvas_img_ref = self.canvas.create_image((0,0), anchor="nw",
-                                                       image=self.canvas_img)
+        self.canvas_img_ref = self.canvas.create_image((0,0), anchor="nw")
+        self.init_canvas()
 
         self.update_canvas_queued = False
         self.canvas.pack()
-        self.load_tiles()
+
+    def resize(self, width, height):
+        self.board_width = width
+        self.board_height = height
+        self.canvas.config(width=self.canvas_size[0], height=self.canvas_size[1])
+        self.init_canvas()
+
+    def init_canvas(self):
+        self.canvas_rgb = Image.new(size=self.canvas_size, mode="RGB")
+        self.canvas_img = ImageTk.PhotoImage(self.canvas_rgb)
+        self.canvas.itemconfig(self.canvas_img_ref, image=self.canvas_img)
+        
 
     def load_tiles(self):
         tile_images = {}
         tile_names = ["tile_{}".format(i) for i in range(9)]
         for key in tile_names + ["unopened", "flag", "blast", "flag_wrong", "mine"]:
             img = Image.open("images/{}.png".format(key))
+            if self.tile_size is None:
+                self.tile_size = img.size
+            else:
+                try:
+                    assert self.tile_size == img.size
+                except AssertionError as e:
+                    e.args += (' '.join(("All tile images must be of same size.",
+                                         "\"images/{}.png\"".format(key),
+                                        "has size ({}, {}).".format(*img.size))),
+                    )
+                    raise e
             tile_images[key] = img
         self.tile_images = tile_images
 
@@ -234,9 +261,6 @@ class Board(tkinter.Frame):
         tiles = [[Tile(r, c, None) for c in range(width)]
                  for r in range(height)]
         self.tiles = tiles
-        for row in range(height):
-            for col in range(width):
-                self.draw_tile(row, col, 'unopened')
 
     def get_tile_type(self, i, j):
         return self.tiles[i][j].state
@@ -263,6 +287,12 @@ class Board(tkinter.Frame):
         for i in range(height):
             for j in range(width):
                 self.set_tile(i, j, "unopened")
+
+    @property
+    def canvas_size(self):
+        return (self.tile_size[0]*self.board_width,
+                self.tile_size[1]*self.board_height)
+
 
 
 class Counter(tkinter.Frame):

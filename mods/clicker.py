@@ -1,4 +1,5 @@
 import platform
+import time
 
 class Clicker:
     hooks = {}
