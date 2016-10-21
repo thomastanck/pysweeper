@@ -141,6 +141,7 @@ class Minesweeper:
         self.notopened.remove((row, col))
         if (row, col) in self.mines:
             # DEAD
+            self.timer.stop_timer()
             for (minerow, minecol) in self.mines:
                 if (minerow, minecol) not in self.flagged:
                     self.gamedisplaymanager.set_tile_mine(minerow, minecol)
