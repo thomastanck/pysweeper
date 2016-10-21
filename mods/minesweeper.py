@@ -143,9 +143,14 @@ class Minesweeper:
         if (row, col) in self.mines:
             # DEAD
             self.timer.stop_timer()
+            # Display all mines
             for (minerow, minecol) in self.mines:
                 if (minerow, minecol) not in self.flagged:
                     self.gamedisplaymanager.set_tile_mine(minerow, minecol)
+            # Find wrong flags
+            for (flagrow, flagcol) in self.flagged:
+                if (flagrow, flagcol) not in self.mines:
+                    self.gamedisplaymanager.set_tile_flag_wrong(flagrow, flagcol)
             self.gamedisplaymanager.set_face_blast()
             self.gamedisplaymanager.set_tile_blast(row, col)
             self.state = "ended"
