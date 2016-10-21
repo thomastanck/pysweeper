@@ -1,10 +1,17 @@
-# Introduction
+PySweeper Video File Format v0.0 (mega unstable)
+====
 
-The video file is a record of a player's actions and the state of a Minesweeper board which allows us to view a replay of a game. In PySweeper, one of our cheat prevention techniques is to include a subset of the video file containing some of the player's actions in the generation of the board itself! This first eliminates the possibility of the UPK (Unfair Prior Knowledge) cheats and also makes it extremely difficult to tanper with the video file, bordering on impossible.
+## Introduction
 
-# Internals
+The video file is a record of a player's actions and the state of a Minesweeper board which allows us to view a replay of a game. In PySweeper, one of our cheat prevention techniques is to include a subset of the video file containing some of the player's actions in the generation of the board itself! This first eliminates the possibility of the UPK (Unfair Prior Knowledge) cheats and also makes it extremely difficult to tamper with the video file, bordering on impossible.
 
-The video file is a compressed json file which contains a list of tuples (json does not have tuples, so they'll be lists too).
+## Internals
+
+The video file is a list of tuples encoded into the JSON format and then compressed with zlib. As JSON does not have tuples, they'll be stored as lists in the video file.
+
+JSON encoding and decoding are done using the standard python module 'json'.
+
+Compression is done using the standard python module 'zlib'.
 
 ## Commands
 
@@ -49,3 +56,12 @@ Client actions:
 * TIMER seconds_since_start_of_game
 * WIN time
 * LOSE time
+
+## The RNG (Random Number Generator)
+
+In PySweeper, the video stream and the state of the game are exactly the same. This includes the state of the RNG! As part of our cheat prevention, we must include some subset of the player's actions, a checksum of the board state, and the client/server interaction within the state of the RNG.
+
+We record this in the video file within "ADDSEED" commands. Every "ADDSEED" command appends the string in arg1 to the state of the RNG. This state is hashed using the SHA-512 algorithm and this number is used as the random number generator's output.
+
+By expressing a probability in a fraction, then taking the remainder of the random number after dividing by the denominator and checking if the remainder is less than the numerator, we can sample a True/False value using at probability given.
+
