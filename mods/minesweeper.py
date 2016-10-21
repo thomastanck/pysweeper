@@ -36,13 +36,9 @@ class Minesweeper:
             ("gamemode", "EnableGameMode"): [self.onenable],
         }
 
-        print("##################################")
-        print("#     MINESWEEPER NOT TESTED     #")
-        print("##################################")
-
     def modsloaded(self, hn, e):
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
-        self.gamemodeselector.register_game_mode(game_mode_name)
+        self.gamemodeselector.register_game_mode(game_mode_name, priority=1, default=True)
 
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
