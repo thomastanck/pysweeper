@@ -26,10 +26,10 @@ class GameDisplayManager:
         self.hooks = {
             ("clicker", "LD"): [self.handle_mouse_event],
             ("clicker", "LM"): [self.handle_mouse_event],
-            ("clicker", "LU"):   [self.handle_mouse_event],
+            ("clicker", "LU"): [self.handle_mouse_event],
             ("clicker", "RD"): [self.handle_mouse_event],
             ("clicker", "RM"): [self.handle_mouse_event],
-            ("clicker", "RU"):   [self.handle_mouse_event],
+            ("clicker", "RU"): [self.handle_mouse_event],
 
             ("pysweep", "AllModsLoaded"): [self.modsloaded],
         }
@@ -37,6 +37,10 @@ class GameDisplayManager:
         self.temporarily_down = []
         self.current_widget_handler = None
         self.mousedown = False
+
+        self.chording_mode = 0
+        # 0: didn't double click during this press (either LMB down, LMB up, or RMB down, RMB up)
+        # 1: did double click at some point during the click (LMB down, RMB down, *flag on*, RMB up, RMB down, LMB up, RMB up, *flag off*)
 
     def modsloaded(self, hn, e):
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
@@ -73,6 +77,9 @@ class GameDisplayManager:
     def get_tile_type(self, row, col):
         board = self.gamedisplay.display.board
         return board.get_tile_type(row, col)
+    def is_tile_flag(self, row, col):
+        board = self.gamedisplay.display.board
+        return board.get_tile_type(row, col) == "flag"
     def get_tile_number(self, row, col):
         board = self.gamedisplay.display.board
         return int(board.get_tile_type(row, col)[-1:]) # get the last char and convert to int
@@ -153,15 +160,51 @@ class GameDisplayManager:
                 break # don't allow more than one trigger
 
     def handle_board(self, hn, e):
+        LD = ("clicker", "LD")
+        LM = ("clicker", "LM")
+        LU = ("clicker", "LU")
+        RD = ("clicker", "RD")
+        RM = ("clicker", "RM")
+        RU = ("clicker", "RU")
         # As these are more complicated, we split them up.
-        if hn[1] == "LD" or hn[1] == "LM":
-            self.board_press_lmb(hn, e)
-        elif hn[1] == "LU":
-            self.board_release_lmb(hn, e)
-        elif hn[1] == "RD" or hn[1] == "RM":
-            self.board_press_rmb(hn, e)
-        elif hn[1] == "RU":
-            self.board_release_rmb(hn, e)
+
+        # We go into chording mode before handling the event
+        # But we leave chording mode only after the event
+        if e.lmb > 0 and e.rmb > 0:
+            # both buttons down means go into chording mode
+            self.chording_mode = 1
+
+        if self.chording_mode == 0:
+            # Not chording mode, simple rules apply.
+            if hn == LD or hn == LM:
+                # Depress animation
+                self.board_depress(hn, e)
+            elif hn == LU:
+                # Open square
+                self.board_open(hn, e)
+            elif hn == RD:
+                # Toggle flag
+                self.board_toggle_flag(hn, e)
+        elif self.chording_mode == 1:
+            # Chording mode is simple: depress neighbours until release (which means chord).
+            # Further releases will be in after chording mode.
+            if hn == LD or hn == LM or hn == RD or hn == RM:
+                # Depress animation (chording)
+                self.board_depress_chord(hn, e)
+            if hn == LU or hn == RU:
+                # Chord
+                self.board_chord(hn, e)
+        else: # self.chording_mode == 2
+            # After chording mode
+            # We don't do anything here I think...
+            pass
+
+        if (hn == LU or hn == RU) and self.chording_mode == 1:
+            # Release while in chording mode goes to after chording mode
+            self.chording_mode = 2
+        if e.lmb == 0 and e.rmb == 0:
+            # both buttons up means reset to normal mode
+            self.chording_mode = 0
 
     def handle_face(self, hn, e):
         face_button = self.gamedisplay.display.panel.face_button
@@ -190,7 +233,9 @@ class GameDisplayManager:
 
 
 
-    def board_press_lmb(self, hn, e):
+    def board_depress(self, hn, e):
+        # Undepress currently depressed cells
+        # Depress current cell
         board = self.gamedisplay.display.board
 
         col = e.x // 16
@@ -205,7 +250,9 @@ class GameDisplayManager:
                 self.temporarily_down.append((row, col))
                 self.set_tile(row, col, "tile_0")
 
-    def board_release_lmb(self, hn, e):
+    def board_open(self, hn, e):
+        # Undepress currently depressed cells
+        # Send out click event
         board = self.gamedisplay.display.board
 
         col = e.x // 16
@@ -219,10 +266,8 @@ class GameDisplayManager:
             e.row, e.col = row, col
             self.pysweep.handle_event(("gamedisplaymanager", "TileClicked"), e)
 
-    def board_press_rmb(self, hn, e):
-        pass
-
-    def board_release_rmb(self, hn, e):
+    def board_toggle_flag(self, hn, e):
+        # Send out click event
         board = self.gamedisplay.display.board
         col = e.x // 16
         row = e.y // 16
@@ -232,7 +277,39 @@ class GameDisplayManager:
             e.row, e.col = row, col
             self.pysweep.handle_event(("gamedisplaymanager", "TileRightClicked"), e)
 
+    def board_depress_chord(self, hn, e):
+        # Undepress currently depressed cells
+        # Depress current cell and neighbours
+        board = self.gamedisplay.display.board
+
+        col = e.x // 16
+        row = e.y // 16
+        width, height = board.board_width, board.board_height
+        self.board_reset_depressed()
+        for drow in range(-1, 2):
+            for dcol in range(-1, 2):
+                row_, col_ = row+drow, col+dcol
+                if (0 <= col_ < width and 0 <= row_ < height):
+                    if self.get_tile_type(row_, col_) == "unopened":
+                        self.temporarily_down.append((row_, col_))
+                        self.set_tile(row_, col_, "tile_0")
+
+    def board_chord(self, hn, e):
+        # Undepress currently depressed cells
+        # Send out chord event
+        board = self.gamedisplay.display.board
+
+        col = e.x // 16
+        row = e.y // 16
+        self.board_reset_depressed()
+        width = board.board_width
+        height = board.board_height
+        if (0 <= col < width and 0 <= row < height):
+            e.row, e.col = row, col
+            self.pysweep.handle_event(("gamedisplaymanager", "TileChorded"), e)
+
     def board_reset_depressed(self, avoid_x=-1, avoid_y=-1):
+        # Helper function
         add_back = (avoid_x, avoid_y) in self.temporarily_down
         if add_back:
             self.temporarily_down.remove((avoid_x, avoid_y))

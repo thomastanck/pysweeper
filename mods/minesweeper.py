@@ -25,6 +25,7 @@ class Minesweeper:
 
             ("gamedisplaymanager", "TileClicked"): [self.tile_clicked],
             ("gamedisplaymanager", "TileRightClicked"): [self.tile_right_clicked],
+            ("gamedisplaymanager", "TileChorded"): [self.tile_chorded],
             ("gamedisplaymanager", "FaceClicked"): [self.new_game],
 
             ("pysweep", "<F2>"): [self.new_game],
@@ -191,6 +192,37 @@ class Minesweeper:
             self.gamedisplaymanager.set_tile_flag(row, col)
 
         self.gamedisplay.display.panel.mine_counter.set_value(self.num_mines - len(self.flagged))
+
+    def tile_chorded(self, hn, e):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
+            return
+
+        width, height = self.gamedisplaymanager.get_size()
+
+        row, col = e.row, e.col
+
+        # only care about closed, fulfilled squares!
+        if (row, col) not in self.opened:
+            return
+
+        squarenum = self.gamedisplaymanager.get_tile_number(row, col)
+        flagcount = 0
+        for drow in range(-1, 2):
+            for dcol in range(-1, 2):
+                row_, col_ = row+drow, col+dcol
+                if (0 <= row_ < height and 0 <= col_ < width):
+                    if self.gamedisplaymanager.is_tile_flag(row_, col_):
+                        flagcount += 1
+        if flagcount == squarenum:
+            # Square is fulfilled. Time to chord!
+            for drow in range(-1, 2):
+                for dcol in range(-1, 2):
+                    row_, col_ = row+drow, col+dcol
+                    if (0 <= row_ < height and 0 <= col_ < width):
+                        if not self.gamedisplaymanager.is_tile_flag(row_, col_):
+                            e.row, e.col = row_, col_
+                            self.tile_clicked(hn, e)
+
 
     def on_mouse_move(self, hn, e):
         pass # TODO: This will feed into the rng!
