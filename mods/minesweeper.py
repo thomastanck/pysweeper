@@ -54,12 +54,24 @@ class Minesweeper:
         self.timermod = self.pysweep.mods["Timer"]
         self.timer = self.timermod.get_timer(self.timercallback, period=1, resolution=0.01)
 
+        self.menuvar = tkinter.StringVar()
+        self.menumod = self.pysweep.mods["Menu"]
+        self.menu = tkinter.Menu(self.menumod.menubar, tearoff=0)
+        self.menu.add_radiobutton(label="Playing Mode", variable=self.menuvar, command=self.playingmode)
+        self.menu.add_radiobutton(label="Testing Mode", variable=self.menuvar, command=self.testingmode)
+
     def timercallback(self, elapsed, sincelasttick):
         self.gamedisplay.set_timer(int(elapsed))
+        if self.testing and elapsed > 10:
+            self.lose_game(*self.mines[0])
 
     def onenable(self, hn, e):
         if e == game_mode_name:
             self.new_game(hn, e)
+
+            self.menumod.add_menu("Minesweeper", self.menu)
+            self.menu.invoke(1)
+
     def ondisable(self, hn, e):
         if e == game_mode_name:
             self.timer.stop_timer()
@@ -67,6 +79,13 @@ class Minesweeper:
             self.gamedisplay.set_timer(0)
             self.gamedisplay.set_mine_counter(0)
             self.gamedisplay.set_face_happy()
+
+            self.menumod.remove_menu("Minesweeper", self.menu)
+
+    def playingmode(self):
+        self.testing = False
+    def testingmode(self):
+        self.testing = True
 
     def new_game(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
@@ -105,6 +124,53 @@ class Minesweeper:
         if self.num_mines > area - 1:
             raise ValueException('More mines than spaces')
 
+    def start_game(self, row, col):
+        # First click at row, col
+        width, height = self.gamedisplay.size
+
+        self.state = "started"
+        self.timer.start_timer()
+        # for now let's just generate all mines on game start.
+        while self.mines_generated < self.num_mines:
+            row_ = int(random.random() * height)
+            col_ = int(random.random() * width)
+            if (row_, col_) not in self.mines and (row_, col_) != (row, col):
+                self.mines.append((row_, col_))
+                self.notmines.remove((row_, col_))
+                self.mines_generated += 1
+        # determine all the cells
+        self.notdetermined = []
+        for row_ in range(height):
+            for col_ in range(width):
+                self.determined.append((row_, col_))
+
+
+    def lose_game(self, row, col):
+        # Blast at row, col
+        width, height = self.gamedisplay.size
+
+        self.timer.stop_timer()
+        # Display all mines
+        for (minerow, minecol) in self.mines:
+            if (minerow, minecol) not in self.flagged:
+                self.gamedisplay.set_tile_mine(minerow, minecol)
+        # Find wrong flags
+        for (flagrow, flagcol) in self.flagged:
+            if (flagrow, flagcol) not in self.mines:
+                self.gamedisplay.set_tile_flag_wrong(flagrow, flagcol)
+        self.gamedisplay.set_face_blast()
+        self.gamedisplay.set_tile_blast(row, col)
+        self.state = "ended"
+
+    def win_game(self):
+        width, height = self.gamedisplay.size
+
+        self.timer.stop_timer()
+        for (minerow, minecol) in self.mines:
+            self.gamedisplay.set_tile_flag(minerow, minecol)
+        self.gamedisplay.set_face_cool()
+        self.state = "ended"
+
     def tile_depress(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
@@ -138,38 +204,13 @@ class Minesweeper:
 
         # FIRST CLICK SETUP
         if self.state == "notstarted":
-            self.state = "started"
-            self.timer.start_timer()
-            # for now let's just generate all mines on game start.
-            while self.mines_generated < self.num_mines:
-                row_ = int(random.random() * height)
-                col_ = int(random.random() * width)
-                if (row_, col_) not in self.mines and (row_, col_) != (e.row, e.col):
-                    self.mines.append((row_, col_))
-                    self.notmines.remove((row_, col_))
-                    self.mines_generated += 1
-            # determine all the cells
-            self.notdetermined = []
-            for row_ in range(height):
-                for col_ in range(width):
-                    self.determined.append((row_, col_))
+            self.start_game(row, col)
 
         self.opened.append((row, col))
         self.notopened.remove((row, col))
         if (row, col) in self.mines:
             # DEAD
-            self.timer.stop_timer()
-            # Display all mines
-            for (minerow, minecol) in self.mines:
-                if (minerow, minecol) not in self.flagged:
-                    self.gamedisplay.set_tile_mine(minerow, minecol)
-            # Find wrong flags
-            for (flagrow, flagcol) in self.flagged:
-                if (flagrow, flagcol) not in self.mines:
-                    self.gamedisplay.set_tile_flag_wrong(flagrow, flagcol)
-            self.gamedisplay.set_face_blast()
-            self.gamedisplay.set_tile_blast(row, col)
-            self.state = "ended"
+            self.lose_game(row, col)
             return
         # NOT DEAD, calculate number
         number = 0
@@ -185,11 +226,7 @@ class Minesweeper:
                     self.tile_open(hn, e)
         if len(self.notopened) == len(self.mines):
             # we've opened everything :D (without blowing up)
-            self.timer.stop_timer()
-            for (minerow, minecol) in self.mines:
-                self.gamedisplay.set_tile_flag(minerow, minecol)
-            self.gamedisplay.set_face_cool()
-            self.state = "ended"
+            self.win_game()
 
         # TODO: more logic needed lol
         # Done ish?

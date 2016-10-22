@@ -24,8 +24,10 @@ class GameModeSelector:
         if not self.menumod:
             self.menumod = self.pysweep.mods["Menu"]
             self.menu = tkinter.Menu(self.menumod.menubar, tearoff=0)
+
+            self.menuvar = tkinter.StringVar()
             self.menu.add_separator()
-            self.menu.add_radiobutton(label="None", command=self.cancel)
+            self.menu.add_radiobutton(label="None", variable=self.menuvar, command=self.cancel)
             self.menu.invoke(1)
             self.menumod.add_menu("Game", self.menu)
 
@@ -46,7 +48,7 @@ class GameModeSelector:
         while i < len(self.gamemodes) and (priority, gamemodename) > self.gamemodes[i]:
             i += 1
         self.gamemodes.insert(i, (priority, gamemodename))
-        self.menu.insert_radiobutton(i, label=gamemodename, command=lambda gamemodename=gamemodename: self.set_game_mode(gamemodename))
+        self.menu.insert_radiobutton(i, label=gamemodename, variable=self.menuvar, command=lambda gamemodename=gamemodename: self.set_game_mode(gamemodename))
 
         if default:
             if not self.default or self.default > (priority, gamemodename):
