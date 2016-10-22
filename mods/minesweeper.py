@@ -163,6 +163,7 @@ class Minesweeper:
         self.state = "ended"
 
     def win_game(self):
+        # Opened all the tiles!
         width, height = self.gamedisplay.size
 
         self.timer.stop_timer()
@@ -172,9 +173,8 @@ class Minesweeper:
         self.state = "ended"
 
     def tile_depress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
-        if self.state == "ended":
+        if (not self.gamemodeselector.is_enabled(game_mode_name) or
+                self.state == "ended"):
             return
         self.gamedisplay.set_tile_number(e.row, e.col, 0)
     def tile_undepress(self, hn, e):
@@ -183,23 +183,13 @@ class Minesweeper:
         self.gamedisplay.set_tile_unopened(e.row, e.col)
 
     def tile_open(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
-
-        if self.state == "ended":
-            return
-
         width, height = self.gamedisplay.size
-
         row, col = e.row, e.col
 
-        if not (0 <= row < height and 0 <= col < width):
-            return
-
-        if (row, col) in self.opened:
-            return
-
-        if (row, col) in self.flagged:
+        if (not self.gamemodeselector.is_enabled(game_mode_name) or
+                self.state == "ended" or
+                not (0 <= row < height and 0 <= col < width) or
+                (row, col) in self.opened or (row, col) in self.flagged):
             return
 
         # FIRST CLICK SETUP
@@ -208,15 +198,14 @@ class Minesweeper:
 
         self.opened.append((row, col))
         self.notopened.remove((row, col))
+
+        # Clicked a mine
         if (row, col) in self.mines:
-            # DEAD
             self.lose_game(row, col)
             return
-        # NOT DEAD, calculate number
-        number = 0
-        for (minerow, minecol) in self.mines:
-            if abs(minerow - row) <= 1 and abs(minecol - col) <= 1:
-                number += 1
+
+        # Did not click mine. Calculate number
+        number = self.num_mines_around(row, col)
         self.gamedisplay.set_tile_number(row, col, number)
         # If number is zero, open every tile around it
         if number == 0:
@@ -224,6 +213,8 @@ class Minesweeper:
                 for dcol in range(-1, 2):
                     e.row, e.col = row + drow, col + dcol
                     self.tile_open(hn, e)
+
+        # Win condition
         if len(self.notopened) == len(self.mines):
             # we've opened everything :D (without blowing up)
             self.win_game()
@@ -231,18 +222,20 @@ class Minesweeper:
         # TODO: more logic needed lol
         # Done ish?
 
+    def num_mines_around(self, row, col):
+        number = 0
+        for (minerow, minecol) in self.mines:
+            if abs(minerow - row) <= 1 and abs(minecol - col) <= 1:
+                number += 1
+        return number
+
     def tile_toggle_flag(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
-
-        if self.state == "ended":
-            return
-
         width, height = self.gamedisplay.size
-
         row, col = e.row, e.col
 
-        if (row, col) in self.opened:
+        if (not self.gamemodeselector.is_enabled(game_mode_name) or
+                self.state == "ended" or
+                (row, col) in self.opened):
             return
 
         if (row, col) in self.flagged:
@@ -255,15 +248,12 @@ class Minesweeper:
         self.gamedisplay.set_mine_counter(self.num_mines - len(self.flagged))
 
     def tile_chord(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
-
         width, height = self.gamedisplay.size
-
         row, col = e.row, e.col
 
-        # only care about closed, fulfilled squares!
-        if (row, col) not in self.opened:
+        if (not self.gamemodeselector.is_enabled(game_mode_name) or
+                self.state == "ended" or
+                (row, col) not in self.opened):
             return
 
         squarenum = self.gamedisplay.get_tile_number(row, col)
