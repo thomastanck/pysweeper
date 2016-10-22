@@ -74,15 +74,21 @@ class GameDisplayManager:
         self.get_face_button().set_face("cool")
 
     # Tile getters
+    def is_tile_mine(self, row, col):
+        return self.get_tile_type(row, col) == "mine"
+    def is_tile_blast(self, row, col):
+        return self.get_tile_type(row, col) == "blast"
+    def is_tile_flag(self, row, col):
+        return self.get_tile_type(row, col) == "flag"
+    def is_tile_flag_wrong(self, row, col):
+        return self.get_tile_type(row, col) == "flag_wrong"
+    def is_tile_unopened(self, row, col):
+        return self.get_tile_type(row, col) == "unopened"
+    def get_tile_number(self, row, col):
+        return int(self.get_tile_type(row, col)[-1:]) # get the last char and convert to int
     def get_tile_type(self, row, col):
         board = self.gamedisplay.display.board
         return board.get_tile_type(row, col)
-    def is_tile_flag(self, row, col):
-        board = self.gamedisplay.display.board
-        return board.get_tile_type(row, col) == "flag"
-    def get_tile_number(self, row, col):
-        board = self.gamedisplay.display.board
-        return int(board.get_tile_type(row, col)[-1:]) # get the last char and convert to int
 
     # Tile setters
     def set_tile_mine(self, row, col):
@@ -119,10 +125,7 @@ class GameDisplayManager:
 
 
     def handle_mouse_event(self, hn, e):
-        # Other mods should call pysweep.mods["GameDisplayManager"].handle_mouse_event(hn, e)
-        # when they receive button events (<ButtonPress-1>, <B1-Motion>, and <ButtonRelease-1>)
-        # if hn[0] != "pysweep":
-        #     raise ValueError("GameDisplayManager handles pysweep events! (not board or gamedisplay events)")
+        # We now listen to the events ourselves and output them regardless of game mode.
         widget_handlers = [
             (self.gamedisplay.display.board,              self.handle_board),
             (self.gamedisplay.display.panel.face_button,  self.handle_face),
@@ -199,6 +202,7 @@ class GameDisplayManager:
             # We don't do anything here I think...
             pass
 
+        # Leave chording mode
         if (hn == LU or hn == RU) and self.chording_mode == 1:
             # Release while in chording mode goes to after chording mode
             self.chording_mode = 2
