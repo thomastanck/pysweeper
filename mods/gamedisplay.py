@@ -8,6 +8,8 @@ class GameDisplayWrapper:
     required_events = []
     required_protocols = []
 
+    # WIDGET BINDING STUFF
+    ######################
     def __init__(self, master, pysweep):
         self.master = master
         self.pysweep = pysweep
@@ -30,11 +32,11 @@ class GameDisplayWrapper:
 
     def rebind_tkinter_events(self):
         widgets = {
-            "board":        self.display.board.canvas,
-            "panel":        self.display.panel,
-            "mine_counter": self.display.panel.mine_counter.canvas,
-            "face_button":  self.display.panel.face_button.canvas,
-            "timer":        self.display.panel.timer.canvas,
+            "board":        self.board.canvas,
+            "panel":        self.panel,
+            "mine_counter": self.mine_counter.canvas,
+            "face_button":  self.face_button.canvas,
+            "timer":        self.timer.canvas,
         }
         for event_name, widget_name in self.bind_events:
             hook = (widget_name, event_name)
@@ -42,11 +44,11 @@ class GameDisplayWrapper:
 
     def bind_tkinter_event(self, event_name, widget_name):
         widgets = {
-            "board":        self.display.board.canvas,
-            "panel":        self.display.panel,
-            "mine_counter": self.display.panel.mine_counter.canvas,
-            "face_button":  self.display.panel.face_button.canvas,
-            "timer":        self.display.panel.timer.canvas,
+            "board":        self.board.canvas,
+            "panel":        self.panel,
+            "mine_counter": self.mine_counter.canvas,
+            "face_button":  self.face_button.canvas,
+            "timer":        self.timer.canvas,
         }
         if (event_name, widget_name) not in self.bind_events:
             hook = (widget_name, event_name)
@@ -58,6 +60,27 @@ class GameDisplayWrapper:
         e.col = e.x//16
         self.pysweep.handle_event(hook, e)
 
+    # WIDGET PROPERTIES
+    ###################
+    @property
+    def board(self):
+        return self.display.board
+    @property
+    def panel(self):
+        return self.display.panel
+    @property
+    def mine_counter(self):
+        return self.display.panel.mine_counter
+    @property
+    def face_button(self):
+        return self.display.panel.face_button
+    @property
+    def timer(self):
+        return self.display.panel.timer
+
+
+    # GENERAL DISPLAY STUFF
+    #######################
     def set_size(self, width, height):
         # Warning, completely kills GameDisplay. You'll have to give it new data after this
         self.size = (width, height)
@@ -81,9 +104,76 @@ class GameDisplayWrapper:
 
         self.master.geometry('+%d+%d' % (x, y))
 
+    # BOARD SETTERS AND GETTERS
+    ###########################
+
+    # Tile setters
+    def set_tile_mine(self, row, col):
+        self.set_tile(row, col, "mine")
+    def set_tile_blast(self, row, col):
+        self.set_tile(row, col, "blast")
+    def set_tile_flag(self, row, col):
+        self.set_tile(row, col, "flag")
+    def set_tile_flag_wrong(self, row, col):
+        self.set_tile(row, col, "flag_wrong")
+    def set_tile_unopened(self, row, col):
+        self.set_tile(row, col, "unopened")
+    def set_tile_number(self, row, col, number):
+        # number: 0..8
+        if 0 <= number and number < 9:
+            self.set_tile(row, col, "tile_{}".format(number))
+        else:
+            raise ValueError('Tile number {} does not exist'.format(number))
+    def set_tile(self, i, j, tile_type):
+        self.board.draw_tile(i, j, tile_type)
+
+    # Tile getters
+    def is_tile_mine(self, row, col):
+        return self.get_tile_type(row, col) == "mine"
+    def is_tile_blast(self, row, col):
+        return self.get_tile_type(row, col) == "blast"
+    def is_tile_flag(self, row, col):
+        return self.get_tile_type(row, col) == "flag"
+    def is_tile_flag_wrong(self, row, col):
+        return self.get_tile_type(row, col) == "flag_wrong"
+    def is_tile_unopened(self, row, col):
+        return self.get_tile_type(row, col) == "unopened"
+    def get_tile_number(self, row, col):
+        return int(self.get_tile_type(row, col)[-1:]) # get the last char and convert to int
+    def get_tile_type(self, row, col):
+        return self.board.get_tile_type(row, col)
+
+    # Reset board (set all to unopened)
+    def reset_board(self):
+        width, height = self.size
+
+        for row in range(height):
+            for col in range(width):
+                self.set_tile_unopened(row, col)
+
+
+    # OTHER SETTERS AND GETTERS
+    ###########################
+
+    # Face button setters
+    def set_face_happy(self):
+        self.face_button.set_face("happy")
+    def set_face_pressed(self):
+        self.face_button.set_face("pressed")
+    def set_face_blast(self):
+        self.face_button.set_face("blast")
+    def set_face_cool(self):
+        self.face_button.set_face("cool")
+
+    def set_timer(self, t):
+        self.timer.set_value(t)
+
+    def set_mine_counter(self, t):
+        self.mine_counter.set_value(t)
+
 class BorderCanvas(tkinter.Canvas):
     def __init__(self, master, image, copies=1, direction='h'):
-        """direction is the direction the image is copied, either 
+        """direction is the direction the image is copied, either
         h for horizontal, or v for vertical
 """
         self.original_image = image
@@ -112,7 +202,7 @@ class BorderCanvas(tkinter.Canvas):
         self.build_image()
         width, height = self.canvas_size
         self.config(width=width, height=height)
-        
+
 
     @property
     def canvas_size(self):
@@ -127,7 +217,7 @@ class BorderCanvas(tkinter.Canvas):
             return (1, self.copies)
         else:
             return (self.copies, 1)
-        
+
 
 class GameDisplay(tkinter.Frame):
     border_images = {}
@@ -186,7 +276,7 @@ class GameDisplay(tkinter.Frame):
         for key in ('l', 'r', 'top', 'mid', 'top_l', 'top_r', 'panel_l',
                     'panel_r', 'mid_l', 'mid_r', 'bot', 'bot_l', 'bot_r'):
             img = Image.open("images/border_{}.png".format(key))
-            self.border_images[key] = img        
+            self.border_images[key] = img
 
 
     def __init__(self, master, pysweep, board_width=16, board_height=16):
@@ -196,9 +286,6 @@ class GameDisplay(tkinter.Frame):
         super().__init__(master, width=board_width*16+24, height=board_height*16+67)
         self.load_border_images()
         self.create_widgets()
-
-    def set_timer(self, t):
-        self.panel.timer.set_value(t)
 
 
 
@@ -235,7 +322,7 @@ class Board(tkinter.Frame):
         self.canvas_rgb = Image.new(size=self.canvas_size, mode="RGB")
         self.canvas_img = ImageTk.PhotoImage(self.canvas_rgb)
         self.canvas.itemconfig(self.canvas_img_ref, image=self.canvas_img)
-        
+
 
     def load_tiles(self):
         tile_images = {}
@@ -286,7 +373,7 @@ class Board(tkinter.Frame):
         height = self.board_height
         for i in range(height):
             for j in range(width):
-                self.set_tile(i, j, "unopened")
+                self.draw_tile(i, j, "unopened")
 
     @property
     def canvas_size(self):

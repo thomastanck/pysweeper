@@ -28,8 +28,6 @@ class BoardGeneratorTest:
 
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
-        self.gamedisplaymanager = self.pysweep.mods["GameDisplayManager"]
-
         self.rngmod = self.pysweep.mods["HashRandom"]
 
     def generate_mines(self, hn, e):
@@ -56,10 +54,9 @@ class BoardGeneratorTest:
                 if ismine:
                     self.minecount += 1
                     mines_left -= 1
-                    self.gamedisplaymanager.set_tile_mine(row, col)
+                    self.gamedisplay.set_tile_mine(row, col)
                 else:
-                    self.gamedisplaymanager.set_tile_unopened(row, col)
-        self.gamedisplay.display.panel.mine_counter.set_value(self.minecount)
-        self.gamedisplay.display.panel.face_button.set_face("happy")
+                    self.gamedisplay.set_tile_unopened(row, col)
+        self.gamedisplay.set_mine_counter(self.minecount)
 
 mods = {"BoardGeneratorTest": BoardGeneratorTest}

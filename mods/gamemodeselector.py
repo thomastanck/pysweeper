@@ -24,8 +24,10 @@ class GameModeSelector:
         if not self.menumod:
             self.menumod = self.pysweep.mods["Menu"]
             self.menu = tkinter.Menu(self.menumod.menubar, tearoff=0)
+
+            self.menuvar = tkinter.StringVar()
             self.menu.add_separator()
-            self.menu.add_radiobutton(label="None", command=self.cancel)
+            self.menu.add_radiobutton(label="None", variable=self.menuvar, command=self.cancel)
             self.menu.invoke(1)
             self.menumod.add_menu("Game", self.menu)
 
@@ -36,7 +38,7 @@ class GameModeSelector:
             self.pysweep.handle_event(("gamemode", "DisableGameMode"), self.currentgamemode)
         self.currentgamemode = None
 
-    def register_game_mode(self, gamemodename, priority=sys.maxsize, default=False):
+    def register_game_mode(self, gamemodename, priority=sys.maxsize/2, default=False):
         # Priority: Higher numbers are lower on the list
         # Default: True if it should be the starting game mode when the game starts
         if not self.menumod:
@@ -46,7 +48,7 @@ class GameModeSelector:
         while i < len(self.gamemodes) and (priority, gamemodename) > self.gamemodes[i]:
             i += 1
         self.gamemodes.insert(i, (priority, gamemodename))
-        self.menu.insert_radiobutton(i, label=gamemodename, command=lambda gamemodename=gamemodename: self.set_game_mode(gamemodename))
+        self.menu.insert_radiobutton(i, label=gamemodename, variable=self.menuvar, command=lambda gamemodename=gamemodename: self.set_game_mode(gamemodename))
 
         if default:
             if not self.default or self.default > (priority, gamemodename):

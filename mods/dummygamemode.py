@@ -2,6 +2,8 @@ import tkinter
 
 import random
 
+game_mode_name = "Dummy Game Mode"
+
 class DummyGameMode:
     hooks = {}
     required_events = [
@@ -14,7 +16,9 @@ class DummyGameMode:
         self.master = master
         self.pysweep = pysweep
         self.hooks = {
-            ("gamedisplaymanager", "TileClicked"): [self.tile_clicked],
+            ("gamedisplaymanager", "TileOpen"):      [self.tile_open],
+            ("gamedisplaymanager", "TileDepress"):   [self.tile_depress],
+            ("gamedisplaymanager", "TileUndepress"): [self.tile_undepress],
 
             ("gamedisplaymanager", "FaceClicked"): [self.face_clicked],
 
@@ -29,52 +33,55 @@ class DummyGameMode:
 
     def modsloaded(self, hn, e):
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
-        self.gamemodeselector.register_game_mode("Dummy Game Mode")
+        self.gamemodeselector.register_game_mode(game_mode_name)
 
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
-
-        self.gamedisplaymanager = self.pysweep.mods["GameDisplayManager"]
 
         self.timermod = self.pysweep.mods["Timer"]
         self.timer = self.timermod.get_timer(self.timercallback, period=0.001, resolution=0.001)
 
-    def handle_mouse_event(self, hn, e):
-        if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
-            return
-        self.gamedisplaymanager.handle_mouse_event(hn, e)
-
     def timercallback(self, elapsed, sincelasttick):
-        self.gamedisplay.display.set_timer(int(elapsed*1000))
+        self.gamedisplay.set_timer(int(elapsed*1000))
 
     def onpress_timer(self, hn, e):
-        if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
             return
         self.timer.start_timer()
 
     def onrelease_timer(self, hn, e):
-        if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
             return
         self.timer.stop_timer()
 
     def face_clicked(self, hn, e):
-        if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
             return
-        self.gamedisplay.display.board.reset_board()
+        self.gamedisplay.reset_board()
 
     def randomiseminecounter(self, hn, e):
-        if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
             return
-        self.gamedisplay.display.panel.mine_counter.set_value(random.randint(0,100000000))
+        self.gamedisplay.set_mine_counter(random.randint(0,100000000))
 
     def randomisetimer(self, hn, e):
-        if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
             return
-        self.gamedisplay.display.set_timer(random.randint(0,100000000))
+        self.gamedisplay.set_timer(random.randint(0,100000000))
 
-    def tile_clicked(self, hn, e):
-        if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
+    def tile_open(self, hn, e):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
             return
         row, col = e.y//16, e.x//16
-        self.gamedisplaymanager.set_tile_number(row, col, 0)
+        self.gamedisplay.set_tile_number(row, col, 0)
+
+    def tile_depress(self, hn, e):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
+            return
+        self.gamedisplay.set_tile_number(e.row, e.col, 0)
+    def tile_undepress(self, hn, e):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
+            return
+        self.gamedisplay.set_tile_unopened(e.row, e.col)
+
 
 mods = {"DummyGameMode": DummyGameMode}
