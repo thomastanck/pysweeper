@@ -3,6 +3,8 @@ import tkinter
 import sys
 import bisect
 
+from pysweep import Menu
+
 class GameModeSelector:
     hooks = {}
     required_events = []
@@ -18,18 +20,17 @@ class GameModeSelector:
         self.gamemodes = []
         self.default = None
         self.currentgamemode = None
-        self.menumod = None
+        self.menu = None
 
     def modsloaded(self, hn, e):
-        if not self.menumod:
-            self.menumod = self.pysweep.mods["Menu"]
-            self.menu = tkinter.Menu(self.menumod.menubar, tearoff=0)
+        if not self.menu:
+            self.menu = tkinter.Menu(Menu.menubar, tearoff=0)
 
             self.menuvar = tkinter.StringVar()
             self.menu.add_separator()
             self.menu.add_radiobutton(label="None", variable=self.menuvar, command=self.cancel)
             self.menu.invoke(1)
-            self.menumod.add_menu("Game", self.menu)
+            Menu.add_menu("Game", self.menu)
 
         self.master.after(0, self.set_default)
 
@@ -41,7 +42,7 @@ class GameModeSelector:
     def register_game_mode(self, gamemodename, priority=sys.maxsize/2, default=False):
         # Priority: Higher numbers are lower on the list
         # Default: True if it should be the starting game mode when the game starts
-        if not self.menumod:
+        if not self.menu:
             self.modsloaded(("pysweep", "AllModsLoaded"), None)
 
         i = 0
