@@ -36,7 +36,7 @@ class GameModeSelector:
             self.pysweep.handle_event(("gamemode", "DisableGameMode"), self.currentgamemode)
         self.currentgamemode = None
 
-    def register_game_mode(self, gamemodename, priority=sys.maxsize, default=False):
+    def register_game_mode(self, gamemodename, priority=sys.maxsize/2, default=False):
         # Priority: Higher numbers are lower on the list
         # Default: True if it should be the starting game mode when the game starts
         if not self.menumod:
