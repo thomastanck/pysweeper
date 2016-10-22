@@ -52,10 +52,10 @@ class Clicker:
 
         # settings = [LMB key/mouse button, RMB key/mouse button]
         if platform.system() == 'Darwin':  # How Mac OS X is identified by Python
-            self.keyboardsettings = ["1", "2"]
+            self.keyboardsettings = ["3", "2"]
             self.mousesettings =    [1, 2] # OSX uses mouse button 2 for right click. weird huh?
         else:
-            self.keyboardsettings = ["1", "2"]
+            self.keyboardsettings = ["3", "2"]
             self.mousesettings =    [1, 3] # Everyone else uses mouse button 3 for right click.
 
         # Every additional key that matches increases this counter by one
