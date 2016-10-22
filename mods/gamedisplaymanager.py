@@ -22,9 +22,10 @@ TileM:  Move (any button)
 TileU:  Up (any button)
 
 You can TileLD on one tile but never get a TileLU on that tile if you drag
-the cursor away! Be careful and listen for TileLM events as well (it'll look like
-TileLD on tile A, followed by TileLM on tile B, *more if needed*, and finally
-TileLU on tile B.)
+the cursor away! Be careful and listen for TileLM events as well.
+
+(It'll look like TileLD on tile A, followed by TileLM on tile B,
+    *more if needed*, and finally TileLU on tile B.)
 
 
 
@@ -131,7 +132,9 @@ class GameDisplayManager:
 
             if (0 <= x < width and 0 <= y < height):
                 # We're in the widget!
-                if self.current_widget_handler and handler != self.current_widget_handler[1]:
+                if (self.current_widget_handler and
+                        handler != self.current_widget_handler[1] and
+                        hn != LD and hn != RD):
                     # convert global position to widget position, this time for the previous widget
                     otherx = e.x + e.widget.winfo_rootx() - self.current_widget_handler[0].winfo_rootx()
                     othery = e.y + e.widget.winfo_rooty() - self.current_widget_handler[0].winfo_rooty()
@@ -148,7 +151,29 @@ class GameDisplayManager:
                 break # don't allow more than one trigger
 
     def handle_board(self, hn, e):
-        # As these are more complicated, we split them up.
+        # First handle the direct events, TileLU and the like
+        e.col = e.x // 16
+        e.row = e.y // 16
+        if hn == LD:
+            self.pysweep.handle_event(_gh("TileLD"), e)
+            self.pysweep.handle_event(_gh("TileD"), e)
+        elif hn == LM:
+            self.pysweep.handle_event(_gh("TileLM"), e)
+            self.pysweep.handle_event(_gh("TileM"), e)
+        elif hn == LU:
+            self.pysweep.handle_event(_gh("TileLU"), e)
+            self.pysweep.handle_event(_gh("TileU"), e)
+        elif hn == RD:
+            self.pysweep.handle_event(_gh("TileRD"), e)
+            self.pysweep.handle_event(_gh("TileD"), e)
+        elif hn == RM:
+            self.pysweep.handle_event(_gh("TileRM"), e)
+            self.pysweep.handle_event(_gh("TileM"), e)
+        elif hn == RU:
+            self.pysweep.handle_event(_gh("TileRU"), e)
+            self.pysweep.handle_event(_gh("TileU"), e)
+
+        # As the other board events are more complicated, we split them up.
 
         # We go into chording mode before handling the event
         # But we leave chording mode only after the event
