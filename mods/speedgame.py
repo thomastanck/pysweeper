@@ -79,9 +79,7 @@ class SpeedGame:
 
         row, col = e.row, e.col
 
-        board = self.gamedisplay.board
-        width = board.board_width
-        height = board.board_height
+        width, height = self.gamedisplay.size
         if (0 <= col < width and 0 <= row < height):
             self.gamedisplay.set_tile_number(row, col, 0)
             i = row*width + col

@@ -161,11 +161,9 @@ class GameDisplayManager:
     def board_depress(self, hn, e):
         # Undepress currently depressed cells
         # Depress current cell
-        board = self.gamedisplay.board
-
         col = e.x // 16
         row = e.y // 16
-        width, height = board.board_width, board.board_height
+        width, height = self.gamedisplay.size
         if not (0 <= col < width and 0 <= row < height):
             # i.e., we've moved off the board
             self.board_reset_depressed()
@@ -178,26 +176,21 @@ class GameDisplayManager:
     def board_open(self, hn, e):
         # Undepress currently depressed cells
         # Send out click event
-        board = self.gamedisplay.board
-
         col = e.x // 16
         row = e.y // 16
         if (col, row) in self.temporarily_down:
             self.temporarily_down.remove((col,row))
         self.board_reset_depressed()
-        width = board.board_width
-        height = board.board_height
+        width, height = self.gamedisplay.size
         if (0 <= col < width and 0 <= row < height):
             e.row, e.col = row, col
             self.pysweep.handle_event(("gamedisplaymanager", "TileClicked"), e)
 
     def board_toggle_flag(self, hn, e):
         # Send out click event
-        board = self.gamedisplay.board
         col = e.x // 16
         row = e.y // 16
-        width = board.board_width
-        height = board.board_height
+        width, height = self.gamedisplay.size
         if (0 <= col < width and 0 <= row < height):
             e.row, e.col = row, col
             self.pysweep.handle_event(("gamedisplaymanager", "TileRightClicked"), e)
@@ -205,11 +198,9 @@ class GameDisplayManager:
     def board_depress_chord(self, hn, e):
         # Undepress currently depressed cells
         # Depress current cell and neighbours
-        board = self.gamedisplay.board
-
         col = e.x // 16
         row = e.y // 16
-        width, height = board.board_width, board.board_height
+        width, height = self.gamedisplay.size
         self.board_reset_depressed()
         for drow in range(-1, 2):
             for dcol in range(-1, 2):
@@ -222,13 +213,10 @@ class GameDisplayManager:
     def board_chord(self, hn, e):
         # Undepress currently depressed cells
         # Send out chord event
-        board = self.gamedisplay.board
-
         col = e.x // 16
         row = e.y // 16
         self.board_reset_depressed()
-        width = board.board_width
-        height = board.board_height
+        width, height = self.gamedisplay.size
         if (0 <= col < width and 0 <= row < height):
             e.row, e.col = row, col
             self.pysweep.handle_event(("gamedisplaymanager", "TileChorded"), e)
