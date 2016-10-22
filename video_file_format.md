@@ -23,21 +23,21 @@ The first element of the tuple is the "command name", with the remaining element
 
 Metadata:
 
-* VERSION version_string (e.g. "PySweeper 0.1dev0")
-* TIME seconds_since_unix_epoch (e.g. 1476939624.215525)
-* PINGVERSION version_string (e.g. PySweeper Ping Protocol 0.2dev0)
-* PINGUP time servername (e.g 1476939624.215525 "ping.pysweeper.com")
-* PINGDOWN time servername response response_signature (e.g. 1476939624.215525 "ping.pysweeper.com" {"recv_time": 3728...,"other_keys":other_values,...} "keHi829-HhiWrxXIB")
-* SERVERVERSION version_string (e.g. PySweeper Ping Protocol 0.2dev0)
-* SERVERTIME time (e.g. 1476939624.215525)
-* SERVERSEED randomness (e.g. "keHi829-HhiWrxXIB...")
+* VERSION version_string
+* TIME seconds_since_unix_epoch
+* PINGVERSION version_string
+* PINGUP time servername
+* PINGDOWN time servername response response_signature
+* SERVERVERSION version_string
+* SERVERTIME time
+* SERVERSEED randomness
 * RESPONSESIGNATURE signature_of_response
 * VIDEOSIGNATURE signature_of_video_file
-* ADDSEED string (e.g. "(MOVE, 3, 10)")
+* ADDSEED string
 
 Player actions:
 
-* MOVE time y x (e.g. 1476939624.215525 65 224)
+* MOVE time y x
 * LMBDOWN time y x
 * RMBDOWN time y x
 * LMBUP time y x
@@ -56,6 +56,24 @@ Client actions:
 * TIMER seconds_since_start_of_game
 * WIN time
 * LOSE time
+
+### Examples
+
+Metadata:
+
+* VERSION version_string (e.g. "PySweeper 0.1dev0")
+* TIME seconds_since_unix_epoch (e.g. 1476939624.215525)
+* PINGVERSION version_string (e.g. PySweeper Ping Protocol 0.2dev0)
+* PINGUP time servername (e.g. 1476939624.215525 "ping.pysweeper.com")
+* PINGDOWN time servername response response_signature (e.g. 1476939624.215525 "ping.pysweeper.com" {"recv_time": 3728...,"other_keys":other_values,...} "keHi829-HhiWrxXIB")
+* SERVERVERSION version_string (e.g. PySweeper Ping Protocol 0.2dev0)
+* SERVERTIME time (e.g. 1476939624.215525)
+* SERVERSEED randomness (e.g. "keHi829-HhiWrxXIB...")
+* ADDSEED string (e.g. "(MOVE, 3, 10)")
+
+Player actions:
+
+* MOVE time y x (e.g. 1476939624.215525 65 224)
 
 ## The RNG (Random Number Generator)
 
