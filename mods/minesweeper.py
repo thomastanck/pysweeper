@@ -108,6 +108,8 @@ class Minesweeper:
     def tile_depress(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
+        if self.state == "ended":
+            return
         self.gamedisplay.set_tile_number(e.row, e.col, 0)
     def tile_undepress(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
@@ -194,6 +196,9 @@ class Minesweeper:
 
     def tile_toggle_flag(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
+            return
+
+        if self.state == "ended":
             return
 
         width, height = self.gamedisplay.size
