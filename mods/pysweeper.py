@@ -252,7 +252,7 @@ class Pysweeper:
 
     def num_flags_around(self, row, col):
         number = 0
-        for (flagrow, flagcol) in self.flags:
+        for (flagrow, flagcol) in self.flagged:
             if abs(flagrow - row) <= 1 and abs(flagcol - col) <= 1:
                 number += 1
         return number
