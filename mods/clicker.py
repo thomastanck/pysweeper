@@ -1,5 +1,25 @@
 import platform
 
+class ClickerEvent:
+    # Stripped down version of the tkinter event, and adds some restrictions so it'll be easier to debug in the future
+    # One motivation for the attribute restrictions is that we frequently compute row/col out of x/y.
+    # In order to prevent mixing up events which are supposed to have x/y and events which are supposed to have row/col,
+    # we'll simply force ClickerEvent to use x/y only, then compute row/col using another class that only has row/col.
+    __isfrozen = False
+    def __setattr__(self, key, value):
+        if self.__isfrozen and not hasattr(self, key):
+            raise TypeError( "%r is a frozen class, cannot set %s" % (self, key))
+        object.__setattr__(self, key, value)
+
+    def __init__(self, widget, x=0, y=0, lmb=False, rmb=False, inbounds=False):
+        self.widget = widget
+        self.x = x
+        self.y = y
+        self.lmb = lmb
+        self.rmb = rmb
+        self.inbounds = inbounds
+        self.__isfrozen = True
+
 class Clicker:
     hooks = {}
     required_events = [
@@ -169,10 +189,11 @@ class Clicker:
         self.handle_event_with_flags(("clicker", "U"), e)
 
     def handle_event_with_flags(self, hn, e):
-        e.widget = self.gamedisplay.display
-        e.x, e.y = self.currentposition
-        e.lmb = self.lmb
-        e.rmb = self.rmb
+        e = ClickerEvent(self.gamedisplay.display, *self.currentposition, self.lmb, self.rmb)
+        # e.widget = self.gamedisplay.display
+        # e.x, e.y = self.currentposition
+        # e.lmb = self.lmb
+        # e.rmb = self.rmb
         self.pysweep.handle_event(hn, e)
 
 mods = {"Clicker": Clicker}

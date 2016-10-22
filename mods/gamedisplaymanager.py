@@ -78,6 +78,31 @@ RU = ("clicker", "RU")
 
 
 
+class BoardClick:
+    # Stripped down version of the tkinter event, and adds some restrictions so it'll be easier to debug in the future
+    # One motivation for the attribute restrictions is that we frequently compute row/col out of x/y.
+    # In order to prevent mixing up events which are supposed to have x/y and events which are supposed to have row/col,
+    # we'll simply force BoardClick to use row/col only.
+    __isfrozen = False
+    def __setattr__(self, key, value):
+        if self.__isfrozen and not hasattr(self, key):
+            raise TypeError( "%r is a frozen class, cannot set %s" % (self, key))
+        object.__setattr__(self, key, value)
+
+    def __init__(self, row=0, col=0, lmb=False, rmb=False):
+        self.row = row
+        self.col = col
+        self.lmb = lmb
+        self.rmb = rmb
+        self.__isfrozen = True
+    def fromClickerEvent(self, e):
+        self.row = e.y//16
+        self.col = e.x//16
+        self.lmb = e.lmb
+        self.rmb = e.rmb
+
+
+
 class GameDisplayManager:
     hooks = {}
     required_events = []
@@ -150,10 +175,12 @@ class GameDisplayManager:
                 self.current_widget_handler = (widget, handler)
                 break # don't allow more than one trigger
 
-    def handle_board(self, hn, e):
+    def handle_board(self, hn, e_):
+        # Create BoardClick
+        e = BoardClick()
+        e.fromClickerEvent(e_)
+
         # First handle the direct events, TileLU and the like
-        e.col = e.x // 16
-        e.row = e.y // 16
         if hn == LD:
             self.pysweep.handle_event(_gh("TileLD"), e)
             self.pysweep.handle_event(_gh("TileD"), e)
@@ -247,8 +274,6 @@ class GameDisplayManager:
         # Depress current cell
         self.board_undepress_tiles(False, e)
 
-        e.col = e.x // 16
-        e.row = e.y // 16
         width, height = self.gamedisplay.size
         if (0 <= e.col < width and 0 <= e.row < height):
             if self.gamedisplay.get_tile_type(e.row, e.col) == "unopened":
@@ -260,16 +285,12 @@ class GameDisplayManager:
         # Undepress currently depressed cells
         # Send out click event
         self.board_undepress_tiles(False, e)
-        e.col = e.x // 16
-        e.row = e.y // 16
         width, height = self.gamedisplay.size
         if (0 <= e.col < width and 0 <= e.row < height):
             self.pysweep.handle_event(_gh("TileOpen"), e)
 
     def board_toggle_flag(self, hn, e):
         # Send out click event
-        e.col = e.x // 16
-        e.row = e.y // 16
         width, height = self.gamedisplay.size
         if (0 <= e.col < width and 0 <= e.row < height):
             self.pysweep.handle_event(_gh("TileToggleFlag"), e)
@@ -278,32 +299,29 @@ class GameDisplayManager:
         # Undepress currently depressed cells
         # Depress current cell and neighbours
         self.board_undepress_tiles(True, e)
-        col = e.x // 16
-        row = e.y // 16
         width, height = self.gamedisplay.size
         for drow in range(-1, 2):
             for dcol in range(-1, 2):
-                e.row, e.col = row+drow, col+dcol
-                if (0 <= e.col < width and 0 <= e.row < height):
-                    if self.gamedisplay.get_tile_type(e.row, e.col) == "unopened":
-                        self.depressed_tiles.append((e.row, e.col))
-                        self.pysweep.handle_event(_gh("TileDepress"), e)
-                        self.pysweep.handle_event(_gh("TileChordDepress"), e)
+                e_ = BoardClick(e.row+drow, e.col+dcol, e.lmb, e.rmb)
+                if (0 <= e_.col < width and 0 <= e_.row < height):
+                    if self.gamedisplay.get_tile_type(e_.row, e_.col) == "unopened":
+                        self.depressed_tiles.append((e_.row, e_.col))
+                        self.pysweep.handle_event(_gh("TileDepress"), e_)
+                        self.pysweep.handle_event(_gh("TileChordDepress"), e_)
 
     def board_chord(self, hn, e):
         # Undepress currently depressed cells
         # Send out chord event
         self.board_undepress_tiles(True, e)
-        e.col = e.x // 16
-        e.row = e.y // 16
         width, height = self.gamedisplay.size
         if (0 <= e.col < width and 0 <= e.row < height):
             self.pysweep.handle_event(_gh("TileChord"), e)
 
-    def board_undepress_tiles(self, chord, e):
+    def board_undepress_tiles(self, chord, e_):
         # Helper function
         while self.depressed_tiles:
-            e.row, e.col = self.depressed_tiles.pop()
+            e = BoardClick(*self.depressed_tiles.pop(), e_.lmb, e_.rmb)
+            # e.row, e.col = self.depressed_tiles.pop()
             self.pysweep.handle_event(_gh("TileUndepress"), e)
             if chord:
                 self.pysweep.handle_event(_gh("TileChordUndepress"), e)

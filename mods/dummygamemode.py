@@ -71,8 +71,7 @@ class DummyGameMode:
     def tile_open(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
-        row, col = e.y//16, e.x//16
-        self.gamedisplay.set_tile_number(row, col, 0)
+        self.gamedisplay.set_tile_number(e.row, e.col, 0)
 
     def tile_depress(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):

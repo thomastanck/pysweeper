@@ -2,9 +2,9 @@ import tkinter
 
 import random
 
-game_mode_name = "Pysweeper"
+game_mode_name = "PySweeper"
 
-class Pysweeper:
+class PySweeper:
     hooks = {}
     required_events = [
         ("pysweep", "<F2>"),
@@ -297,4 +297,4 @@ class Pysweeper:
     def on_mouse_move(self, hn, e):
         pass # TODO: This will feed into the rng!
 
-mods = {"Pysweeper": Pysweeper}
+mods = {"PySweeper": PySweeper}
