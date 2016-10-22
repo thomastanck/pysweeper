@@ -81,9 +81,19 @@ class Clicker:
         # Keyboard keys increase this counter by two, but decrease it once when
         # a release is detected and another time on the next tkinter tick (like a bouncer)
         # to avoid key repetition behaviour
-        self.lmb = 0
-        self.rmb = 0
+        self.mouse_lmb = 0
+        self.mouse_rmb = 0
+        self.key_lmb = 0
+        self.key_rmb = 0
         self.currentposition = (0, 0)
+
+    @property
+    def lmb(self):
+        return self.mouse_lmb + self.key_lmb
+    @property
+    def rmb(self):
+        return self.mouse_rmb + self.key_rmb
+
 
     def modsloaded(self, hn, e):
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
@@ -101,94 +111,104 @@ class Clicker:
         )
         e.widget = self.gamedisplay.display
         e.x, e.y = self.currentposition
-        e.lmb = self.lmb > 0
-        e.rmb = self.rmb > 0
-        self.handle_event_with_flags(("clicker", "M"), e)
-        if self.lmb > 0:
-            self.handle_event_with_flags(("clicker", "LM"), e)
-        if self.rmb > 0:
-            self.handle_event_with_flags(("clicker", "RM"), e)
+        e.lmb = (self.mouse_lmb + self.key_lmb) > 0
+        e.rmb = (self.mouse_rmb + self.key_rmb) > 0
+        self.send_event(("clicker", "M"), e)
+        if e.lmb > 0:
+            self.send_event(("clicker", "LM"), e)
+        if e.rmb > 0:
+            self.send_event(("clicker", "RM"), e)
 
 
     # KEYBOARD
     def onpress_key(self, hn, e):
         if hasattr(e, "char") and e.char == self.keyboardsettings[0]:
             # LMB
-            self.lmb += 2
-            if self.lmb == 2:
+            if (self.mouse_lmb + self.key_lmb) == 0:
+                self.key_lmb = 2
                 self.lmb_down(hn, e)
+            else:
+                self.key_lmb = 2
         elif hasattr(e, "char") and e.char == self.keyboardsettings[1]:
             # RMB
-            self.rmb += 2
-            if self.rmb == 2:
+            if (self.mouse_rmb + self.key_rmb) == 0:
+                self.key_rmb = 2
                 self.rmb_down(hn, e)
+            else:
+                self.key_rmb = 2
 
     def onrelease_key(self, hn, e):
         if hasattr(e, "char") and e.char == self.keyboardsettings[0]:
             # LMB
-            self.lmb -= 1
+            self.key_lmb = 1
             self.master.after(0, self.actuallyrelease, hn, e)
         elif hasattr(e, "char") and e.char == self.keyboardsettings[1]:
             # RMB
-            self.rmb -= 1
+            self.key_rmb = 1
             self.master.after(0, self.actuallyrelease, hn, e)
 
     def actuallyrelease(self, hn, e):
         if hasattr(e, "char") and e.char == self.keyboardsettings[0]:
             # LMB
-            self.lmb -= 1
-            if self.lmb == 0:
-                self.lmb_up(hn, e)
+            if self.key_lmb == 1:
+                self.key_lmb = 0
+                if (self.mouse_lmb + self.key_lmb) == 0:
+                    self.lmb_up(hn, e)
         elif hasattr(e, "char") and e.char == self.keyboardsettings[1]:
             # RMB
-            self.rmb -= 1
-            if self.rmb == 0:
-                self.rmb_up(hn, e)
+            if self.key_rmb == 1:
+                self.key_rmb = 0
+                if (self.mouse_rmb + self.key_rmb) == 0:
+                    self.rmb_up(hn, e)
 
     # MOUSE
     def onpress_mouse(self, hn, e, i):
         if i == self.mousesettings[0]:
             # LMB
-            self.lmb += 1
-            if self.lmb == 1:
+            if (self.mouse_lmb + self.key_lmb) == 0:
+                self.mouse_lmb = 1
                 self.lmb_down(hn, e)
+            else:
+                self.mouse_lmb = 1
         elif i == self.mousesettings[1]:
             # RMB
-            self.rmb += 1
-            if self.rmb == 1:
+            if (self.mouse_rmb + self.key_rmb) == 0:
+                self.mouse_rmb = 1
                 self.rmb_down(hn, e)
+            else:
+                self.mouse_rmb = 1
 
     def onrelease_mouse(self, hn, e, i):
         if i == self.mousesettings[0]:
             # LMB
-            self.lmb -= 1
-            if self.lmb == 0:
+            self.mouse_lmb = 0
+            if (self.mouse_lmb + self.key_lmb) == 0:
                 self.lmb_up(hn, e)
         elif i == self.mousesettings[1]:
             # RMB
-            self.rmb -= 1
-            if self.rmb == 0:
+            self.mouse_rmb = 0
+            if (self.mouse_rmb + self.key_rmb) == 0:
                 self.rmb_up(hn, e)
 
     # These functions are in charge of setting the right flags and sending the right events out
 
     def lmb_down(self, hn, e):
-        self.handle_event_with_flags(("clicker", "LD"), e)
-        self.handle_event_with_flags(("clicker", "D"), e)
+        self.send_event(("clicker", "LD"), e)
+        self.send_event(("clicker", "D"), e)
 
     def rmb_down(self, hn, e):
-        self.handle_event_with_flags(("clicker", "RD"), e)
-        self.handle_event_with_flags(("clicker", "D"), e)
+        self.send_event(("clicker", "RD"), e)
+        self.send_event(("clicker", "D"), e)
 
     def lmb_up(self, hn, e):
-        self.handle_event_with_flags(("clicker", "LU"), e)
-        self.handle_event_with_flags(("clicker", "U"), e)
+        self.send_event(("clicker", "LU"), e)
+        self.send_event(("clicker", "U"), e)
 
     def rmb_up(self, hn, e):
-        self.handle_event_with_flags(("clicker", "RU"), e)
-        self.handle_event_with_flags(("clicker", "U"), e)
+        self.send_event(("clicker", "RU"), e)
+        self.send_event(("clicker", "U"), e)
 
-    def handle_event_with_flags(self, hn, e):
+    def send_event(self, hn, e):
         e = ClickerEvent(self.gamedisplay.display, *self.currentposition, self.lmb, self.rmb)
         # e.widget = self.gamedisplay.display
         # e.x, e.y = self.currentposition
