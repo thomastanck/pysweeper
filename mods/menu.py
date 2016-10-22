@@ -12,14 +12,10 @@ class Menu:
         self.menubar = tkinter.Menu(self.master)
         self.master.config(menu=self.menubar)
 
-        self.menus = {}
-
     def add_menu(self, label, menu):
-        self.menus[label] = menu
         self.menubar.add_cascade(label=label, menu=menu)
 
     def remove_menu(self, label, menu):
-        self.menus.pop(label)
         self.menubar.delete(label)
 
 mods = {"Menu": Menu}

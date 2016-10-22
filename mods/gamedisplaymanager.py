@@ -84,6 +84,7 @@ class BoardClick:
     # In order to prevent mixing up events which are supposed to have x/y and events which are supposed to have row/col,
     # we'll simply force BoardClick to use row/col only.
     __isfrozen = False
+    tile_size = (16, 16)
     def __setattr__(self, key, value):
         if self.__isfrozen and not hasattr(self, key):
             raise TypeError( "%r is a frozen class, cannot set %s" % (self, key))
@@ -96,11 +97,10 @@ class BoardClick:
         self.rmb = rmb
         self.__isfrozen = True
     def fromClickerEvent(self, e):
-        self.row = e.y//16
-        self.col = e.x//16
+        self.row = e.y//self.tile_size[1]
+        self.col = e.x//self.tile_size[0]
         self.lmb = e.lmb
         self.rmb = e.rmb
-
 
 
 class GameDisplayManager:
@@ -177,6 +177,7 @@ class GameDisplayManager:
 
     def handle_board(self, hn, e_):
         # Create BoardClick
+        BoardClick.tile_size = self.gamedisplay.board.tile_size
         e = BoardClick()
         e.fromClickerEvent(e_)
 
