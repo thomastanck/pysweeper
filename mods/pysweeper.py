@@ -2,9 +2,9 @@ import tkinter
 
 import random
 
-game_mode_name = "Minesweeper"
+game_mode_name = "Pysweeper"
 
-class Minesweeper:
+class Pysweeper:
     hooks = {}
     required_events = [
         ("pysweep", "<F2>"),
@@ -42,7 +42,7 @@ class Minesweeper:
 
     def modsloaded(self, hn, e):
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
-        self.gamemodeselector.register_game_mode(game_mode_name, priority=1, default=True)
+        self.gamemodeselector.register_game_mode(game_mode_name, priority=0, default=True)
 
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
@@ -128,26 +128,18 @@ class Minesweeper:
 
         self.state = "started"
         self.timer.start_timer()
-        # for now let's just generate all mines on game start.
-        while self.mines_generated < self.num_mines:
-            row_ = int(random.random() * height)
-            col_ = int(random.random() * width)
-            if (row_, col_) not in self.mines and (row_, col_) != (row, col):
-                self.mines.append((row_, col_))
-                self.notmines.remove((row_, col_))
-                self.mines_generated += 1
-        # determine all the cells
-        self.notdetermined = []
-        for row_ in range(height):
-            for col_ in range(width):
-                self.determined.append((row_, col_))
-
+        # Just set the current cell to determined so no mines can be generated there,
+        # then let the rest of the click handler do the job
+        self.determined.append((row, col))
+        self.notdetermined.remove((row, col))
 
     def lose_game(self, row, col):
         # Blast at row, col
         width, height = self.gamedisplay.size
 
         self.timer.stop_timer()
+        # Determine all tiles
+        self.determine_all_tiles()
         # Display all mines
         for (minerow, minecol) in self.mines:
             if (minerow, minecol) not in self.flagged:
@@ -165,6 +157,9 @@ class Minesweeper:
         width, height = self.gamedisplay.size
 
         self.timer.stop_timer()
+        # Determine all tiles just in case there was a huge chunk of
+        # undetermined but guaranteed mines in a corner
+        self.determine_all_tiles()
         for (minerow, minecol) in self.mines:
             self.gamedisplay.set_tile_flag(minerow, minecol)
         self.gamedisplay.set_face_cool()
@@ -194,6 +189,9 @@ class Minesweeper:
         if self.state == "notstarted":
             self.start_game(row, col)
 
+        # Determine the tiles around it before doing anything else
+        self.determine_around_tile(row, col)
+
         self.opened.append((row, col))
         self.notopened.remove((row, col))
 
@@ -216,6 +214,34 @@ class Minesweeper:
         if len(self.notopened) == len(self.mines):
             # we've opened everything :D (without blowing up)
             self.win_game()
+
+    def determine_all_tiles(self):
+        width, height = self.gamedisplay.size
+
+        for row in range(height):
+            for col in range(width):
+                self.determine_tile(row, col)
+
+    def determine_around_tile(self, row, col):
+        for drow in range(-1, 2):
+            for dcol in range(-1, 2):
+                row_, col_ = row + drow, col + dcol
+                self.determine_tile(row_, col_)
+
+    def determine_tile(self, row, col):
+        width, height = self.gamedisplay.size
+        if (not (0 <= row < height and 0 <= col < width) or
+                (row, col) in self.determined):
+            return
+
+        numspaces = len(self.notdetermined)
+        nummines = self.num_mines - len(self.mines)
+        ismine = self.rng.random(nummines, numspaces)
+
+        self.determined.append((row, col))
+        self.notdetermined.remove((row, col))
+        if ismine:
+            self.mines.append((row, col))
 
     def num_mines_around(self, row, col):
         number = 0
@@ -271,4 +297,4 @@ class Minesweeper:
     def on_mouse_move(self, hn, e):
         pass # TODO: This will feed into the rng!
 
-mods = {"Minesweeper": Minesweeper}
+mods = {"Pysweeper": Pysweeper}

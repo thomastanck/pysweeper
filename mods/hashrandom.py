@@ -29,7 +29,7 @@ class HashRandom:
     def __init__(self):
         self.source = ''
         self.hasher = hashlib.sha512()
-        self.hash_copy = None
+        self.hash_copy = self.hasher.copy()
         self.updates_to_copy = 0
         self.current_digest = None
         self.bits_remaining = 0
@@ -42,7 +42,7 @@ class HashRandom:
         self.hash_copy = self.hasher.copy()
         self.bits_remaining = 0 # forces us to digest if we want rands
         self.updates_to_copy = 0
-        
+
 
     def get_source(self):
         return self.source
