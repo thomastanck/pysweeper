@@ -42,8 +42,6 @@ class Minesweeper:
 
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
-        self.gamedisplaymanager = self.pysweep.mods["GameDisplayManager"]
-
         self.rngmod = self.pysweep.mods["HashRandom"]
         self.rng = self.rngmod.get_rng()
         self.vid = [] # list of tuples. First element is string, remaining elements should be strings or numbers.
@@ -62,7 +60,7 @@ class Minesweeper:
     def new_game(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
-        width, height = self.gamedisplaymanager.get_size()
+        width, height = self.gamedisplay.size
 
         self.notopened = []
         self.notdetermined = []
@@ -87,8 +85,8 @@ class Minesweeper:
 
         self.timer.stop_timer()
 
-        self.gamedisplaymanager.reset_board()
-        self.gamedisplaymanager.set_face_happy()
+        self.gamedisplay.reset_board()
+        self.gamedisplay.set_face_happy()
         self.gamedisplay.set_timer(0)
         self.gamedisplay.set_mine_counter(self.num_mines)
 
@@ -103,7 +101,7 @@ class Minesweeper:
         if self.state == "ended":
             return
 
-        width, height = self.gamedisplaymanager.get_size()
+        width, height = self.gamedisplay.size
 
         row, col = e.row, e.col
 
@@ -142,13 +140,13 @@ class Minesweeper:
             # Display all mines
             for (minerow, minecol) in self.mines:
                 if (minerow, minecol) not in self.flagged:
-                    self.gamedisplaymanager.set_tile_mine(minerow, minecol)
+                    self.gamedisplay.set_tile_mine(minerow, minecol)
             # Find wrong flags
             for (flagrow, flagcol) in self.flagged:
                 if (flagrow, flagcol) not in self.mines:
-                    self.gamedisplaymanager.set_tile_flag_wrong(flagrow, flagcol)
-            self.gamedisplaymanager.set_face_blast()
-            self.gamedisplaymanager.set_tile_blast(row, col)
+                    self.gamedisplay.set_tile_flag_wrong(flagrow, flagcol)
+            self.gamedisplay.set_face_blast()
+            self.gamedisplay.set_tile_blast(row, col)
             self.state = "ended"
             return
         # NOT DEAD, calculate number
@@ -156,7 +154,7 @@ class Minesweeper:
         for (minerow, minecol) in self.mines:
             if abs(minerow - row) <= 1 and abs(minecol - col) <= 1:
                 number += 1
-        self.gamedisplaymanager.set_tile_number(row, col, number)
+        self.gamedisplay.set_tile_number(row, col, number)
         # If number is zero, click every tile around it
         if number == 0:
             for drow in range(-1, 2):
@@ -167,8 +165,8 @@ class Minesweeper:
             # we've opened everything :D (without blowing up)
             self.timer.stop_timer()
             for (minerow, minecol) in self.mines:
-                self.gamedisplaymanager.set_tile_flag(minerow, minecol)
-            self.gamedisplaymanager.set_face_cool()
+                self.gamedisplay.set_tile_flag(minerow, minecol)
+            self.gamedisplay.set_face_cool()
             self.state = "ended"
 
         # TODO: more logic needed lol
@@ -178,7 +176,7 @@ class Minesweeper:
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
 
-        width, height = self.gamedisplaymanager.get_size()
+        width, height = self.gamedisplay.size
 
         row, col = e.row, e.col
 
@@ -187,10 +185,10 @@ class Minesweeper:
 
         if (row, col) in self.flagged:
             self.flagged.remove((row, col))
-            self.gamedisplaymanager.set_tile_unopened(row, col)
+            self.gamedisplay.set_tile_unopened(row, col)
         else:
             self.flagged.append((row, col))
-            self.gamedisplaymanager.set_tile_flag(row, col)
+            self.gamedisplay.set_tile_flag(row, col)
 
         self.gamedisplay.set_mine_counter(self.num_mines - len(self.flagged))
 
@@ -198,7 +196,7 @@ class Minesweeper:
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
 
-        width, height = self.gamedisplaymanager.get_size()
+        width, height = self.gamedisplay.size
 
         row, col = e.row, e.col
 
@@ -206,13 +204,13 @@ class Minesweeper:
         if (row, col) not in self.opened:
             return
 
-        squarenum = self.gamedisplaymanager.get_tile_number(row, col)
+        squarenum = self.gamedisplay.get_tile_number(row, col)
         flagcount = 0
         for drow in range(-1, 2):
             for dcol in range(-1, 2):
                 row_, col_ = row+drow, col+dcol
                 if (0 <= row_ < height and 0 <= col_ < width):
-                    if self.gamedisplaymanager.is_tile_flag(row_, col_):
+                    if self.gamedisplay.is_tile_flag(row_, col_):
                         flagcount += 1
         if flagcount == squarenum:
             # Square is fulfilled. Time to chord!
@@ -220,17 +218,12 @@ class Minesweeper:
                 for dcol in range(-1, 2):
                     row_, col_ = row+drow, col+dcol
                     if (0 <= row_ < height and 0 <= col_ < width):
-                        if not self.gamedisplaymanager.is_tile_flag(row_, col_):
+                        if not self.gamedisplay.is_tile_flag(row_, col_):
                             e.row, e.col = row_, col_
                             self.tile_clicked(hn, e)
 
 
     def on_mouse_move(self, hn, e):
         pass # TODO: This will feed into the rng!
-
-    def on_mouse_event(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
-        self.gamedisplaymanager.handle_mouse_event(hn, e)
 
 mods = {"Minesweeper": Minesweeper}

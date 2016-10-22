@@ -45,71 +45,6 @@ class GameDisplayManager:
     def modsloaded(self, hn, e):
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
-    # Get size
-    def get_size(self):
-        return self.gamedisplay.size
-
-    # Face button setters
-    def set_face_happy(self):
-        self.gamedisplay.face_button.set_face("happy")
-    def set_face_pressed(self):
-        self.gamedisplay.face_button.set_face("pressed")
-    def set_face_blast(self):
-        self.gamedisplay.face_button.set_face("blast")
-    def set_face_cool(self):
-        self.gamedisplay.face_button.set_face("cool")
-
-    # Tile getters
-    def is_tile_mine(self, row, col):
-        return self.get_tile_type(row, col) == "mine"
-    def is_tile_blast(self, row, col):
-        return self.get_tile_type(row, col) == "blast"
-    def is_tile_flag(self, row, col):
-        return self.get_tile_type(row, col) == "flag"
-    def is_tile_flag_wrong(self, row, col):
-        return self.get_tile_type(row, col) == "flag_wrong"
-    def is_tile_unopened(self, row, col):
-        return self.get_tile_type(row, col) == "unopened"
-    def get_tile_number(self, row, col):
-        return int(self.get_tile_type(row, col)[-1:]) # get the last char and convert to int
-    def get_tile_type(self, row, col):
-        board = self.gamedisplay.board
-        return board.get_tile_type(row, col)
-
-    # Tile setters
-    def set_tile_mine(self, row, col):
-        self.set_tile(row, col, "mine")
-    def set_tile_blast(self, row, col):
-        self.set_tile(row, col, "blast")
-    def set_tile_flag(self, row, col):
-        self.set_tile(row, col, "flag")
-    def set_tile_flag_wrong(self, row, col):
-        self.set_tile(row, col, "flag_wrong")
-    def set_tile_unopened(self, row, col):
-        self.set_tile(row, col, "unopened")
-    def set_tile_number(self, row, col, number):
-        # number: 0..8
-        if 0 <= number and number < 9:
-            self.set_tile(row, col, "tile_{}".format(number))
-        else:
-            raise ValueError('Tile number {} does not exist'.format(number))
-    def set_tile(self, i, j, tile_type):
-        board = self.gamedisplay.board
-        board.draw_tile(i, j, tile_type)
-
-    def reset_board(self):
-        # reset the board to all unopened
-        board = self.gamedisplay.board
-
-        width = board.board_width
-        height = board.board_height
-
-        for row in range(height):
-            for col in range(width):
-                self.set_tile_unopened(row, col)
-
-
-
     def handle_mouse_event(self, hn, e):
         # We now listen to the events ourselves and output them regardless of game mode.
         widget_handlers = [
@@ -222,7 +157,7 @@ class GameDisplayManager:
             self.pysweep.handle_event(("gamedisplaymanager", "DisplayClicked"), e)
 
 
-
+    # Board events
     def board_depress(self, hn, e):
         # Undepress currently depressed cells
         # Depress current cell
@@ -236,9 +171,9 @@ class GameDisplayManager:
             self.board_reset_depressed()
         else:
             self.board_reset_depressed(row, col)
-            if self.get_tile_type(row, col) == "unopened":
+            if self.gamedisplay.get_tile_type(row, col) == "unopened":
                 self.temporarily_down.append((row, col))
-                self.set_tile(row, col, "tile_0")
+                self.gamedisplay.set_tile(row, col, "tile_0")
 
     def board_open(self, hn, e):
         # Undepress currently depressed cells
@@ -280,9 +215,9 @@ class GameDisplayManager:
             for dcol in range(-1, 2):
                 row_, col_ = row+drow, col+dcol
                 if (0 <= col_ < width and 0 <= row_ < height):
-                    if self.get_tile_type(row_, col_) == "unopened":
+                    if self.gamedisplay.get_tile_type(row_, col_) == "unopened":
                         self.temporarily_down.append((row_, col_))
-                        self.set_tile(row_, col_, "tile_0")
+                        self.gamedisplay.set_tile(row_, col_, "tile_0")
 
     def board_chord(self, hn, e):
         # Undepress currently depressed cells
@@ -305,7 +240,7 @@ class GameDisplayManager:
             self.temporarily_down.remove((avoid_x, avoid_y))
         while self.temporarily_down:
             x, y = self.temporarily_down.pop()
-            self.set_tile(x, y, "unopened")
+            self.gamedisplay.set_tile(x, y, "unopened")
         if add_back:
             self.temporarily_down.append((avoid_x, avoid_y))
 

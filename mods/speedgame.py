@@ -33,8 +33,6 @@ class SpeedGame:
 
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
-        self.gamedisplaymanager = self.pysweep.mods["GameDisplayManager"]
-
         self.timermod = self.pysweep.mods["Timer"]
         self.timer = self.timermod.get_timer(self.timercallback, period=0.001, resolution=0.001)
 
@@ -69,9 +67,9 @@ class SpeedGame:
             row = i//width
             col = i%width
             if i in squares:
-                self.gamedisplaymanager.set_tile_unopened(row, col)
+                self.gamedisplay.set_tile_unopened(row, col)
             else:
-                self.gamedisplaymanager.set_tile_number(row, col, 0)
+                self.gamedisplay.set_tile_number(row, col, 0)
         self.gamedisplay.face_button.set_face("happy")
         self.timer.start_timer()
 
@@ -85,7 +83,7 @@ class SpeedGame:
         width = board.board_width
         height = board.board_height
         if (0 <= col < width and 0 <= row < height):
-            self.gamedisplaymanager.set_tile_number(row, col, 0)
+            self.gamedisplay.set_tile_number(row, col, 0)
             i = row*width + col
             if i in self.speed_game_squares:
                 self.speed_game_squares.remove(i)

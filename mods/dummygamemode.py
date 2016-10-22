@@ -33,15 +33,8 @@ class DummyGameMode:
 
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
-        self.gamedisplaymanager = self.pysweep.mods["GameDisplayManager"]
-
         self.timermod = self.pysweep.mods["Timer"]
         self.timer = self.timermod.get_timer(self.timercallback, period=0.001, resolution=0.001)
-
-    def handle_mouse_event(self, hn, e):
-        if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
-            return
-        self.gamedisplaymanager.handle_mouse_event(hn, e)
 
     def timercallback(self, elapsed, sincelasttick):
         self.gamedisplay.set_timer(int(elapsed*1000))
@@ -59,7 +52,7 @@ class DummyGameMode:
     def face_clicked(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
-        self.gamedisplaymanager.reset_board()
+        self.gamedisplay.reset_board()
 
     def randomiseminecounter(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
@@ -75,6 +68,6 @@ class DummyGameMode:
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
         row, col = e.y//16, e.x//16
-        self.gamedisplaymanager.set_tile_number(row, col, 0)
+        self.gamedisplay.set_tile_number(row, col, 0)
 
 mods = {"DummyGameMode": DummyGameMode}
