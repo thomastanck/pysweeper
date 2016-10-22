@@ -1,23 +1,6 @@
 import threading, time
 
 class Timer:
-    hooks = {}
-    required_events = []
-    required_protocols = []
-
-    def __init__(self, master, pysweep):
-        self.master = master
-        self.pysweep = pysweep
-
-        # This mod is pretty benign and doesn't do much except give other mods TimerObj's
-        self.timers = [] # A list of timers it has made
-
-    def get_timer(self, callback, period=1, resolution=0.01):
-        timerobj = TimerObj(self.master, callback, period, resolution)
-        self.timers.append(timerobj)
-        return timerobj
-
-class TimerObj:
     def __init__(self, master, callback, period, resolution):
         # calls callback whenever the time changes more than period seconds (which will be every second by default), checking for this condition every resolution seconds (0.01 by default)
         self.master = master
@@ -73,4 +56,3 @@ class TimerObj:
         self.stop_timer()
         # We don't really need to clean up in this version
 
-mods = {"Timer": Timer}

@@ -1,5 +1,7 @@
 import tkinter
 
+from pysweep import HashRandom
+
 import time
 import random
 
@@ -28,8 +30,6 @@ class BoardGeneratorTest:
 
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
-        self.rngmod = self.pysweep.mods["HashRandom"]
-
     def generate_mines(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
@@ -37,7 +37,7 @@ class BoardGeneratorTest:
         area = width*height
         self.minecount = 0
 
-        self.rng = self.rngmod.get_rng()
+        self.rng = HashRandom()
         self.rng.update("TIME {}\n".format(time.time()))
         self.rng.update("RANDOM {}\n".format(random.random()))
 

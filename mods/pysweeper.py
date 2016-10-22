@@ -1,5 +1,7 @@
 import tkinter
 
+from pysweep import HashRandom, Timer
+
 import random
 
 game_mode_name = "PySweeper"
@@ -46,13 +48,11 @@ class PySweeper:
 
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
-        self.rngmod = self.pysweep.mods["HashRandom"]
-        self.rng = self.rngmod.get_rng()
+        self.rng = HashRandom()
         self.vid = [] # list of tuples. First element is string, remaining elements should be strings or numbers.
         self.hashvid = [] # same but contains what we'll put into the rng where sensitive numbers are rounded
 
-        self.timermod = self.pysweep.mods["Timer"]
-        self.timer = self.timermod.get_timer(self.timercallback, period=1, resolution=0.01)
+        self.timer = Timer(self.master, self.timercallback, period=1, resolution=0.01)
 
         self.menuvar = tkinter.StringVar()
         self.menumod = self.pysweep.mods["Menu"]

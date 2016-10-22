@@ -1,22 +1,6 @@
 import fractions
 import hashlib
 
-class HashRandomFactory:
-    hooks = {}
-    required_events = []
-    required_protocols = []
-
-    def __init__(self, master, pysweep):
-        self.master = master
-        self.pysweep = pysweep
-
-        self.rngs = []
-
-    def get_rng(self):
-        rng = HashRandom()
-        self.rngs.append(rng)
-        return rng
-
 def powoftwo(n):
     i = 1
     order  = 0
@@ -77,5 +61,3 @@ class HashRandom:
                 self.updates_to_copy += 1
         return remainder < numerator
 
-
-mods = {"HashRandom": HashRandomFactory}

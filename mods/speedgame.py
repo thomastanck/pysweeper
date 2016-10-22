@@ -1,5 +1,7 @@
 import tkinter
 
+from pysweep import Timer
+
 import random
 
 game_mode_name = "Speed Game"
@@ -35,8 +37,7 @@ class SpeedGame:
 
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
-        self.timermod = self.pysweep.mods["Timer"]
-        self.timer = self.timermod.get_timer(self.timercallback, period=0.001, resolution=0.001)
+        self.timer = Timer(self.master, self.timercallback, period=0.001, resolution=0.001)
 
     def timercallback(self, elapsed, sincelasttick):
         self.gamedisplay.set_timer(int(elapsed*1000))
