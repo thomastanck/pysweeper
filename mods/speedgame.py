@@ -15,8 +15,10 @@ class SpeedGame:
         self.master = master
         self.pysweep = pysweep
         self.hooks = {
-            ("gamedisplaymanager", "TileClicked"): [self.tile_clicked],
+            ("gamedisplaymanager", "TileOpen"): [self.tile_open],
             ("gamedisplaymanager", "FaceClicked"): [self.new_game],
+            ("gamedisplaymanager", "TileDepress"):   [self.tile_depress],
+            ("gamedisplaymanager", "TileUndepress"): [self.tile_undepress],
 
             ("pysweep", "<F2>"): [self.new_game],
             ("pysweep", "<F3>"): [(lambda hn,e:self.reset_game())],
@@ -70,10 +72,10 @@ class SpeedGame:
                 self.gamedisplay.set_tile_unopened(row, col)
             else:
                 self.gamedisplay.set_tile_number(row, col, 0)
-        self.gamedisplay.face_button.set_face("happy")
+        self.gamedisplay.set_face_happy()
         self.timer.start_timer()
 
-    def tile_clicked(self, hn, e):
+    def tile_open(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
 
@@ -87,6 +89,15 @@ class SpeedGame:
                 self.speed_game_squares.remove(i)
             if len(self.speed_game_squares) == 0:
                 self.timer.stop_timer()
-                self.gamedisplay.face_button.set_face("cool")
+                self.gamedisplay.set_face_cool()
+
+    def tile_depress(self, hn, e):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
+            return
+        self.gamedisplay.set_tile_number(e.row, e.col, 0)
+    def tile_undepress(self, hn, e):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
+            return
+        self.gamedisplay.set_tile_unopened(e.row, e.col)
 
 mods = {"SpeedGame": SpeedGame}

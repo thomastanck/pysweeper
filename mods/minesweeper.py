@@ -23,17 +23,21 @@ class Minesweeper:
         self.hooks = {
             ("clicker", "Move"): [self.on_mouse_move],
 
-            ("gamedisplaymanager", "TileClicked"): [self.tile_clicked],
-            ("gamedisplaymanager", "TileRightClicked"): [self.tile_right_clicked],
-            ("gamedisplaymanager", "TileChorded"): [self.tile_chorded],
+            ("gamedisplaymanager", "TileOpen"): [self.tile_open],
+            ("gamedisplaymanager", "TileToggleFlag"): [self.tile_toggle_flag],
+            ("gamedisplaymanager", "TileChord"): [self.tile_chord],
             ("gamedisplaymanager", "FaceClicked"): [self.new_game],
+
+            ("gamedisplaymanager", "TileDepress"): [self.tile_depress],
+            ("gamedisplaymanager", "TileUndepress"): [self.tile_undepress],
 
             ("pysweep", "<F2>"): [self.new_game],
             ("pysweep", "<F3>"): [self.new_game], # TODO: Create a UPK game
 
             ("pysweep", "AllModsLoaded"): [self.modsloaded],
 
-            ("gamemode", "EnableGameMode"): [self.onenable],
+            ("gamemode", "EnableGameMode"):  [self.onenable],
+            ("gamemode", "DisableGameMode"): [self.ondisable],
         }
 
     def modsloaded(self, hn, e):
@@ -56,6 +60,13 @@ class Minesweeper:
     def onenable(self, hn, e):
         if e == game_mode_name:
             self.new_game(hn, e)
+    def ondisable(self, hn, e):
+        if e == game_mode_name:
+            self.timer.stop_timer()
+            self.gamedisplay.reset_board()
+            self.gamedisplay.set_timer(0)
+            self.gamedisplay.set_mine_counter(0)
+            self.gamedisplay.set_face_happy()
 
     def new_game(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
@@ -94,7 +105,16 @@ class Minesweeper:
         if self.num_mines > area - 1:
             raise ValueException('More mines than spaces')
 
-    def tile_clicked(self, hn, e):
+    def tile_depress(self, hn, e):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
+            return
+        self.gamedisplay.set_tile_number(e.row, e.col, 0)
+    def tile_undepress(self, hn, e):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
+            return
+        self.gamedisplay.set_tile_unopened(e.row, e.col)
+
+    def tile_open(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
 
@@ -155,12 +175,12 @@ class Minesweeper:
             if abs(minerow - row) <= 1 and abs(minecol - col) <= 1:
                 number += 1
         self.gamedisplay.set_tile_number(row, col, number)
-        # If number is zero, click every tile around it
+        # If number is zero, open every tile around it
         if number == 0:
             for drow in range(-1, 2):
                 for dcol in range(-1, 2):
                     e.row, e.col = row + drow, col + dcol
-                    self.tile_clicked(hn, e)
+                    self.tile_open(hn, e)
         if len(self.notopened) == len(self.mines):
             # we've opened everything :D (without blowing up)
             self.timer.stop_timer()
@@ -172,7 +192,7 @@ class Minesweeper:
         # TODO: more logic needed lol
         # Done ish?
 
-    def tile_right_clicked(self, hn, e):
+    def tile_toggle_flag(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
 
@@ -192,7 +212,7 @@ class Minesweeper:
 
         self.gamedisplay.set_mine_counter(self.num_mines - len(self.flagged))
 
-    def tile_chorded(self, hn, e):
+    def tile_chord(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
 
@@ -220,7 +240,7 @@ class Minesweeper:
                     if (0 <= row_ < height and 0 <= col_ < width):
                         if not self.gamedisplay.is_tile_flag(row_, col_):
                             e.row, e.col = row_, col_
-                            self.tile_clicked(hn, e)
+                            self.tile_open(hn, e)
 
 
     def on_mouse_move(self, hn, e):
