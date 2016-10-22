@@ -134,7 +134,6 @@ class Minesweeper:
             col_ = int(random.random() * width)
             if (row_, col_) not in self.mines and (row_, col_) != (row, col):
                 self.mines.append((row_, col_))
-                self.notmines.remove((row_, col_))
                 self.mines_generated += 1
         # determine all the cells
         self.notdetermined = []
