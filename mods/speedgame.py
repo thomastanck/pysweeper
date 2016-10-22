@@ -39,7 +39,7 @@ class SpeedGame:
         self.timer = self.timermod.get_timer(self.timercallback, period=0.001, resolution=0.001)
 
     def timercallback(self, elapsed, sincelasttick):
-        self.gamedisplay.display.set_timer(int(elapsed*1000))
+        self.gamedisplay.set_timer(int(elapsed*1000))
 
     def new_game(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
@@ -72,7 +72,7 @@ class SpeedGame:
                 self.gamedisplaymanager.set_tile_unopened(row, col)
             else:
                 self.gamedisplaymanager.set_tile_number(row, col, 0)
-        self.gamedisplay.display.panel.face_button.set_face("happy")
+        self.gamedisplay.face_button.set_face("happy")
         self.timer.start_timer()
 
     def tile_clicked(self, hn, e):
@@ -81,7 +81,7 @@ class SpeedGame:
 
         row, col = e.row, e.col
 
-        board = self.gamedisplay.display.board
+        board = self.gamedisplay.board
         width = board.board_width
         height = board.board_height
         if (0 <= col < width and 0 <= row < height):
@@ -91,6 +91,6 @@ class SpeedGame:
                 self.speed_game_squares.remove(i)
             if len(self.speed_game_squares) == 0:
                 self.timer.stop_timer()
-                self.gamedisplay.display.panel.face_button.set_face("cool")
+                self.gamedisplay.face_button.set_face("cool")
 
 mods = {"SpeedGame": SpeedGame}

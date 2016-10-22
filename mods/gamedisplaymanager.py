@@ -45,33 +45,19 @@ class GameDisplayManager:
     def modsloaded(self, hn, e):
         self.gamedisplay = self.pysweep.mods["GameDisplay"]
 
-    # Getters for various widgets
-    def get_display(self):
-        return self.gamedisplay.display
-    def get_board(self):
-        return self.gamedisplay.display.board
-    def get_panel(self):
-        return self.gamedisplay.display.panel
-    def get_face_button(self):
-        return self.gamedisplay.display.panel.face_button
-    def get_mine_counter(self):
-        return self.gamedisplay.display.panel.mine_counter
-    def get_timer(self):
-        return self.gamedisplay.display.panel.timer
-
     # Get size
     def get_size(self):
         return self.gamedisplay.size
 
     # Face button setters
     def set_face_happy(self):
-        self.get_face_button().set_face("happy")
+        self.gamedisplay.face_button.set_face("happy")
     def set_face_pressed(self):
-        self.get_face_button().set_face("pressed")
+        self.gamedisplay.face_button.set_face("pressed")
     def set_face_blast(self):
-        self.get_face_button().set_face("blast")
+        self.gamedisplay.face_button.set_face("blast")
     def set_face_cool(self):
-        self.get_face_button().set_face("cool")
+        self.gamedisplay.face_button.set_face("cool")
 
     # Tile getters
     def is_tile_mine(self, row, col):
@@ -87,7 +73,7 @@ class GameDisplayManager:
     def get_tile_number(self, row, col):
         return int(self.get_tile_type(row, col)[-1:]) # get the last char and convert to int
     def get_tile_type(self, row, col):
-        board = self.gamedisplay.display.board
+        board = self.gamedisplay.board
         return board.get_tile_type(row, col)
 
     # Tile setters
@@ -108,12 +94,12 @@ class GameDisplayManager:
         else:
             raise ValueError('Tile number {} does not exist'.format(number))
     def set_tile(self, i, j, tile_type):
-        board = self.gamedisplay.display.board
+        board = self.gamedisplay.board
         board.draw_tile(i, j, tile_type)
 
     def reset_board(self):
         # reset the board to all unopened
-        board = self.gamedisplay.display.board
+        board = self.gamedisplay.board
 
         width = board.board_width
         height = board.board_height
@@ -127,12 +113,12 @@ class GameDisplayManager:
     def handle_mouse_event(self, hn, e):
         # We now listen to the events ourselves and output them regardless of game mode.
         widget_handlers = [
-            (self.gamedisplay.display.board,              self.handle_board),
-            (self.gamedisplay.display.panel.face_button,  self.handle_face),
-            (self.gamedisplay.display.panel.mine_counter, self.handle_mine),
-            (self.gamedisplay.display.panel.timer,        self.handle_timer),
-            (self.gamedisplay.display.panel,              self.handle_panel),
-            (self.gamedisplay.display,                    self.handle_display),
+            (self.gamedisplay.board,        self.handle_board),
+            (self.gamedisplay.face_button,  self.handle_face),
+            (self.gamedisplay.mine_counter, self.handle_mine),
+            (self.gamedisplay.timer,        self.handle_timer),
+            (self.gamedisplay.panel,        self.handle_panel),
+            (self.gamedisplay.display,      self.handle_display),
         ]
 
         for widget, handler in widget_handlers:
@@ -211,7 +197,7 @@ class GameDisplayManager:
             self.chording_mode = 0
 
     def handle_face(self, hn, e):
-        face_button = self.gamedisplay.display.panel.face_button
+        face_button = self.gamedisplay.face_button
         if e.inbounds:
             if hn[1] == "LD" or hn[1] == "LM":
                 face_button.set_face("pressed")
@@ -240,7 +226,7 @@ class GameDisplayManager:
     def board_depress(self, hn, e):
         # Undepress currently depressed cells
         # Depress current cell
-        board = self.gamedisplay.display.board
+        board = self.gamedisplay.board
 
         col = e.x // 16
         row = e.y // 16
@@ -257,7 +243,7 @@ class GameDisplayManager:
     def board_open(self, hn, e):
         # Undepress currently depressed cells
         # Send out click event
-        board = self.gamedisplay.display.board
+        board = self.gamedisplay.board
 
         col = e.x // 16
         row = e.y // 16
@@ -272,7 +258,7 @@ class GameDisplayManager:
 
     def board_toggle_flag(self, hn, e):
         # Send out click event
-        board = self.gamedisplay.display.board
+        board = self.gamedisplay.board
         col = e.x // 16
         row = e.y // 16
         width = board.board_width
@@ -284,7 +270,7 @@ class GameDisplayManager:
     def board_depress_chord(self, hn, e):
         # Undepress currently depressed cells
         # Depress current cell and neighbours
-        board = self.gamedisplay.display.board
+        board = self.gamedisplay.board
 
         col = e.x // 16
         row = e.y // 16
@@ -301,7 +287,7 @@ class GameDisplayManager:
     def board_chord(self, hn, e):
         # Undepress currently depressed cells
         # Send out chord event
-        board = self.gamedisplay.display.board
+        board = self.gamedisplay.board
 
         col = e.x // 16
         row = e.y // 16

@@ -44,7 +44,7 @@ class DummyGameMode:
         self.gamedisplaymanager.handle_mouse_event(hn, e)
 
     def timercallback(self, elapsed, sincelasttick):
-        self.gamedisplay.display.set_timer(int(elapsed*1000))
+        self.gamedisplay.set_timer(int(elapsed*1000))
 
     def onpress_timer(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
@@ -59,17 +59,17 @@ class DummyGameMode:
     def face_clicked(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
-        self.gamedisplay.display.board.reset_board()
+        self.gamedisplaymanager.reset_board()
 
     def randomiseminecounter(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
-        self.gamedisplay.display.panel.mine_counter.set_value(random.randint(0,100000000))
+        self.gamedisplay.set_mine_counter(random.randint(0,100000000))
 
     def randomisetimer(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):
             return
-        self.gamedisplay.display.set_timer(random.randint(0,100000000))
+        self.gamedisplay.set_timer(random.randint(0,100000000))
 
     def tile_clicked(self, hn, e):
         if not self.gamemodeselector.is_enabled("Dummy Game Mode"):

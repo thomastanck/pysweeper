@@ -53,7 +53,7 @@ class Minesweeper:
         self.timer = self.timermod.get_timer(self.timercallback, period=1, resolution=0.01)
 
     def timercallback(self, elapsed, sincelasttick):
-        self.gamedisplay.display.set_timer(int(elapsed))
+        self.gamedisplay.set_timer(int(elapsed))
 
     def onenable(self, hn, e):
         if e == game_mode_name:
@@ -89,8 +89,8 @@ class Minesweeper:
 
         self.gamedisplaymanager.reset_board()
         self.gamedisplaymanager.set_face_happy()
-        self.gamedisplay.display.set_timer(0)
-        self.gamedisplay.display.panel.mine_counter.set_value(self.num_mines)
+        self.gamedisplay.set_timer(0)
+        self.gamedisplay.set_mine_counter(self.num_mines)
 
         area = width*height
         if self.num_mines > area - 1:
@@ -192,7 +192,7 @@ class Minesweeper:
             self.flagged.append((row, col))
             self.gamedisplaymanager.set_tile_flag(row, col)
 
-        self.gamedisplay.display.panel.mine_counter.set_value(self.num_mines - len(self.flagged))
+        self.gamedisplay.set_mine_counter(self.num_mines - len(self.flagged))
 
     def tile_chorded(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
