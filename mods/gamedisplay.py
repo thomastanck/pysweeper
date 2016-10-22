@@ -4,7 +4,6 @@ import time
 
 class GameDisplayWrapper:
     hooks = {}
-    bindable_widgets = {}
     required_events = []
     required_protocols = []
 
@@ -16,49 +15,10 @@ class GameDisplayWrapper:
         self.size = (30, 16) # Default size is expert
         self.display = GameDisplay(master, self.pysweep, *self.size)
 
-        self.bindable_widgets = {
-            "board":        {"bindevent": lambda e_n,widget_name="board":        self.bind_tkinter_event(e_n, widget_name)},
-            "panel":        {"bindevent": lambda e_n,widget_name="panel":        self.bind_tkinter_event(e_n, widget_name)},
-            "mine_counter": {"bindevent": lambda e_n,widget_name="mine_counter": self.bind_tkinter_event(e_n, widget_name)},
-            "face_button":  {"bindevent": lambda e_n,widget_name="face_button":  self.bind_tkinter_event(e_n, widget_name)},
-            "timer":        {"bindevent": lambda e_n,widget_name="timer":        self.bind_tkinter_event(e_n, widget_name)},
-        }
-        self.bind_events = []
-
         self.master.withdraw()
         self.display.pack()
         self.center_window()
         self.master.deiconify()
-
-    def rebind_tkinter_events(self):
-        widgets = {
-            "board":        self.board.canvas,
-            "panel":        self.panel,
-            "mine_counter": self.mine_counter.canvas,
-            "face_button":  self.face_button.canvas,
-            "timer":        self.timer.canvas,
-        }
-        for event_name, widget_name in self.bind_events:
-            hook = (widget_name, event_name)
-            widgets[widget_name].bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
-
-    def bind_tkinter_event(self, event_name, widget_name):
-        widgets = {
-            "board":        self.board.canvas,
-            "panel":        self.panel,
-            "mine_counter": self.mine_counter.canvas,
-            "face_button":  self.face_button.canvas,
-            "timer":        self.timer.canvas,
-        }
-        if (event_name, widget_name) not in self.bind_events:
-            hook = (widget_name, event_name)
-            widgets[widget_name].bind(event_name, lambda e,hook=hook: self.handle_event(hook, e))
-            self.bind_events.append((event_name, widget_name))
-
-    def handle_event(self, hook, e):
-        e.row = e.y//16
-        e.col = e.x//16
-        self.pysweep.handle_event(hook, e)
 
     # WIDGET PROPERTIES
     ###################
@@ -87,7 +47,6 @@ class GameDisplayWrapper:
         self.display.pack_forget()
         self.display.destroy()
         self.display = GameDisplay(self.master, self.pysweep, *self.size)
-        self.rebind_tkinter_events()
 
     def center_window(self):
         self.display.update_idletasks()

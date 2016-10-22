@@ -6,7 +6,6 @@ class Menu:
     required_protocols = []
     master = None
     menubar = None
-    menus = {}
 
     def init_menu(master):
         Menu.master = master
