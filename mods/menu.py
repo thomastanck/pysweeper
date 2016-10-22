@@ -21,6 +21,7 @@ class Menu:
     def remove_menu(self, label, menu):
         if (label, menu) in self.menus:
             i = self.menus.index((label, menu))
+            self.menus.remove((label, menu))
             self.menubar.delete(i)
 
 mods = {"Menu": Menu}
