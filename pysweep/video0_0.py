@@ -45,16 +45,45 @@ def _gamedisplay_positions(gamedisplay):
         (gamedisplay.display, "BORDER_BOT"         , gamedisplay.display.border_bot         ),
         (gamedisplay.display, "BORDER_BOT_RIGHT"   , gamedisplay.display.border_bot_right   ),
     ]
-    return map(_widget_pos, *zip(*widgets))
+    return map(
+        lambda root,name,widget:
+            [
+                name,
+                widget.winfo_rootx() - root.winfo_rootx(),
+                widget.winfo_rooty() - root.winfo_rooty(),
+                widget.winfo_width(),
+                widget.winfo_height(),
+            ],
+        *zip(*widgets))
 
-def _widget_pos  (root, name, widget):
+def _board_info(gamedisplay):
     return [
-        name,
-        widget.winfo_rootx() - root.winfo_rootx(),
-        widget.winfo_rooty() - root.winfo_rooty(),
-        widget.winfo_width(),
-        widget.winfo_height(),
+        ["TILESIZE",  gamedisplay.tile_size ],
+        ["BOARDSIZE", gamedisplay.board_size],
     ]
+
+def _game_info(gamemode, gameoptions, num_mines):
+    return [
+        ["GAMEMODE",    gamemode   ],
+        ["GAMEOPTIONS", gameoptions],
+        ["NUMMINES",  num_mines    ],
+    ]
+
+def _add_seed(seed):
+    return ["ADDSEED", seed]
+
+def _clicker_event(e):
+    command_map = {
+        "M" : "MOVE",
+        "LD": "LMBDOWN",
+        "RD": "RMBDOWN",
+        "LU": "LMBUP",
+        "RU": "RMBUP",
+    }
+    if e.event in command_map:
+        return [[command_map[e.event], e.time, e.x, e.y]]
+    else:
+        return []
 
 class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
     video_file_version = video_file_version
@@ -65,7 +94,7 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
     def vidstr(self):
         return str(self.vid)
 
-    def __init__(self, gamedisplay):
+    def __init__(self, gamedisplay, gamemode, gameoptions, num_mines):
         # Put some stuff in quickly
         self.vid = []
         self.vid.append(_video_version())
@@ -73,3 +102,13 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
         self.vid.append(_time())
         self.vid.append(_seconds())
         self.vid.extend(_gamedisplay_positions(gamedisplay))
+        self.vid.extend(_board_info(gamedisplay))
+        self.vid.extend(_game_info(gamemode, gameoptions, num_mines))
+
+    def add_seed(self, seed):
+        self.vid.append(_add_seed(seed))
+
+    def clicker_event(self, e):
+        # Call this on "M", "LD", "LU", "RD", "RU".
+        # Don't worry about the hook name, clicker events contain them! :D
+        self.vid.extend(_clicker_event(e))

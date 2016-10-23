@@ -90,13 +90,18 @@ class BoardClick:
             raise TypeError( "%r is a frozen class, cannot set %s" % (self, key))
         object.__setattr__(self, key, value)
 
-    def __init__(self, row=0, col=0, lmb=False, rmb=False):
+    def __init__(self, event=None, time=0, row=0, col=0, lmb=False, rmb=False):
+        self.event = event
+        self.time = time
         self.row = row
         self.col = col
         self.lmb = lmb
         self.rmb = rmb
         self.__isfrozen = True
+
     def fromClickerEvent(self, e):
+        self.event = e.event # "LD", "LU", "M", etc.
+        self.time = e.time
         self.row = e.y//self.tile_size[1]
         self.col = e.x//self.tile_size[0]
         self.lmb = e.lmb
@@ -303,7 +308,7 @@ class GameDisplayManager:
         width, height = self.gamedisplay.board_size
         for drow in range(-1, 2):
             for dcol in range(-1, 2):
-                e_ = BoardClick(e.row+drow, e.col+dcol, e.lmb, e.rmb)
+                e_ = BoardClick(e.event, e.time, e.row+drow, e.col+dcol, e.lmb, e.rmb)
                 if (0 <= e_.col < width and 0 <= e_.row < height):
                     if self.gamedisplay.get_tile_type(e_.row, e_.col) == "unopened":
                         self.depressed_tiles.append((e_.row, e_.col))
@@ -321,7 +326,7 @@ class GameDisplayManager:
     def board_undepress_tiles(self, chord, e_):
         # Helper function
         while self.depressed_tiles:
-            e = BoardClick(*self.depressed_tiles.pop(), e_.lmb, e_.rmb)
+            e = BoardClick(e_.event, e_.time, *self.depressed_tiles.pop(), e_.lmb, e_.rmb)
             # e.row, e.col = self.depressed_tiles.pop()
             self.pysweep.handle_event(_gh("TileUndepress"), e)
             if chord:

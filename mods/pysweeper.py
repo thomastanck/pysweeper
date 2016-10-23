@@ -23,7 +23,7 @@ class PySweeper:
         self.master = master
         self.pysweep = pysweep
         self.hooks = {
-            ("clicker", "Move"): [self.on_mouse_move],
+            ("clicker", "M"): [self.on_mouse_move],
 
             ("gamedisplaymanager", "TileOpen"):       [self.tile_open],
             ("gamedisplaymanager", "TileToggleFlag"): [self.tile_toggle_flag],
@@ -179,7 +179,6 @@ class PySweeper:
     def tile_open(self, hn, e):
         width, height = self.gamedisplay.board_size
         row, col = e.row, e.col
-
         if (not self.gamemodeselector.is_enabled(game_mode_name) or
                 self.state == "ended" or
                 not (0 <= row < height and 0 <= col < width) or

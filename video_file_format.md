@@ -51,11 +51,14 @@ Metadata:
 * BORDER_BOT         x y width height
 * BORDER_BOT_RIGHT   x y width height
 
+* TILESIZE     width height
+* BOARDSIZE    rows cols
 
 * GAMEMODE     string
 * GAMEOPTIONS  string
-* TILESIZE     width height
-* BOARDSIZE    rows cols
+# NUMMINES     num_mines
+
+-- ^ implemented up to here
 
 * PINGVERSION  version_string
 * PINGUP       time servername
@@ -67,16 +70,20 @@ Metadata:
 * RESPONSESIGNATURE signature_of_response
 * VIDEOSIGNATURE    signature_of_video_file
 
+-- ^ not implemented yet
+
 * ADDSEED string
+
+-- ^ implemented
 
 Player actions:
 
-* MOVE      time y x
-* LMBDOWN   time y x
-* RMBDOWN   time y x
-* LMBUP     time y x
-* RMBUP     time y x
-* STARTGAME time y x
+* MOVE      time x y
+* LMBDOWN   time x y
+* RMBDOWN   time x y
+* LMBUP     time x y
+* RMBUP     time x y
+* STARTGAME time x y
 * DEPRESS   time row col
 * UNDEPRESS time row col
 * OPEN      time row col

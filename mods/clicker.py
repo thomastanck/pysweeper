@@ -1,5 +1,7 @@
 import platform
 
+import time
+
 class ClickerEvent:
     # Stripped down version of the tkinter event, and adds some restrictions so it'll be easier to debug in the future
     # One motivation for the attribute restrictions is that we frequently compute row/col out of x/y.
@@ -11,8 +13,10 @@ class ClickerEvent:
             raise TypeError( "%r is a frozen class, cannot set %s" % (self, key))
         object.__setattr__(self, key, value)
 
-    def __init__(self, widget, x=0, y=0, lmb=False, rmb=False, inbounds=False):
+    def __init__(self, widget, event=None, time=0, x=0, y=0, lmb=False, rmb=False, inbounds=False):
         self.widget = widget
+        self.event = event # "LD", "LU", "M", etc.
+        self.time = time
         self.x = x
         self.y = y
         self.lmb = lmb
@@ -61,6 +65,9 @@ class Clicker:
 
             ("pysweep", "AllModsLoaded"): [self.modsloaded],
 
+            ("clicker", "D"): [self.debug],
+            ("clicker", "M"): [self.debug],
+            ("clicker", "U"): [self.debug],
             ("clicker", "LD"): [self.debug],
             ("clicker", "LM"): [self.debug],
             ("clicker", "LU"): [self.debug],
@@ -209,7 +216,7 @@ class Clicker:
         self.send_event(("clicker", "U"), e)
 
     def send_event(self, hn, e):
-        e = ClickerEvent(self.gamedisplay.display, *self.currentposition, self.lmb, self.rmb)
+        e = ClickerEvent(self.gamedisplay.display, hn[1], time.time(), *self.currentposition, self.lmb, self.rmb)
         # e.widget = self.gamedisplay.display
         # e.x, e.y = self.currentposition
         # e.lmb = self.lmb
