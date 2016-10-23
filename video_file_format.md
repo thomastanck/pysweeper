@@ -7,9 +7,9 @@ The video file is a record of a player's actions and the state of a Minesweeper 
 
 ## Internals
 
-The video file is a list of tuples encoded into the JSON format and then compressed with zlib. As JSON does not have tuples, they'll be stored as lists in the video file.
+The video file is a list of tuples encoded as python literals and then compressed with zlib.
 
-JSON encoding and decoding are done using the standard python module 'json'.
+Python literal encoding and decoding are done using the standard python module 'ast'.
 
 Compression is done using the standard python module 'zlib'.
 
@@ -21,47 +21,83 @@ The first element of the tuple is the "command name", with the remaining element
 
 * COMMAND_NAME arg1 arg2 ... --> ("COMMAND_NAME", arg1, arg2, ...)
 
+### List of commands
+
 Metadata:
 
-* VERSION version_string
-* TIME seconds_since_unix_epoch
-* PINGVERSION version_string
-* PINGUP time servername
-* PINGDOWN time servername response response_signature
-* SERVERVERSION version_string
-* SERVERTIME time
-* SERVERSEED randomness
+* VERSION      version_string
+* VIDEOVERSION version_string
+* TIME         seconds_since_unix_epoch
+* SECONDS      rounded_seconds_since_unix_epoch
+
+* DISPLAY            x y width height
+* PANEL              x y width height
+* MINECOUNTER        x y width height
+* FACEBUTTON         x y width height
+* TIMER              x y width height
+* BOARD              x y width height
+
+* BORDER_TOP_LEFT    x y width height
+* BORDER_TOP         x y width height
+* BORDER_TOP_RIGHT   x y width height
+* BORDER_PANEL_LEFT  x y width height
+* BORDER_PANEL_RIGHT x y width height
+* BORDER_MID_LEFT    x y width height
+* BORDER_MID         x y width height
+* BORDER_MID_RIGHT   x y width height
+* BORDER_LEFT        x y width height
+* BORDER_RIGHT       x y width height
+* BORDER_BOT_LEFT    x y width height
+* BORDER_BOT         x y width height
+* BORDER_BOT_RIGHT   x y width height
+
+
+* GAMEMODE     string
+* GAMEOPTIONS  string
+* TILESIZE     width height
+* BOARDSIZE    rows cols
+
+* PINGVERSION  version_string
+* PINGUP       time servername
+* PINGDOWN     time servername response response_signature
+
+* SERVERVERSION     version_string
+* SERVERTIME        time
+* SERVERSEED        randomness
 * RESPONSESIGNATURE signature_of_response
-* VIDEOSIGNATURE signature_of_video_file
+* VIDEOSIGNATURE    signature_of_video_file
+
 * ADDSEED string
 
 Player actions:
 
-* MOVE time y x
-* LMBDOWN time y x
-* RMBDOWN time y x
-* LMBUP time y x
-* RMBUP time y x
+* MOVE      time y x
+* LMBDOWN   time y x
+* RMBDOWN   time y x
+* LMBUP     time y x
+* RMBUP     time y x
 * STARTGAME time y x
-* OPEN time row col
-* FLAG time row col
-* UNFLAG time row col
-* CHORD time row col
+* DEPRESS   time row col
+* UNDEPRESS time row col
+* OPEN      time row col
+* FLAG      time row col
+* UNFLAG    time row col
+* CHORD     time row col
 
 Client actions:
 
 * GENERATE time row col is_mine
-* REVEAL time row col (number|tile_type)
-* COUNTER mines_remaining
-* TIMER seconds_since_start_of_game
-* WIN time
-* LOSE time
+* REVEAL   time row col (number|tile_type)
+* COUNTER  mines_remaining
+* TIMER    seconds_since_start_of_game
+* WIN      time
+* LOSE     time
 
 ### Examples
 
 Metadata:
 
-* VERSION version_string (e.g. "PySweeper 0.1dev0")
+* VERSION version_string (e.g. "PySweeper v0.0")
 * TIME seconds_since_unix_epoch (e.g. 1476939624.215525)
 * PINGVERSION version_string (e.g. PySweeper Ping Protocol 0.2dev0)
 * PINGUP time servername (e.g. 1476939624.215525 "ping.pysweeper.com")

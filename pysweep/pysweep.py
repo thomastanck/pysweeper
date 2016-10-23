@@ -5,7 +5,7 @@ import inspect
 
 import tkinter
 
-from pysweep import Menu, GameDisplay
+from pysweep import Menu, GameDisplay, VideoFile
 
 class PySweep:
     def __init__(self, master):
@@ -21,6 +21,9 @@ class PySweep:
 
         self.load_pysweep_mods()
 
+        self.master.update_idletasks()
+        self.vidfile = VideoFile(self.gamedisplay)
+        print(self.vidfile.vidstr)
 
     # this is a bindable_widgets so it must implement these two functions.
     # The "name" of the bindable widget is also the prefix to the event_name used for the hook.
