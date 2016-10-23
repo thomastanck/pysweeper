@@ -1,6 +1,6 @@
 import tkinter
 
-from pysweep import HashRandom, Timer
+from pysweep import HashRandom, Timer, Menu
 
 import random
 
@@ -55,8 +55,7 @@ class PySweeper:
         self.timer = Timer(self.master, self.timercallback, period=1, resolution=0.01)
 
         self.menuvar = tkinter.StringVar()
-        self.menumod = self.pysweep.mods["Menu"]
-        self.menu = tkinter.Menu(self.menumod.menubar, tearoff=0)
+        self.menu = tkinter.Menu(Menu.menubar, tearoff=0)
         self.menu.add_radiobutton(label="Playing Mode", variable=self.menuvar, command=self.playingmode)
         self.menu.add_radiobutton(label="Testing Mode", variable=self.menuvar, command=self.testingmode)
 
@@ -69,7 +68,7 @@ class PySweeper:
         if e == game_mode_name:
             self.new_game(hn, e)
 
-            self.menumod.add_menu("Mode", self.menu)
+            Menu.add_menu("Mode", self.menu)
             self.menu.invoke(1)
 
     def ondisable(self, hn, e):
@@ -80,7 +79,7 @@ class PySweeper:
             self.gamedisplay.set_mine_counter(0)
             self.gamedisplay.set_face_happy()
 
-            self.menumod.remove_menu("Mode", self.menu)
+            Menu.remove_menu("Mode", self.menu)
 
     def playingmode(self):
         self.testing = False

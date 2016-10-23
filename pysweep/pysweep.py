@@ -5,6 +5,8 @@ import inspect
 
 import tkinter
 
+from pysweep import Menu
+
 class PySweep:
     def __init__(self, master):
         self.master = master
@@ -12,7 +14,11 @@ class PySweep:
         self.bind_protocols = []
         self.widget_bindname = "pysweep"
         self.bindable_widgets = {"pysweep": {"bindevent": self.bind_tkinter_event, "bindprotocol": self.bind_tkinter_protocol}}
+
+        Menu.init_menu(master)
+
         self.load_pysweep_mods()
+
 
     # this is a bindable_widgets so it must implement these two functions.
     # The "name" of the bindable widget is also the prefix to the event_name used for the hook.
