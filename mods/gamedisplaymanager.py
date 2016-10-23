@@ -275,7 +275,7 @@ class GameDisplayManager:
         # Depress current cell
         self.board_undepress_tiles(False, e)
 
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         if (0 <= e.col < width and 0 <= e.row < height):
             if self.gamedisplay.get_tile_type(e.row, e.col) == "unopened":
                 self.depressed_tiles.append((e.row, e.col))
@@ -286,13 +286,13 @@ class GameDisplayManager:
         # Undepress currently depressed cells
         # Send out click event
         self.board_undepress_tiles(False, e)
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         if (0 <= e.col < width and 0 <= e.row < height):
             self.pysweep.handle_event(_gh("TileOpen"), e)
 
     def board_toggle_flag(self, hn, e):
         # Send out click event
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         if (0 <= e.col < width and 0 <= e.row < height):
             self.pysweep.handle_event(_gh("TileToggleFlag"), e)
 
@@ -300,7 +300,7 @@ class GameDisplayManager:
         # Undepress currently depressed cells
         # Depress current cell and neighbours
         self.board_undepress_tiles(True, e)
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         for drow in range(-1, 2):
             for dcol in range(-1, 2):
                 e_ = BoardClick(e.row+drow, e.col+dcol, e.lmb, e.rmb)
@@ -314,7 +314,7 @@ class GameDisplayManager:
         # Undepress currently depressed cells
         # Send out chord event
         self.board_undepress_tiles(True, e)
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         if (0 <= e.col < width and 0 <= e.row < height):
             self.pysweep.handle_event(_gh("TileChord"), e)
 

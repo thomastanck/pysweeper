@@ -45,7 +45,7 @@ class SpeedGame:
     def new_game(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         area = width*height
         if not 0 <= self.num_squares < area:
             self.num_squares = 0
@@ -62,7 +62,7 @@ class SpeedGame:
     def reset_game(self):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         area = width*height
         squares = self.speed_game_original[:]
         self.speed_game_squares = squares[:]
@@ -82,7 +82,7 @@ class SpeedGame:
 
         row, col = e.row, e.col
 
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         if (0 <= col < width and 0 <= row < height):
             self.gamedisplay.set_tile_number(row, col, 0)
             i = row*width + col

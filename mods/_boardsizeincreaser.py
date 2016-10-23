@@ -17,7 +17,7 @@ class BoardSizeIncreaser:
         self.gamedisplay = self.pysweep.gamedisplay
 
     def increaseboardsize(self, hn, e):
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         width += 1
         self.gamedisplay.set_size(width, height)
 

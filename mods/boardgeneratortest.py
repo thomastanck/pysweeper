@@ -33,7 +33,7 @@ class BoardGeneratorTest:
     def generate_mines(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         area = width*height
         self.minecount = 0
 
