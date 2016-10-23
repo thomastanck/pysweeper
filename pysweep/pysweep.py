@@ -21,10 +21,6 @@ class PySweep:
 
         self.load_pysweep_mods()
 
-        self.master.update_idletasks()
-        self.vidfile = VideoFile(self.gamedisplay, "Testing", "N/A", 42)
-        print(self.vidfile.vidstr)
-
     # this is a bindable_widgets so it must implement these two functions.
     # The "name" of the bindable widget is also the prefix to the event_name used for the hook.
     # In this case, it's "pysweep".

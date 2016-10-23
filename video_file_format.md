@@ -3,21 +3,36 @@ PySweeper Video File Format v0.0 (mega unstable)
 
 ## Introduction
 
-The video file is a record of a player's actions and the state of a Minesweeper board which allows us to view a replay of a game. In PySweeper, one of our cheat prevention techniques is to include a subset of the video file containing some of the player's actions in the generation of the board itself! This first eliminates the possibility of the UPK (Unfair Prior Knowledge) cheats and also makes it extremely difficult to tamper with the video file, bordering on impossible.
+The video file is a record of a player's actions and the state of a Minesweeper
+board which allows us to view a replay of a game. In PySweeper, one of our cheat
+prevention techniques is to include a subset of the video file containing some
+of the player's actions in the generation of the board itself! This first
+eliminates the possibility of the UPK (Unfair Prior Knowledge) cheats and also
+makes it extremely difficult to tamper with the video file, bordering on
+impossible.
 
 ## Internals
 
-The video file is a list of tuples encoded as python literals and then compressed with zlib.
+The video file is a list of tuples encoded as python literals and then
+compressedwith zlib.
 
-Python literal encoding and decoding are done using the standard python module 'ast'.
+Python literal encoding and decoding are done using the standard python
+module 'ast'.
 
 Compression is done using the standard python module 'zlib'.
 
 ## Commands
 
-Each tuple can be interpreted as a command or action, which is performed by either the player or the client. The video file is then a record of all actions performed by either player or client in a strictly sequential format. The state of the client at aby point in time should be completely determinable from a truncated list of such commands. (TODO: is there any benefit from a non sequential format such as a graph?)
+Each tuple can be interpreted as a command or action, which is performed by
+either the player or the client. The video file is then a record of all actions
+performed by either player or client in a strictly sequential format. The state
+of the client at aby point in time should be completely determinable from a
+truncated list of such commands. (TODO: is there any benefit from a non
+sequential format such as a graph?)
 
-The first element of the tuple is the "command name", with the remaining elements as additional parameters to the command. The following commands are used:
+The first element of the tuple is the "command name", with the remaining
+elements as additional parameters to the command. The following commands
+are used:
 
 * COMMAND_NAME arg1 arg2 ... --> ("COMMAND_NAME", arg1, arg2, ...)
 
@@ -56,9 +71,55 @@ Metadata:
 
 * GAMEMODE     string
 * GAMEOPTIONS  string
-# NUMMINES     num_mines
 
--- ^ implemented up to here
+-- ^ implemented
+
+Player actions:
+
+* MOVE      time x y
+* LMBDOWN   time x y
+* RMBDOWN   time x y
+* LMBUP     time x y
+* RMBUP     time x y
+
+-- ^ implemented
+
+Display actions: (as these are visuals, all game modes must use these to
+reflect any changes to the display)
+
+* DEPRESS    time row col
+* UNDEPRESS  time row col
+* TILENUMBER time row col number
+* TILEOTHER  time row col tile_type
+* COUNTER    time mines_remaining
+* FACE       time face_type
+* TIMER      time seconds_since_start_of_game
+
+-- ^ partially implemented
+
+Game actions: (only for PySweeper game mode)
+
+These actions will not show up in any other game mode. In PySweeper, they are
+added directly to the video file.
+
+* STARTGAME time
+* NUMMINES  num_mines
+* GENERATE  time row col is_mine
+* OPEN      time row col
+* FLAG      time row col
+* UNFLAG    time row col
+* CHORD     time row col
+* WIN       time
+* LOSE      time
+
+* ADDSEED string
+
+-- ^ "implemented"
+
+Server pings: (only for PySweeper game mode)
+
+These actions will not show up in any other game mode. In PySweeper, they are
+added directly to the video file.
 
 * PINGVERSION  version_string
 * PINGUP       time servername
@@ -70,35 +131,7 @@ Metadata:
 * RESPONSESIGNATURE signature_of_response
 * VIDEOSIGNATURE    signature_of_video_file
 
--- ^ not implemented yet
-
-* ADDSEED string
-
--- ^ implemented
-
-Player actions:
-
-* MOVE      time x y
-* LMBDOWN   time x y
-* RMBDOWN   time x y
-* LMBUP     time x y
-* RMBUP     time x y
-* STARTGAME time x y
-* DEPRESS   time row col
-* UNDEPRESS time row col
-* OPEN      time row col
-* FLAG      time row col
-* UNFLAG    time row col
-* CHORD     time row col
-
-Client actions:
-
-* GENERATE time row col is_mine
-* REVEAL   time row col (number|tile_type)
-* COUNTER  mines_remaining
-* TIMER    seconds_since_start_of_game
-* WIN      time
-* LOSE     time
+-- ^ "implemented"
 
 ### Examples
 

@@ -32,7 +32,7 @@ class VideoFileTest:
         }
 
         self.gamedisplay = self.pysweep.gamedisplay
-        self.video_file = VideoFile(self.gamedisplay, game_mode_name, "N/A", 0)
+        self.video_file = VideoFile(self.gamedisplay, game_mode_name, "N/A")
 
     def modsloaded(self, hn, e):
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
@@ -40,7 +40,7 @@ class VideoFileTest:
 
     def onenable(self, hn, e):
         if e == game_mode_name:
-            self.video_file = VideoFile(self.gamedisplay, game_mode_name, "N/A", 0)
+            self.video_file = VideoFile(self.gamedisplay, game_mode_name, "N/A")
     def ondisable(self, hn, e):
         if e == game_mode_name:
             self.video_file = None
