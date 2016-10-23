@@ -28,7 +28,7 @@ class BoardGeneratorTest:
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
         self.gamemodeselector.register_game_mode(game_mode_name)
 
-        self.gamedisplay = self.pysweep.mods["GameDisplay"]
+        self.gamedisplay = self.pysweep.gamedisplay
 
     def generate_mines(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):

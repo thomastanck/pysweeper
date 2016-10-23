@@ -5,7 +5,7 @@ import inspect
 
 import tkinter
 
-from pysweep import Menu
+from pysweep import Menu, GameDisplay
 
 class PySweep:
     def __init__(self, master):
@@ -15,6 +15,8 @@ class PySweep:
         self.widget_bindname = "pysweep"
         self.bindable_widgets = {"pysweep": {"bindevent": self.bind_tkinter_event, "bindprotocol": self.bind_tkinter_protocol}}
 
+        # Init our own stuff: Menu and GameDisplay
+        self.gamedisplay = GameDisplay(master, self)
         Menu.init_menu(master)
 
         self.load_pysweep_mods()
