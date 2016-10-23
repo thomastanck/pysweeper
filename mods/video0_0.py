@@ -11,6 +11,8 @@ import time
 import json
 import zlib
 
+from pysweep import GameDisplayEvent
+
 class VideoFileFactory:
     hooks = {}
     required_events = []
@@ -25,6 +27,12 @@ class VideoFileFactory:
             ("clicker", "LU"): [self.clicker_event],
             ("clicker", "RD"): [self.clicker_event],
             ("clicker", "RU"): [self.clicker_event],
+
+            ("gamedisplay", "TileNumber"): [self.display_event],
+            ("gamedisplay", "TileOther") : [self.display_event],
+            ("gamedisplay", "Counter")   : [self.display_event],
+            ("gamedisplay", "Face")      : [self.display_event],
+            ("gamedisplay", "Timer")     : [self.display_event],
         }
 
         self.video_files = []
@@ -41,6 +49,10 @@ class VideoFileFactory:
         for vid in self.video_files:
             if vid.recording:
                 vid.clicker_event(e)
+    def display_event(self, hn, e):
+        for vid in self.video_files:
+            if vid.recording:
+                vid.display_event(e)
 
 video_file_version = "PySweeper Video File Format v0.0 (mega unstable)"
 pysweeper_version = "PySweeper v0.0 (mega unstable)"
@@ -114,17 +126,19 @@ def _clicker_event(e):
 
 def _display_event(e):
     # Just do some validation and put the event in
-    available_events = [
-        "DEPRESS",
-        "UNDEPRESS",
-        "TILENUMBER",
-        "TILEOTHER",
-        "COUNTER",
-        "FACE",
-        "TIMER",
-    ]
-    if e.event in available_events:
-        return [[e.event, e.time, *e.args]]
+    command_map = {
+        "TileNumber": "TILENUMBER",
+        "TileOther" : "TILEOTHER" ,
+        "Counter"   : "COUNTER"   ,
+        "Face"      : "FACE"      ,
+        "Timer"     : "TIMER"     ,
+    }
+    if e.event in command_map:
+        print(e)
+        if e.event == "TileNumber" or e.event == "TileOther":
+            return [[command_map[e.event], e.time, e.arg, e.row, e.col]]
+        else:
+            return [[command_map[e.event], e.time, e.arg]]
     else:
         raise TypeError('Illegal Event. Should only pass in DisplayEvent\'s which are DEPRESS, UNDEPRESS, TILENUMBER, TILEOTHER, COUNTER, FACE, TIMER only.')
 

@@ -4,6 +4,21 @@ import time
 
 image_dir = "images"
 
+class GameDisplayEvent:
+    __isfrozen = False
+    def __setattr__(self, key, value):
+        if self.__isfrozen and not hasattr(self, key):
+            raise TypeError( "%r is a frozen class, cannot set %s" % (self, key))
+        object.__setattr__(self, key, value)
+
+    def __init__(self, event=None, time=0, arg="", row=0, col=0):
+        self.event = event
+        self.time = time
+        self.arg = arg
+        self.row = row
+        self.col = col
+        self.__isfrozen = True
+
 class GameDisplayWrapper:
     hooks = {}
     required_events = []
@@ -74,28 +89,42 @@ class GameDisplayWrapper:
 
         self.master.geometry('+%d+%d' % (x, y))
 
+
+    # SENDING EVENTS
+    ################
+    def send_event(self, e):
+        print(e.event)
+        self.pysweep.handle_event(("gamedisplay", e.event), e)
+
+
     # BOARD SETTERS AND GETTERS
     ###########################
 
     # Tile setters
     def set_tile_mine(self, row, col):
-        self.set_tile(row, col, "mine")
+        self.set_tile_other(row, col, "mine")
     def set_tile_blast(self, row, col):
-        self.set_tile(row, col, "blast")
+        self.set_tile_other(row, col, "blast")
     def set_tile_flag(self, row, col):
-        self.set_tile(row, col, "flag")
+        self.set_tile_other(row, col, "flag")
     def set_tile_flag_wrong(self, row, col):
-        self.set_tile(row, col, "flag_wrong")
+        self.set_tile_other(row, col, "flag_wrong")
     def set_tile_unopened(self, row, col):
-        self.set_tile(row, col, "unopened")
+        self.set_tile_other(row, col, "unopened")
+
+    def set_tile_other(self, row, col, tile_type):
+        self.send_event(GameDisplayEvent("TileOther", time.time(), tile_type, row, col))
+        self.set_tile(row, col, tile_type)
     def set_tile_number(self, row, col, number):
         # number: 0..8
-        if 0 <= number and number < 9:
+        if type(number) == int and 0 <= number and number < 9:
+            self.send_event(GameDisplayEvent("TileNumber", time.time(), number, row, col))
             self.set_tile(row, col, "tile_{}".format(number))
         else:
             raise ValueError('Tile number {} does not exist'.format(number))
-    def set_tile(self, i, j, tile_type):
-        self.board.draw_tile(i, j, tile_type)
+
+    def set_tile(self, row, col, tile_type):
+        self.board.draw_tile(row, col, tile_type)
 
     # Tile getters
     def is_tile_mine(self, row, col):
@@ -127,27 +156,34 @@ class GameDisplayWrapper:
 
     # Face button setters
     def set_face_happy(self):
-        self.face_button.set_face("happy")
+        self.set_face("happy")
     def set_face_pressed(self):
-        self.face_button.set_face("pressed")
+        self.set_face("pressed")
     def set_face_blast(self):
-        self.face_button.set_face("blast")
+        self.set_face("blast")
     def set_face_cool(self):
-        self.face_button.set_face("cool")
+        self.set_face("cool")
     def set_face_nervous(self):
-        self.face_button.set_face("nervous")
+        self.set_face("nervous")
+    def set_face(self, face):
+        self.send_event(GameDisplayEvent("Face", time.time(), face))
+        self.face_button.set_face(face)
 
+    # Counters
     def set_timer(self, t):
+        self.send_event(GameDisplayEvent("Timer", time.time(), t))
         self.timer.set_value(t)
 
     def set_mine_counter(self, t):
+        self.send_event(GameDisplayEvent("MineCounter", time.time(), t))
         self.mine_counter.set_value(t)
 
 class BorderCanvas(tkinter.Canvas):
     def __init__(self, master, image, copies=1, direction='h'):
-        """direction is the direction the image is copied, either
+        """
+        direction is the direction the image is copied, either
         h for horizontal, or v for vertical
-"""
+        """
         self.original_image = image
         self.copies = copies
         self.direction = 'v' if direction.lower() == 'v' else 'h'

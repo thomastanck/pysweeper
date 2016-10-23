@@ -88,13 +88,11 @@ Player actions:
 Display actions: (as these are visuals, all game modes must use these to
 reflect any changes to the display)
 
-* DEPRESS    time row col
-* UNDEPRESS  time row col
-* TILENUMBER time row col number
-* TILEOTHER  time row col tile_type
-* COUNTER    time mines_remaining
+* TILENUMBER time number    row col
+* TILEOTHER  time tile_type row col
+* COUNTER    time number
 * FACE       time face_type
-* TIMER      time seconds_since_start_of_game
+* TIMER      time number
 
 -- ^ partially implemented
 

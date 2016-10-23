@@ -249,15 +249,14 @@ class GameDisplayManager:
             self.chording_mode = 0
 
     def handle_face(self, hn, e):
-        face_button = self.gamedisplay.face_button
         if e.inbounds:
             if hn[1] == "LD" or hn[1] == "LM":
-                face_button.set_face("pressed")
+                self.gamedisplay.set_face_pressed()
             elif hn[1] == "LU":
                 self.pysweep.handle_event(_gh("FaceClicked"), e)
-                face_button.set_face("happy")
+                self.gamedisplay.set_face_happy()
         else:
-            face_button.set_face("happy")
+            self.gamedisplay.set_face_happy()
 
     # Click only handlers
     def handle_mine(self, hn, e):
