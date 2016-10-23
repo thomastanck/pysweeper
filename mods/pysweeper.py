@@ -89,7 +89,7 @@ class PySweeper:
     def new_game(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
 
         self.notopened = []
         self.notdetermined = []
@@ -123,7 +123,7 @@ class PySweeper:
 
     def start_game(self, row, col):
         # First click at row, col
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
 
         self.state = "started"
         self.timer.start_timer()
@@ -134,7 +134,7 @@ class PySweeper:
 
     def lose_game(self, row, col):
         # Blast at row, col
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
 
         self.timer.stop_timer()
         # Determine all tiles
@@ -153,7 +153,7 @@ class PySweeper:
 
     def win_game(self):
         # Opened all the tiles!
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
 
         self.timer.stop_timer()
         # Determine all tiles just in case there was a huge chunk of
@@ -175,7 +175,7 @@ class PySweeper:
         self.gamedisplay.set_tile_unopened(e.row, e.col)
 
     def tile_open(self, hn, e):
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         row, col = e.row, e.col
 
         if (not self.gamemodeselector.is_enabled(game_mode_name) or
@@ -215,7 +215,7 @@ class PySweeper:
             self.win_game()
 
     def determine_all_tiles(self):
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
 
         for row in range(height):
             for col in range(width):
@@ -228,7 +228,7 @@ class PySweeper:
                 self.determine_tile(row_, col_)
 
     def determine_tile(self, row, col):
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         if (not (0 <= row < height and 0 <= col < width) or
                 (row, col) in self.determined):
             return
@@ -257,7 +257,7 @@ class PySweeper:
         return number
 
     def tile_toggle_flag(self, hn, e):
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         row, col = e.row, e.col
 
         if (not self.gamemodeselector.is_enabled(game_mode_name) or
@@ -275,7 +275,7 @@ class PySweeper:
         self.gamedisplay.set_mine_counter(self.num_mines - len(self.flagged))
 
     def tile_chord(self, hn, e):
-        width, height = self.gamedisplay.size
+        width, height = self.gamedisplay.board_size
         row, col = e.row, e.col
 
         if (not self.gamemodeselector.is_enabled(game_mode_name) or

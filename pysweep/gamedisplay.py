@@ -14,13 +14,23 @@ class GameDisplayWrapper:
     def __init__(self, master, pysweep):
         self.master = master
         self.pysweep = pysweep
-        self.size = (30, 16) # default size is expert
-        self.display = GameDisplay(master, self.pysweep, *self.size)
+        self.display = GameDisplay(master, self.pysweep, 30, 16) # default size is expert
 
         self.master.withdraw()
         self.display.pack()
         self.center_window()
         self.master.deiconify()
+
+    # GENERAL PROPERTIES
+    ####################
+    @property
+    def board_size(self):
+        return (self.board.board_width, self.board.board_height)
+    @property
+    def tile_size(self):
+        return self.board.tile_size
+
+
 
     # WIDGET PROPERTIES
     ###################
@@ -45,10 +55,9 @@ class GameDisplayWrapper:
     #######################
     def set_size(self, width, height):
         # Warning, completely kills GameDisplay. You'll have to give it new data after this
-        self.size = (width, height)
         self.display.pack_forget()
         self.display.destroy()
-        self.display = GameDisplay(self.master, self.pysweep, *self.size)
+        self.display = GameDisplay(self.master, self.pysweep, width, height)
 
     def center_window(self):
         self.display.update_idletasks()
@@ -106,7 +115,7 @@ class GameDisplayWrapper:
 
     # Reset board (set all to unopened)
     def reset_board(self):
-        width, height = self.size
+        width, height = self.board_size
 
         for row in range(height):
             for col in range(width):
@@ -185,11 +194,11 @@ class BorderCanvas(tkinter.Canvas):
 class GameDisplay(tkinter.Frame):
     border_images = {}
     def create_widgets(self):
-        # the main playing area:        
+        # the main playing area:
         self.board = Board(self, self.board_width, self.board_height)
         tile_size = self.board.tile_size
         board_canvas_w, board_canvas_h = self.board.canvas_size
-        
+
         # Grid row 0: Top border
         border_images = self.border_images
         grid_row = 0
