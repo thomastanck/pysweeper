@@ -133,7 +133,7 @@ class GameDisplayManager:
         print(hn, e.row, e.col)
 
     def modsloaded(self, hn, e):
-        self.gamedisplay = self.pysweep.mods["GameDisplay"]
+        self.gamedisplay = self.pysweep.gamedisplay
 
     def handle_mouse_event(self, hn, e):
         # We now listen to the events ourselves and output them regardless of game mode.

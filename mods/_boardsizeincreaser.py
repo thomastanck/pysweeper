@@ -14,7 +14,7 @@ class BoardSizeIncreaser:
         self.temporarily_down = []
 
     def modsloaded(self, hn, e):
-        self.gamedisplay = self.pysweep.mods["GameDisplay"]
+        self.gamedisplay = self.pysweep.gamedisplay
 
     def increaseboardsize(self, hn, e):
         width, height = self.gamedisplay.size

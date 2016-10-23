@@ -46,7 +46,7 @@ class PySweeper:
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
         self.gamemodeselector.register_game_mode(game_mode_name, priority=0, default=True)
 
-        self.gamedisplay = self.pysweep.mods["GameDisplay"]
+        self.gamedisplay = self.pysweep.gamedisplay
 
         self.rng = HashRandom()
         self.vid = [] # list of tuples. First element is string, remaining elements should be strings or numbers.

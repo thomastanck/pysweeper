@@ -482,5 +482,3 @@ class FaceButton(tkinter.Frame):
     def set_face(self, face):
         img = self.face_images[face]
         self.canvas.itemconfig(self.image_reference, image=img)
-
-mods = {"GameDisplay": GameDisplayWrapper}

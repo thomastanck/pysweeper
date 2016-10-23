@@ -96,7 +96,7 @@ class Clicker:
 
 
     def modsloaded(self, hn, e):
-        self.gamedisplay = self.pysweep.mods["GameDisplay"]
+        self.gamedisplay = self.pysweep.gamedisplay
         pass
 
     def debug(self, hn, e):
