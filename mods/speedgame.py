@@ -1,5 +1,6 @@
 import tkinter
 
+from pysweep.util import gamemode
 from pysweep import Timer
 
 import random
@@ -44,9 +45,8 @@ class SpeedGame:
     def timercallback(self, elapsed, sincelasttick):
         self.gamedisplay.set_timer(int(elapsed*1000))
 
+    @gamemode(game_mode_name)
     def new_game(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         width, height = self.gamedisplay.board_size
         area = width*height
         if not 0 <= self.num_squares < area:
@@ -61,9 +61,8 @@ class SpeedGame:
         self.speed_game_original = squares[:]
         self.reset_game()
 
+    @gamemode(game_mode_name)
     def reset_game(self):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         width, height = self.gamedisplay.board_size
         area = width*height
         squares = self.speed_game_original[:]
@@ -78,10 +77,8 @@ class SpeedGame:
         self.gamedisplay.set_face_happy()
         self.timer.start_timer()
 
+    @gamemode(game_mode_name)
     def tile_open(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
-
         row, col = e.row, e.col
 
         width, height = self.gamedisplay.board_size
@@ -94,23 +91,19 @@ class SpeedGame:
                 self.timer.stop_timer()
                 self.gamedisplay.set_face_cool()
 
+    @gamemode(game_mode_name)
     def tile_depress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_tile_number(e.row, e.col, 0)
         self.gamedisplay.set_face_nervous()
+    @gamemode(game_mode_name)
     def tile_undepress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_tile_unopened(e.row, e.col)
         self.gamedisplay.set_face_happy()
+    @gamemode(game_mode_name)
     def face_depress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_face_pressed()
+    @gamemode(game_mode_name)
     def face_undepress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_face_happy()
 
 mods = {"SpeedGame": SpeedGame}

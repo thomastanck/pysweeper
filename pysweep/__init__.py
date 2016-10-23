@@ -1,3 +1,5 @@
+import pysweep.util as util
+
 from pysweep.menu import Menu
 from pysweep.gamedisplay import GameDisplayWrapper as GameDisplay
 from pysweep.gamedisplay import GameDisplayEvent

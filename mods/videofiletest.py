@@ -1,5 +1,6 @@
 import tkinter
 
+from pysweep.util import gamemode
 from pysweep import HashRandom#, VideoFile
 
 import time
@@ -39,45 +40,38 @@ class VideoFileTest:
 
         self.videofilemod = self.pysweep.mods["VideoFile"]
 
+    @gamemode(game_mode_name)
     def onenable(self, hn, e):
-        if e == game_mode_name:
-            self.video_file = self.videofilemod.new_video_file(self.gamedisplay, game_mode_name, "N/A")
-            self.video_file.start()
+        self.video_file = self.videofilemod.new_video_file(self.gamedisplay, game_mode_name, "N/A")
+        self.video_file.start()
+    @gamemode(game_mode_name)
     def ondisable(self, hn, e):
-        if e == game_mode_name:
-            self.video_file.stop()
-            self.videofilemod.del_video_file(self.video_file)
-            self.video_file = None
+        self.video_file.stop()
+        self.videofilemod.del_video_file(self.video_file)
+        self.video_file = None
 
-
+    @gamemode(game_mode_name)
     def tile_open(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_tile_number(e.row, e.col, 0)
 
+    @gamemode(game_mode_name)
     def tile_depress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_tile_number(e.row, e.col, 0)
         self.gamedisplay.set_face_nervous()
+    @gamemode(game_mode_name)
     def tile_undepress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_tile_unopened(e.row, e.col)
         self.gamedisplay.set_face_happy()
+    @gamemode(game_mode_name)
     def face_depress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_face_pressed()
+    @gamemode(game_mode_name)
     def face_undepress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_face_happy()
 
 
+    @gamemode(game_mode_name)
     def print_vidfile(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         print(self.video_file.vidstr)
         print("vidstr len: {}, vidbytes len: {}".format(len(self.video_file.vidstr), len(self.video_file.vidbytes)))
 

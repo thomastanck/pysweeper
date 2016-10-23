@@ -1,5 +1,6 @@
 import tkinter
 
+from pysweep.util import gamemode
 from pysweep import Timer
 
 import random
@@ -46,53 +47,43 @@ class DummyGameMode:
     def timercallback(self, elapsed, sincelasttick):
         self.gamedisplay.set_timer(int(elapsed*1000))
 
+    @gamemode(game_mode_name)
     def onpress_timer(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.timer.start_timer()
 
+    @gamemode(game_mode_name)
     def onrelease_timer(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.timer.stop_timer()
 
+    @gamemode(game_mode_name)
     def face_clicked(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.reset_board()
 
+    @gamemode(game_mode_name)
     def randomiseminecounter(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_mine_counter(random.randint(0,100000000))
 
+    @gamemode(game_mode_name)
     def randomisetimer(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_timer(random.randint(0,100000000))
 
+    @gamemode(game_mode_name)
     def tile_open(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_tile_number(e.row, e.col, 0)
 
+    @gamemode(game_mode_name)
     def tile_depress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_tile_number(e.row, e.col, 0)
         self.gamedisplay.set_face_nervous()
+    @gamemode(game_mode_name)
     def tile_undepress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_tile_unopened(e.row, e.col)
         self.gamedisplay.set_face_happy()
+    @gamemode(game_mode_name)
     def face_depress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_face_pressed()
+    @gamemode(game_mode_name)
     def face_undepress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_face_happy()
 
 

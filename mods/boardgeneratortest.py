@@ -1,5 +1,6 @@
 import tkinter
 
+from pysweep.util import gamemode
 from pysweep import HashRandom
 
 import time
@@ -32,18 +33,15 @@ class BoardGeneratorTest:
 
         self.gamedisplay = self.pysweep.gamedisplay
 
+    @gamemode(game_mode_name)
     def face_depress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_face_pressed()
+    @gamemode(game_mode_name)
     def face_undepress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_face_happy()
 
+    @gamemode(game_mode_name)
     def generate_mines(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         width, height = self.gamedisplay.board_size
         area = width*height
         self.minecount = 0

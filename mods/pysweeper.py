@@ -1,9 +1,54 @@
 import tkinter
 
+from pysweep.util import gamemode
 from pysweep import HashRandom, Timer, Menu
 
 import math
 import random
+
+# Decorator that makes the function only do stuff if the game is not "ended"
+def notended(f):
+    def wrapper(self, hn, e):
+        if self.state != "ended":
+            return f(self, hn, e)
+        else:
+            return
+    return wrapper
+
+# Decorator that makes the function only do stuff if the tile in
+# the event is in bounds.
+def checkbounds(f):
+    def wrapper(self, hn, e):
+        width, height = self.gamedisplay.board_size
+        if (0 <= e.row < height and 0 <= e.col < width):
+            return f(self, hn, e)
+        else:
+            return
+    return wrapper
+
+# Decorator that makes the function only do stuff if the tile in
+# the event is not yet opened/flagged/already opened
+def notopened(f):
+    def wrapper(self, hn, e):
+        if (e.row, e.col) not in self.opened:
+            return f(self, hn, e)
+        else:
+            return
+    return wrapper
+def notflagged(f):
+    def wrapper(self, hn, e):
+        if (e.row, e.col) not in self.flagged:
+            return f(self, hn, e)
+        else:
+            return
+    return wrapper
+def opened(f):
+    def wrapper(self, hn, e):
+        if (e.row, e.col) in self.opened:
+            return f(self, hn, e)
+        else:
+            return
+    return wrapper
 
 game_mode_name = "PySweeper"
 
@@ -67,31 +112,30 @@ class PySweeper:
         if self.testing and elapsed > 10: # Testing mode :)
             self.lose_game(*self.mines[0])
 
+    @gamemode(game_mode_name)
     def onenable(self, hn, e):
-        if e == game_mode_name:
-            self.new_game(hn, e)
+        self.new_game(hn, e)
 
-            Menu.add_menu("Mode", self.menu)
-            self.menu.invoke(1)
+        Menu.add_menu("Mode", self.menu)
+        self.menu.invoke(1)
 
+    @gamemode(game_mode_name)
     def ondisable(self, hn, e):
-        if e == game_mode_name:
-            self.timer.stop_timer()
-            self.gamedisplay.reset_board()
-            self.gamedisplay.set_timer(0)
-            self.gamedisplay.set_mine_counter(0)
-            self.gamedisplay.set_face_happy()
+        self.timer.stop_timer()
+        self.gamedisplay.reset_board()
+        self.gamedisplay.set_timer(0)
+        self.gamedisplay.set_mine_counter(0)
+        self.gamedisplay.set_face_happy()
 
-            Menu.remove_menu("Mode", self.menu)
+        Menu.remove_menu("Mode", self.menu)
 
     def playingmode(self):
         self.testing = False
     def testingmode(self):
         self.testing = True
 
+    @gamemode(game_mode_name)
     def new_game(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         width, height = self.gamedisplay.board_size
 
         self.notopened = []
@@ -167,34 +211,29 @@ class PySweeper:
         self.gamedisplay.set_face_cool()
         self.state = "ended"
 
+    @gamemode(game_mode_name)
+    @notended
     def tile_depress(self, hn, e):
-        if (not self.gamemodeselector.is_enabled(game_mode_name) or
-                self.state == "ended"):
-            return
         self.gamedisplay.set_tile_number(e.row, e.col, 0)
         self.gamedisplay.set_face_nervous()
+    @gamemode(game_mode_name)
     def tile_undepress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_tile_unopened(e.row, e.col)
         self.gamedisplay.set_face_happy()
+    @gamemode(game_mode_name)
     def face_depress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_face_pressed()
+    @gamemode(game_mode_name)
     def face_undepress(self, hn, e):
-        if not self.gamemodeselector.is_enabled(game_mode_name):
-            return
         self.gamedisplay.set_face_happy()
 
+    @gamemode(game_mode_name)
+    @notended
+    @notopened
+    @notflagged
     def tile_open(self, hn, e):
         width, height = self.gamedisplay.board_size
         row, col = e.row, e.col
-        if (not self.gamemodeselector.is_enabled(game_mode_name) or
-                self.state == "ended" or
-                not (0 <= row < height and 0 <= col < width) or
-                (row, col) in self.opened or (row, col) in self.flagged):
-            return
 
         # FIRST CLICK SETUP
         if self.state == "notstarted":
@@ -268,14 +307,12 @@ class PySweeper:
                 number += 1
         return number
 
+    @gamemode(game_mode_name)
+    @notended
+    @notopened
     def tile_toggle_flag(self, hn, e):
         width, height = self.gamedisplay.board_size
         row, col = e.row, e.col
-
-        if (not self.gamemodeselector.is_enabled(game_mode_name) or
-                self.state == "ended" or
-                (row, col) in self.opened):
-            return
 
         if (row, col) in self.flagged:
             self.flagged.remove((row, col))
@@ -286,14 +323,12 @@ class PySweeper:
 
         self.gamedisplay.set_mine_counter(self.num_mines - len(self.flagged))
 
+    @gamemode(game_mode_name)
+    @notended
+    @opened
     def tile_chord(self, hn, e):
         width, height = self.gamedisplay.board_size
         row, col = e.row, e.col
-
-        if (not self.gamemodeselector.is_enabled(game_mode_name) or
-                self.state == "ended" or
-                (row, col) not in self.opened):
-            return
 
         squarenum = self.gamedisplay.get_tile_number(row, col)
         flagcount = self.num_flags_around(row, col)

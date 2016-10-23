@@ -136,6 +136,11 @@ class GameDisplayWrapper:
         return self.get_tile_type(row, col) == "flag_wrong"
     def is_tile_unopened(self, row, col):
         return self.get_tile_type(row, col) == "unopened"
+    def is_tile_number(self, row, col):
+        try:
+            return 0 <= int(self.get_tile_type(row, col)[-1:]) <= 8
+        except:
+            return False
     def get_tile_number(self, row, col):
         return int(self.get_tile_type(row, col)[-1:]) # get the last char and convert to int
     def get_tile_type(self, row, col):
