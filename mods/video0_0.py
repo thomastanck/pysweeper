@@ -8,7 +8,7 @@ the new class reads in a new format and gives us the same events (or more).
 """
 
 import time
-import ast
+import json
 import zlib
 
 class VideoFileFactory:
@@ -19,6 +19,13 @@ class VideoFileFactory:
     def __init__(self, master, pysweep):
         self.master = master
         self.pysweep = pysweep
+        self.hooks = {
+            ("clicker", "M"):  [self.clicker_event],
+            ("clicker", "LD"): [self.clicker_event],
+            ("clicker", "LU"): [self.clicker_event],
+            ("clicker", "RD"): [self.clicker_event],
+            ("clicker", "RU"): [self.clicker_event],
+        }
 
         self.video_files = []
 
@@ -29,6 +36,11 @@ class VideoFileFactory:
 
     def del_video_file(self, vidfile):
         self.video_files.remove(vidfile)
+
+    def clicker_event(self, hn, e):
+        for vid in self.video_files:
+            if vid.recording:
+                vid.clicker_event(e)
 
 video_file_version = "PySweeper Video File Format v0.0 (mega unstable)"
 pysweeper_version = "PySweeper v0.0 (mega unstable)"
@@ -77,8 +89,8 @@ def _gamedisplay_positions(gamedisplay):
 
 def _board_info(gamedisplay):
     return [
-        ["TILESIZE",  gamedisplay.tile_size ],
-        ["BOARDSIZE", gamedisplay.board_size],
+        ["TILESIZE",  *gamedisplay.tile_size ],
+        ["BOARDSIZE", *gamedisplay.board_size],
     ]
 
 def _game_info(gamemode, gameoptions):
@@ -121,20 +133,6 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
 
     vid = []
 
-    @property
-    def vidstr(self):
-        return str(self.vid)
-    @vidstr.setter
-    def vidstr(self, vidstr):
-        self.vid = ast.literal_eval(vidstr)
-
-    @property
-    def vidbytes(self):
-        return zlib.compress(self.vidstr.encode('utf-8'), 9)
-    @vidbytes.setter
-    def vidbytes(self, vidbytes):
-        self.vidstr = zlib.decompress(vidbytes).decode('utf-8')
-
     def __init__(self, gamedisplay, gamemode, gameoptions):
         # Put some stuff in quickly
         self.vid = []
@@ -145,6 +143,27 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
         self.vid.extend(_gamedisplay_positions(gamedisplay))
         self.vid.extend(_board_info(gamedisplay))
         self.vid.extend(_game_info(gamemode, gameoptions))
+
+        self.recording = False
+
+    def start(self):
+        self.recording = True
+    def stop(self):
+        self.recording = False
+
+    @property
+    def vidstr(self):
+        return json.dumps(self.vid)
+    @vidstr.setter
+    def vidstr(self, vidstr):
+        self.vid = json.loads(vidstr)
+
+    @property
+    def vidbytes(self):
+        return zlib.compress(self.vidstr.encode('utf-8'), 9)
+    @vidbytes.setter
+    def vidbytes(self, vidbytes):
+        self.vidstr = zlib.decompress(vidbytes).decode('utf-8')
 
     def clicker_event(self, e):
         # Call this on "M", "LD", "LU", "RD", "RU".
@@ -158,5 +177,6 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
         if type(command != list) or type(command[0] != str):
             raise TypeError('Commands must be lists where the first element is a string')
         self.vid.append(command)
+
 
 mods = {"VideoFile0_0_0_0": VideoFileFactory, "VideoFile": VideoFileFactory}

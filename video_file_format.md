@@ -13,11 +13,12 @@ impossible.
 
 ## Internals
 
-The video file is a list of tuples encoded as python literals and then
-compressedwith zlib.
+The video file is a list of tuples encoded in JSON and then compressed with
+zlib. (The tuples are actually also lists, but we'll use the word tuples
+throughout this document to denote a command, as opposed to the top level
+list of commands)
 
-Python literal encoding and decoding are done using the standard python
-module 'ast'.
+JSON encoding and decoding are done using the standard python module 'json'.
 
 Compression is done using the standard python module 'zlib'.
 
@@ -34,7 +35,7 @@ The first element of the tuple is the "command name", with the remaining
 elements as additional parameters to the command. The following commands
 are used:
 
-* COMMAND_NAME arg1 arg2 ... --> ("COMMAND_NAME", arg1, arg2, ...)
+* COMMAND_NAME arg1 arg2 ... --> ["COMMAND_NAME", arg1, arg2, ...]
 
 ### List of commands
 
