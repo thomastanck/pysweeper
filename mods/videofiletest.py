@@ -56,5 +56,6 @@ class VideoFileTest:
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
         print(self.video_file.vidstr)
+        print("vidstr len: {}, vidbytes len: {}".format(len(self.video_file.vidstr), len(self.video_file.vidbytes)))
 
 mods = {"VideoFileTest": VideoFileTest}

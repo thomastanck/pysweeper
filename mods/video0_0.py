@@ -124,6 +124,16 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
     @property
     def vidstr(self):
         return str(self.vid)
+    @vidstr.setter
+    def vidstr(self, vidstr):
+        self.vid = ast.literal_eval(vidstr)
+
+    @property
+    def vidbytes(self):
+        return zlib.compress(self.vidstr.encode('utf-8'), 9)
+    @vidbytes.setter
+    def vidbytes(self, vidbytes):
+        self.vidstr = zlib.decompress(vidbytes).decode('utf-8')
 
     def __init__(self, gamedisplay, gamemode, gameoptions):
         # Put some stuff in quickly
