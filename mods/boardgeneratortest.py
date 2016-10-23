@@ -17,6 +17,8 @@ class BoardGeneratorTest:
         self.master = master
         self.pysweep = pysweep
         self.hooks = {
+            ("gamedisplaymanager", "FaceDepress"):   [self.face_depress],
+            ("gamedisplaymanager", "FaceUndepress"): [self.face_undepress],
             ("gamedisplaymanager", "FaceClicked"): [self.generate_mines],
 
             ("pysweep", "<F2>"): [self.generate_mines],
@@ -29,6 +31,15 @@ class BoardGeneratorTest:
         self.gamemodeselector.register_game_mode(game_mode_name)
 
         self.gamedisplay = self.pysweep.gamedisplay
+
+    def face_depress(self, hn, e):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
+            return
+        self.gamedisplay.set_face_pressed()
+    def face_undepress(self, hn, e):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
+            return
+        self.gamedisplay.set_face_happy()
 
     def generate_mines(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):

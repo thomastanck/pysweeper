@@ -93,7 +93,6 @@ class GameDisplayWrapper:
     # SENDING EVENTS
     ################
     def send_event(self, e):
-        print(e.event)
         self.pysweep.handle_event(("gamedisplay", e.event), e)
 
 

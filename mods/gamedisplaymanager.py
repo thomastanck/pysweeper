@@ -251,12 +251,15 @@ class GameDisplayManager:
     def handle_face(self, hn, e):
         if e.inbounds:
             if hn[1] == "LD" or hn[1] == "LM":
-                self.gamedisplay.set_face_pressed()
+                # self.gamedisplay.set_face_pressed()
+                self.pysweep.handle_event(_gh("FaceDepress"), e)
             elif hn[1] == "LU":
+                self.pysweep.handle_event(_gh("FaceUndepress"), e)
                 self.pysweep.handle_event(_gh("FaceClicked"), e)
-                self.gamedisplay.set_face_happy()
+                # self.gamedisplay.set_face_happy()
         else:
-            self.gamedisplay.set_face_happy()
+            self.pysweep.handle_event(_gh("FaceUndepress"), e)
+            # self.gamedisplay.set_face_happy()
 
     # Click only handlers
     def handle_mine(self, hn, e):

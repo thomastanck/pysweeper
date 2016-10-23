@@ -134,7 +134,6 @@ def _display_event(e):
         "Timer"     : "TIMER"     ,
     }
     if e.event in command_map:
-        print(e)
         if e.event == "TileNumber" or e.event == "TileOther":
             return [[command_map[e.event], e.time, e.arg, e.row, e.col]]
         else:

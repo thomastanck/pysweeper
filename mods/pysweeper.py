@@ -33,6 +33,8 @@ class PySweeper:
 
             ("gamedisplaymanager", "TileDepress"):   [self.tile_depress],
             ("gamedisplaymanager", "TileUndepress"): [self.tile_undepress],
+            ("gamedisplaymanager", "FaceDepress"):   [self.face_depress],
+            ("gamedisplaymanager", "FaceUndepress"): [self.face_undepress],
 
             ("pysweep", "<F2>"): [self.new_game],
             ("pysweep", "<F3>"): [self.new_game], # TODO: Create a UPK game
@@ -175,6 +177,14 @@ class PySweeper:
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
         self.gamedisplay.set_tile_unopened(e.row, e.col)
+        self.gamedisplay.set_face_happy()
+    def face_depress(self, hn, e):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
+            return
+        self.gamedisplay.set_face_pressed()
+    def face_undepress(self, hn, e):
+        if not self.gamemodeselector.is_enabled(game_mode_name):
+            return
         self.gamedisplay.set_face_happy()
 
     def tile_open(self, hn, e):
