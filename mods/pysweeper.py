@@ -2,6 +2,7 @@ import tkinter
 
 from pysweep import HashRandom, Timer, Menu
 
+import math
 import random
 
 game_mode_name = "PySweeper"
@@ -60,7 +61,7 @@ class PySweeper:
         self.menu.add_radiobutton(label="Testing Mode", variable=self.menuvar, command=self.testingmode)
 
     def timercallback(self, elapsed, sincelasttick):
-        self.gamedisplay.set_timer(int(elapsed))
+        self.gamedisplay.set_timer(int(math.ceil(elapsed)))
         if self.testing and elapsed > 10: # Testing mode :)
             self.lose_game(*self.mines[0])
 

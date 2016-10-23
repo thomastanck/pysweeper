@@ -17,7 +17,7 @@ class Timer:
     def start_timer(self):
         self.start_time = time.time()
         self.previous_tick_time = self.start_time
-        self.next_tick_time = self.start_time + self.period
+        self.next_tick_time = self.start_time # Used to have + self.period, but have it send two callbacks now so pysweeper can ceil the timer nicely :)
         self.callback(0, 0)
 
         if self.timing_mode == False:
