@@ -5,7 +5,7 @@ import inspect
 
 import tkinter
 
-from pysweep import Menu, GameDisplay, VideoFile
+from pysweep import Menu, GameDisplay#, VideoFile
 
 class PySweep:
     def __init__(self, master):

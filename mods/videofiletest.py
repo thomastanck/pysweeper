@@ -1,6 +1,6 @@
 import tkinter
 
-from pysweep import HashRandom, VideoFile
+from pysweep import HashRandom#, VideoFile
 
 import time
 import random
@@ -32,17 +32,19 @@ class VideoFileTest:
         }
 
         self.gamedisplay = self.pysweep.gamedisplay
-        self.video_file = VideoFile(self.gamedisplay, game_mode_name, "N/A")
 
     def modsloaded(self, hn, e):
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
         self.gamemodeselector.register_game_mode(game_mode_name)
 
+        self.videofilemod = self.pysweep.mods["VideoFile"]
+
     def onenable(self, hn, e):
         if e == game_mode_name:
-            self.video_file = VideoFile(self.gamedisplay, game_mode_name, "N/A")
+            self.video_file = self.videofilemod.new_video_file(self.gamedisplay, game_mode_name, "N/A")
     def ondisable(self, hn, e):
         if e == game_mode_name:
+            self.videofilemod.del_video_file(self.video_file)
             self.video_file = None
 
     def clicker_event(self, hn, e):

@@ -11,6 +11,25 @@ import time
 import ast
 import zlib
 
+class VideoFileFactory:
+    hooks = {}
+    required_events = []
+    required_protocols = []
+
+    def __init__(self, master, pysweep):
+        self.master = master
+        self.pysweep = pysweep
+
+        self.video_files = []
+
+    def new_video_file(self, *args):
+        vidfile = VideoFile0_0_0_0(*args)
+        self.video_files.append(vidfile)
+        return vidfile
+
+    def del_video_file(self, vidfile):
+        self.video_files.remove(vidfile)
+
 video_file_version = "PySweeper Video File Format v0.0 (mega unstable)"
 pysweeper_version = "PySweeper v0.0 (mega unstable)"
 
@@ -129,3 +148,5 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
         if type(command != list) or type(command[0] != str):
             raise TypeError('Commands must be lists where the first element is a string')
         self.vid.append(command)
+
+mods = {"VideoFile0_0_0_0": VideoFileFactory, "VideoFile": VideoFileFactory}
