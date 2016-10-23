@@ -96,9 +96,11 @@ class SpeedGame:
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
         self.gamedisplay.set_tile_number(e.row, e.col, 0)
+        self.gamedisplay.set_face_nervous()
     def tile_undepress(self, hn, e):
         if not self.gamemodeselector.is_enabled(game_mode_name):
             return
         self.gamedisplay.set_tile_unopened(e.row, e.col)
+        self.gamedisplay.set_face_happy()
 
 mods = {"SpeedGame": SpeedGame}
