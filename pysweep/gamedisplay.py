@@ -125,6 +125,8 @@ class GameDisplayWrapper:
         self.face_button.set_face("blast")
     def set_face_cool(self):
         self.face_button.set_face("cool")
+    def set_face_nervous(self):
+        self.face_button.set_face("nervous")
 
     def set_timer(self, t):
         self.timer.set_value(t)
@@ -487,7 +489,7 @@ class FaceButton(tkinter.Frame):
         self.set_face('happy')
 
     def init_face_images(self):
-        for key in ["happy", "pressed", "blast", "cool"]:
+        for key in ["happy", "pressed", "blast", "cool", "nervous"]:
             img = Image.open("{}/face_{}.png".format(image_dir, key))
             self.face_images[key] = ImageTk.PhotoImage(img)
 
