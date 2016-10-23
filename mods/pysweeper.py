@@ -229,6 +229,7 @@ class PySweeper:
 
     @gamemode(game_mode_name)
     @notended
+    @checkbounds
     @notopened
     @notflagged
     def tile_open(self, hn, e):
