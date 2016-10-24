@@ -47,12 +47,10 @@ class VideoFileFactory:
 
     def clicker_event(self, hn, e):
         for vid in self.video_files:
-            if vid.recording:
-                vid.clicker_event(e)
+            vid.clicker_event(e)
     def display_event(self, hn, e):
         for vid in self.video_files:
-            if vid.recording:
-                vid.display_event(e)
+            vid.display_event(e)
 
 video_file_version = "PySweeper Video File Format v0.0 (mega unstable)"
 pysweeper_version = "PySweeper v0.0 (mega unstable)"
@@ -158,11 +156,17 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
         self.vid.extend(_game_info(gamemode, gameoptions))
 
         self.recording = False
+        self.after_nonmove = False
 
     def start(self):
         self.recording = True
+        self.after_nonmove = True
+    def start_after_nonmove(self):
+        self.recording = True
+        self.after_nonmove = False
     def stop(self):
         self.recording = False
+        self.after_nonmove = False
 
     @property
     def vidstr(self):
@@ -181,10 +185,16 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
     def clicker_event(self, e):
         # Call this on "M", "LD", "LU", "RD", "RU".
         # Don't worry about the hook name, clicker events contain them! :D
-        self.vid.extend(_clicker_event(e))
+        if self.recording:
+            if e.event != "M":
+                self.after_nonmove = True
+            if self.after_nonmove:
+                self.vid.extend(_clicker_event(e))
 
     def display_event(self, e):
-        self.vid.extend(_display_event(e))
+        if self.recording:
+            self.after_nonmove = True
+            self.vid.extend(_display_event(e))
 
     def add_command(self, command):
         if type(command != list) or type(command[0] != str):

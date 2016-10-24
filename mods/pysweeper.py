@@ -69,8 +69,6 @@ class PySweeper:
         self.master = master
         self.pysweep = pysweep
         self.hooks = {
-            ("clicker", "M"): [self.on_mouse_move],
-
             ("gamedisplaymanager", "TileOpen"):       [self.tile_open],
             ("gamedisplaymanager", "TileToggleFlag"): [self.tile_toggle_flag],
             ("gamedisplaymanager", "TileChord"):      [self.tile_chord],
@@ -82,7 +80,7 @@ class PySweeper:
             ("gamedisplaymanager", "FaceUndepress"): [self.face_undepress],
 
             ("pysweep", "<F2>"): [self.new_game],
-            ("pysweep", "<F3>"): [self.new_game], # TODO: Create a UPK game
+            ("pysweep", "<F3>"): [self.print_vid], # TODO: Create a UPK game. for now use it to print the video file :>
 
             ("pysweep", "AllModsLoaded"): [self.modsloaded],
 
@@ -97,8 +95,8 @@ class PySweeper:
         self.gamedisplay = self.pysweep.gamedisplay
 
         self.rng = HashRandom()
-        self.vid = [] # list of tuples. First element is string, remaining elements should be strings or numbers.
-        self.hashvid = [] # same but contains what we'll put into the rng where sensitive numbers are rounded
+        self.vidmod = self.pysweep.mods["VideoFile"]
+        self.vid = self.vidmod.new_video_file(self.gamedisplay, game_mode_name, "Expert")
 
         self.timer = Timer(self.master, self.timercallback, period=1, resolution=0.01)
 
@@ -106,6 +104,9 @@ class PySweeper:
         self.menu = tkinter.Menu(Menu.menubar, tearoff=0)
         self.menu.add_radiobutton(label="Playing Mode", variable=self.menuvar, command=self.playingmode)
         self.menu.add_radiobutton(label="Testing Mode", variable=self.menuvar, command=self.testingmode)
+
+    def print_vid(self, hn, e):
+        print(self.vid.vidstr)
 
     def timercallback(self, elapsed, sincelasttick):
         self.gamedisplay.set_timer(int(math.ceil(elapsed)))
@@ -168,20 +169,29 @@ class PySweeper:
         if self.num_mines > area - 1:
             raise ValueException('More mines than spaces')
 
+        self.vidmod.del_video_file(self.vid)
+        self.vid = self.vidmod.new_video_file(self.gamedisplay, game_mode_name, "Expert")
+        self.vid.add_command(["NUMMINES", self.num_mines])
+        self.vid.start_after_nonmove()
+
     def start_game(self, row, col):
         # First click at row, col
         width, height = self.gamedisplay.board_size
 
         self.state = "started"
         self.timer.start_timer()
+        self.vid.add_command(["STARTGAME", self.timer.start_time])
         # Just set the current cell to determined so no mines can be generated there,
         # then let the rest of the click handler do the job
         self.determined.append((row, col))
         self.notdetermined.remove((row, col))
+        self.vid.add_command(["GENERATE", time.time(), row, col, False])
 
     def lose_game(self, row, col):
         # Blast at row, col
         width, height = self.gamedisplay.board_size
+
+        self.vid.add_command(["LOSE", time.time()])
 
         self.timer.stop_timer()
         # Determine all tiles
@@ -198,9 +208,13 @@ class PySweeper:
         self.gamedisplay.set_tile_blast(row, col)
         self.state = "ended"
 
+        self.vid.stop()
+
     def win_game(self):
         # Opened all the tiles!
         width, height = self.gamedisplay.board_size
+
+        self.vid.add_command(["WIN", time.time()])
 
         self.timer.stop_timer()
         # Determine all tiles just in case there was a huge chunk of
@@ -210,6 +224,8 @@ class PySweeper:
             self.gamedisplay.set_tile_flag(minerow, minecol)
         self.gamedisplay.set_face_cool()
         self.state = "ended"
+
+        self.vid.stop()
 
     @gamemode(game_mode_name)
     @notended
@@ -239,6 +255,8 @@ class PySweeper:
         # FIRST CLICK SETUP
         if self.state == "notstarted":
             self.start_game(row, col)
+
+        self.vid.add_command(["OPEN", time.time(), row, col])
 
         # Determine the tiles around it before doing anything else
         self.determine_around_tile(row, col)
@@ -293,6 +311,7 @@ class PySweeper:
         self.notdetermined.remove((row, col))
         if ismine:
             self.mines.append((row, col))
+        self.vid.add_command(["GENERATE", time.time(), row, col, ismine])
 
     def num_mines_around(self, row, col):
         number = 0
@@ -316,9 +335,13 @@ class PySweeper:
         row, col = e.row, e.col
 
         if (row, col) in self.flagged:
+
+        self.vid.add_command(["UNFLAG", time.time(), row, col])
             self.flagged.remove((row, col))
             self.gamedisplay.set_tile_unopened(row, col)
         else:
+
+        self.vid.add_command(["FLAG", time.time(), row, col])
             self.flagged.append((row, col))
             self.gamedisplay.set_tile_flag(row, col)
 
@@ -331,6 +354,8 @@ class PySweeper:
         width, height = self.gamedisplay.board_size
         row, col = e.row, e.col
 
+        self.vid.add_command(["CHORD", time.time(), row, col])
+
         squarenum = self.gamedisplay.get_tile_number(row, col)
         flagcount = self.num_flags_around(row, col)
         if flagcount == squarenum:
@@ -340,8 +365,5 @@ class PySweeper:
                     e.row, e.col = row+drow, col+dcol
                     self.tile_open(hn, e) # tile_open knows not to open flags
 
-
-    def on_mouse_move(self, hn, e):
-        pass # TODO: This will feed into the rng!
 
 mods = {"PySweeper": PySweeper}
