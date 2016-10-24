@@ -25,10 +25,28 @@ class Player:
     @gamemode(game_mode_name)
     def on_enable(self, hn, e):
         print("enabled!")
+        self.window = tkinter.Toplevel(self.master)
+        self.rewindbutton = tkinter.Button(self.window, text="Bek", command=self.rewind)
+        self.playbutton = tkinter.Button(self.window, text="Purei", command=self.play)
+        self.forwardbutton = tkinter.Button(self.window, text="Foowaado", command=self.forward)
+        # step forward backward, other images and stuff, etc
+        # You'll probably want Frames and Canvases in here.
+        self.rewindbutton.pack()
+        self.playbutton.pack()
+        self.forwardbutton.pack()
 
     @gamemode(game_mode_name)
     def on_disable(self, hn, e):
         print("disabled!")
+        self.window.destroy()
+        self.window = null
+
+    def rewind(self):
+        print("rewind pressed")
+    def play(self):
+        print("play pressed")
+    def forward(self):
+        print("forward pressed")
 
 
 mods = {"Player": Player}
