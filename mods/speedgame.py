@@ -43,7 +43,7 @@ class SpeedGame:
         self.timer = Timer(self.master, self.timercallback, period=0.001, resolution=0.001)
 
     def timercallback(self, elapsed, sincelasttick):
-        self.gamedisplay.set_timer(int(elapsed*1000))
+        self.gamedisplay.set_timer(elapsed)
 
     @gamemode(game_mode_name)
     def new_game(self, hn, e):

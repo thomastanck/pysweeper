@@ -2,8 +2,8 @@ import tkinter
 
 from pysweep.util import gamemode
 from pysweep import HashRandom, Timer, Menu
+import pysweep
 
-import time
 import math
 import random
 
@@ -110,8 +110,8 @@ class PySweeper:
         print(self.vid.vidstr)
 
     def timercallback(self, elapsed, sincelasttick):
-        self.gamedisplay.set_timer(int(math.ceil(elapsed)))
-        if self.testing and elapsed > 10: # Testing mode :)
+        self.gamedisplay.set_timer(math.ceil(elapsed/1000))
+        if self.testing and elapsed > 10*1000: # Testing mode :)
             self.lose_game(*self.mines[0])
 
     @gamemode(game_mode_name)
@@ -173,7 +173,7 @@ class PySweeper:
         self.vidmod.del_video_file(self.vid)
         self.vid = self.vidmod.new_video_file(self.gamedisplay, game_mode_name, "Expert")
         self.vid.add_command(["NUMMINES", self.num_mines])
-        self.vid.start_after_nonmove()
+        self.vid.start_after_display_change()
 
     def start_game(self, row, col):
         # First click at row, col
@@ -186,13 +186,13 @@ class PySweeper:
         # then let the rest of the click handler do the job
         self.determined.append((row, col))
         self.notdetermined.remove((row, col))
-        self.vid.add_command(["GENERATE", time.time(), row, col, False])
+        self.vid.add_command(["GENERATE", pysweep.time(), row, col, False])
 
     def lose_game(self, row, col):
         # Blast at row, col
         width, height = self.gamedisplay.board_size
 
-        self.vid.add_command(["LOSE", time.time()])
+        self.vid.add_command(["LOSE", pysweep.time()])
 
         self.timer.stop_timer()
         # Determine all tiles
@@ -215,7 +215,7 @@ class PySweeper:
         # Opened all the tiles!
         width, height = self.gamedisplay.board_size
 
-        self.vid.add_command(["WIN", time.time()])
+        self.vid.add_command(["WIN", pysweep.time()])
 
         self.timer.stop_timer()
         # Determine all tiles just in case there was a huge chunk of
@@ -257,7 +257,7 @@ class PySweeper:
         if self.state == "notstarted":
             self.start_game(row, col)
 
-        self.vid.add_command(["OPEN", time.time(), row, col])
+        self.vid.add_command(["OPEN", pysweep.time(), row, col])
 
         # Determine the tiles around it before doing anything else
         self.determine_around_tile(row, col)
@@ -312,7 +312,7 @@ class PySweeper:
         self.notdetermined.remove((row, col))
         if ismine:
             self.mines.append((row, col))
-        self.vid.add_command(["GENERATE", time.time(), row, col, ismine])
+        self.vid.add_command(["GENERATE", pysweep.time(), row, col, ismine])
 
     def num_mines_around(self, row, col):
         number = 0
@@ -337,12 +337,12 @@ class PySweeper:
 
         if (row, col) in self.flagged:
 
-            self.vid.add_command(["UNFLAG", time.time(), row, col])
+            self.vid.add_command(["UNFLAG", pysweep.time(), row, col])
             self.flagged.remove((row, col))
             self.gamedisplay.set_tile_unopened(row, col)
         else:
 
-            self.vid.add_command(["FLAG", time.time(), row, col])
+            self.vid.add_command(["FLAG", pysweep.time(), row, col])
             self.flagged.append((row, col))
             self.gamedisplay.set_tile_flag(row, col)
 
@@ -355,7 +355,7 @@ class PySweeper:
         width, height = self.gamedisplay.board_size
         row, col = e.row, e.col
 
-        self.vid.add_command(["CHORD", time.time(), row, col])
+        self.vid.add_command(["CHORD", pysweep.time(), row, col])
 
         squarenum = self.gamedisplay.get_tile_number(row, col)
         flagcount = self.num_flags_around(row, col)

@@ -1,3 +1,4 @@
+from pysweep.time import time
 import pysweep.util as util
 
 from pysweep.menu import Menu

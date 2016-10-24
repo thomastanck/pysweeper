@@ -7,7 +7,8 @@ we can get this file to read in 0.0 format but give us updated events, etc., whi
 the new class reads in a new format and gives us the same events (or more).
 """
 
-import time
+import pysweep
+
 import json
 import zlib
 
@@ -60,11 +61,12 @@ def _video_version():
 def _version():
     return ["VERSION", pysweeper_version]
 def _time():
-    return ["TIME", time.time()]
+    return ["TIME", pysweep.time()]
 def _seconds():
-    return ["SECONDS", int(time.time())]
+    return ["SECONDS", pysweep.time() // 1000]
 
 def _gamedisplay_positions(gamedisplay):
+    gamedisplay.display.update_idletasks()
     widgets = [
         (gamedisplay.display, "DISPLAY"            , gamedisplay.display                    ),
         (gamedisplay.display, "PANEL"              , gamedisplay.panel                      ),
@@ -156,17 +158,17 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
         self.vid.extend(_game_info(gamemode, gameoptions))
 
         self.recording = False
-        self.after_nonmove = False
+        self.after_display_change = False
 
     def start(self):
         self.recording = True
-        self.after_nonmove = True
-    def start_after_nonmove(self):
+        self.after_display_change = True
+    def start_after_display_change(self):
         self.recording = True
-        self.after_nonmove = False
+        self.after_display_change = False
     def stop(self):
         self.recording = False
-        self.after_nonmove = False
+        self.after_display_change = False
 
     @property
     def vidstr(self):
@@ -186,14 +188,12 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
         # Call this on "M", "LD", "LU", "RD", "RU".
         # Don't worry about the hook name, clicker events contain them! :D
         if self.recording:
-            if e.event != "M":
-                self.after_nonmove = True
-            if self.after_nonmove:
+            if self.after_display_change:
                 self.vid.extend(_clicker_event(e))
 
     def display_event(self, e):
         if self.recording:
-            self.after_nonmove = True
+            self.after_display_change = True
             self.vid.extend(_display_event(e))
 
     def add_command(self, command):

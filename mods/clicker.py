@@ -1,6 +1,6 @@
 import platform
 
-import time
+import pysweep
 
 class ClickerEvent:
     # Stripped down version of the tkinter event, and adds some restrictions so it'll be easier to debug in the future
@@ -216,7 +216,7 @@ class Clicker:
         self.send_event(("clicker", "U"), e)
 
     def send_event(self, hn, e):
-        e = ClickerEvent(self.gamedisplay.display, hn[1], time.time(), self.currentposition[0], self.currentposition[1], self.lmb, self.rmb)
+        e = ClickerEvent(self.gamedisplay.display, hn[1], pysweep.time(), self.currentposition[0], self.currentposition[1], self.lmb, self.rmb)
         # e.widget = self.gamedisplay.display
         # e.x, e.y = self.currentposition
         # e.lmb = self.lmb

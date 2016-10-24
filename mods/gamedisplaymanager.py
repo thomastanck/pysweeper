@@ -35,11 +35,17 @@ the cursor away! Be careful and listen for TileLM events as well.
 TileDepress:         Depress animation on this tile, single and chord depresses
 TileUndepress:       Undepress animation on this tile, single and chord depresses
 
+-- v DELETED v --
+
 TileSingleDepress:   ^ but only for LMB
 TileSingleUndepress: ^ but only for LMB. Is also called if LMB transitions to a chord
 
 TileChordDepress:    ^^ but only for chording
 TileChordUndepress:  ^^ but only for chording
+
+-- ^ DELETED ^ --
+Seems hard to code this in the new system
+----
 
 TileOpen:            LMB up without chord
 TileChord:           A mouse button up while in chording mode
@@ -127,7 +133,9 @@ class GameDisplayManager:
             ("pysweep", "AllModsLoaded"): [self.modsloaded],
         }
 
-        self.depressed_tiles = []
+        #self.depressed_tiles = []
+        self.depressed = set()
+        self.chord = False
         self.current_widget_handler = None
         self.mousedown = False
 
@@ -212,7 +220,7 @@ class GameDisplayManager:
         # But we leave chording mode only after the event
         if e.lmb > 0 and e.rmb > 0:
             # both buttons down means go into chording mode
-            self.board_undepress_tiles(False, e) # Undepress the single-depress tiles before entering chording mode
+            #self.board_undepress_tiles(False, e) # Undepress the single-depress tiles before entering chording mode
             self.chording_mode = 1
 
         if self.chording_mode == 0:
@@ -280,19 +288,22 @@ class GameDisplayManager:
     def board_depress(self, hn, e):
         # Undepress currently depressed cells
         # Depress current cell
-        self.board_undepress_tiles(False, e)
+        #self.board_undepress_tiles(False, e)
 
         width, height = self.gamedisplay.board_size
         if (0 <= e.col < width and 0 <= e.row < height):
-            if self.gamedisplay.get_tile_type(e.row, e.col) == "unopened":
-                self.depressed_tiles.append((e.row, e.col))
-                self.pysweep.handle_event(_gh("TileDepress"), e)
-                self.pysweep.handle_event(_gh("TileSingleDepress"), e)
+            if (e.row, e.col) in self.depressed or self.gamedisplay.get_tile_type(e.row, e.col) == "unopened":
+                self.board_set_depressed({(e.row, e.col)}, e)
+            #if self.gamedisplay.get_tile_type(e.row, e.col) == "unopened":
+                #self.depressed_tiles.append((e.row, e.col))
+                #self.pysweep.handle_event(_gh("TileDepress"), e)
+                #self.pysweep.handle_event(_gh("TileSingleDepress"), e)
 
     def board_open(self, hn, e):
         # Undepress currently depressed cells
         # Send out click event
-        self.board_undepress_tiles(False, e)
+        #self.board_undepress_tiles(False, e)
+        self.board_set_depressed(set(), e)
         width, height = self.gamedisplay.board_size
         if (0 <= e.col < width and 0 <= e.row < height):
             self.pysweep.handle_event(_gh("TileOpen"), e)
@@ -306,34 +317,42 @@ class GameDisplayManager:
     def board_depress_chord(self, hn, e):
         # Undepress currently depressed cells
         # Depress current cell and neighbours
-        self.board_undepress_tiles(True, e)
+        #self.board_undepress_tiles(True, e)
         width, height = self.gamedisplay.board_size
+        depressed = set()
         for drow in range(-1, 2):
             for dcol in range(-1, 2):
-                e_ = BoardClick(e.event, e.time, e.row+drow, e.col+dcol, e.lmb, e.rmb)
-                if (0 <= e_.col < width and 0 <= e_.row < height):
-                    if self.gamedisplay.get_tile_type(e_.row, e_.col) == "unopened":
-                        self.depressed_tiles.append((e_.row, e_.col))
-                        self.pysweep.handle_event(_gh("TileDepress"), e_)
-                        self.pysweep.handle_event(_gh("TileChordDepress"), e_)
+                #e_ = BoardClick(e.event, e.time, e.row+drow, e.col+dcol, e.lmb, e.rmb)
+                row, col = e.row+drow, e.col+dcol
+                if (0 <= col < width and 0 <= row < height):
+                    if (row, col) in self.depressed or self.gamedisplay.get_tile_type(row, col) == "unopened":
+                        depressed.add((row, col))
+                    #if self.gamedisplay.get_tile_type(row, col) == "unopened":
+                        #self.depressed_tiles.append((e_.row, e_.col))
+                        #self.pysweep.handle_event(_gh("TileDepress"), e_)
+                        #self.pysweep.handle_event(_gh("TileChordDepress"), e_)
+        self.board_set_depressed(depressed, e)
 
     def board_chord(self, hn, e):
         # Undepress currently depressed cells
         # Send out chord event
-        self.board_undepress_tiles(True, e)
+        self.board_set_depressed(set(), e)
         width, height = self.gamedisplay.board_size
         if (0 <= e.col < width and 0 <= e.row < height):
             self.pysweep.handle_event(_gh("TileChord"), e)
 
-    def board_undepress_tiles(self, chord, e_):
-        # Helper function
-        while self.depressed_tiles:
+    def board_set_depressed(self, tiles, e_):
+        # tiles is a {set} of (row,col) tuples
+        for tile in (self.depressed - tiles):
             e = BoardClick(e_.event, e_.time, 0, 0, e_.lmb, e_.rmb)
-            e.row, e.col = self.depressed_tiles.pop()
+            e.row, e.col = tile
             self.pysweep.handle_event(_gh("TileUndepress"), e)
-            if chord:
-                self.pysweep.handle_event(_gh("TileChordUndepress"), e)
-            else:
-                self.pysweep.handle_event(_gh("TileSingleUndepress"), e)
+
+        for tile in (tiles - self.depressed):
+            e = BoardClick(e_.event, e_.time, 0, 0, e_.lmb, e_.rmb)
+            e.row, e.col = tile
+            self.pysweep.handle_event(_gh("TileDepress"), e)
+        self.depressed = tiles
+
 
 mods = {"GameDisplayManager": GameDisplayManager}

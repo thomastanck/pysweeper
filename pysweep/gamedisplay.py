@@ -1,6 +1,6 @@
 import tkinter
 from PIL import Image, ImageTk
-import time
+import pysweep
 
 image_dir = "images"
 
@@ -35,6 +35,8 @@ class GameDisplayWrapper:
         self.display.pack()
         self.center_window()
         self.master.deiconify()
+
+        self.current_face = "happy"
 
     # GENERAL PROPERTIES
     ####################
@@ -112,12 +114,12 @@ class GameDisplayWrapper:
         self.set_tile_other(row, col, "unopened")
 
     def set_tile_other(self, row, col, tile_type):
-        self.send_event(GameDisplayEvent("TileOther", time.time(), tile_type, row, col))
+        self.send_event(GameDisplayEvent("TileOther", pysweep.time(), tile_type, row, col))
         self.set_tile(row, col, tile_type)
     def set_tile_number(self, row, col, number):
         # number: 0..8
         if type(number) == int and 0 <= number and number < 9:
-            self.send_event(GameDisplayEvent("TileNumber", time.time(), number, row, col))
+            self.send_event(GameDisplayEvent("TileNumber", pysweep.time(), number, row, col))
             self.set_tile(row, col, "tile_{}".format(number))
         else:
             raise ValueError('Tile number {} does not exist'.format(number))
@@ -170,16 +172,18 @@ class GameDisplayWrapper:
     def set_face_nervous(self):
         self.set_face("nervous")
     def set_face(self, face):
-        self.send_event(GameDisplayEvent("Face", time.time(), face))
-        self.face_button.set_face(face)
+        if self.current_face != face:
+            self.current_face = face
+            self.send_event(GameDisplayEvent("Face", pysweep.time(), face))
+            self.face_button.set_face(face)
 
     # Counters
     def set_timer(self, t):
-        self.send_event(GameDisplayEvent("Timer", time.time(), t))
+        self.send_event(GameDisplayEvent("Timer", pysweep.time(), t))
         self.timer.set_value(t)
 
     def set_mine_counter(self, t):
-        self.send_event(GameDisplayEvent("MineCounter", time.time(), t))
+        self.send_event(GameDisplayEvent("MineCounter", pysweep.time(), t))
         self.mine_counter.set_value(t)
 
 class BorderCanvas(tkinter.Canvas):

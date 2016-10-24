@@ -1,21 +1,21 @@
-import threading, time
+import pysweep
 
 class Timer:
     def __init__(self, master, callback, period, resolution):
         # calls callback whenever the time changes more than period seconds (which will be every second by default), checking for this condition every resolution seconds (0.01 by default)
         self.master = master
         self.callback = callback
-        self.period = period
-        self.resolution = resolution
+        self.period = int(period * 1000)
+        self.resolution = int(resolution * 1000)
         self.start_time = 0
         self.previous_tick_time = 0
         self.next_tick_time = 0
         self.stop_time = 0
         self.timing_mode = False
-        self.poll_freq = max(int(resolution*1000), 1) # poll at the requested resolution, converting to milliseconds.
+        self.poll_freq = max(self.resolution, 1) # poll at the requested resolution, converting to milliseconds.
 
     def start_timer(self):
-        self.start_time = time.time()
+        self.start_time = pysweep.time()
         self.previous_tick_time = self.start_time
         self.next_tick_time = self.start_time # Used to have + self.period, but have it send two callbacks now so pysweeper can ceil the timer nicely :)
         self.callback(0, 0)
@@ -27,7 +27,7 @@ class Timer:
 
     def poll_timer(self):
         if self.timing_mode == True:
-            curtime = time.time()
+            curtime = pysweep.time()
             elapsed = curtime - self.start_time
             sincelasttick = curtime - self.previous_tick_time
             if curtime > self.next_tick_time:
@@ -40,10 +40,10 @@ class Timer:
     def stop_timer(self):
         if not self.timing_mode:
             return # Do nothing if already stopped
-        self.stop_time = time.time()
+        self.stop_time = pysweep.time()
         self.timing_mode = False
 
-        curtime = time.time()
+        curtime = pysweep.time()
         elapsed = curtime - self.start_time
         sincelasttick = curtime - self.previous_tick_time
         self.previous_tick_time = curtime
