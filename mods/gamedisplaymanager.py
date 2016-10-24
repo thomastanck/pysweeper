@@ -220,7 +220,7 @@ class GameDisplayManager:
         # But we leave chording mode only after the event
         if e.lmb > 0 and e.rmb > 0:
             # both buttons down means go into chording mode
-            self.board_undepress_tiles(False, e) # Undepress the single-depress tiles before entering chording mode
+            #self.board_undepress_tiles(False, e) # Undepress the single-depress tiles before entering chording mode
             self.chording_mode = 1
 
         if self.chording_mode == 0:
@@ -292,7 +292,8 @@ class GameDisplayManager:
 
         width, height = self.gamedisplay.board_size
         if (0 <= e.col < width and 0 <= e.row < height):
-            self.board_set_depressed({(e.row, e.col)}, e)
+            if self.gamedisplay.get_tile_type(e.row, e.col) == "unopened":
+                self.board_set_depressed({(e.row, e.col)}, e)
             #if self.gamedisplay.get_tile_type(e.row, e.col) == "unopened":
                 #self.depressed_tiles.append((e.row, e.col))
                 #self.pysweep.handle_event(_gh("TileDepress"), e)
@@ -324,7 +325,8 @@ class GameDisplayManager:
                 #e_ = BoardClick(e.event, e.time, e.row+drow, e.col+dcol, e.lmb, e.rmb)
                 row, col = e.row+drow, e.col+dcol
                 if (0 <= col < width and 0 <= row < height):
-                    depressed.add((row, col))
+                    if self.gamedisplay.get_tile_type(row, col) == "unopened":
+                        depressed.add((row, col))
                     #if self.gamedisplay.get_tile_type(row, col) == "unopened":
                         #self.depressed_tiles.append((e_.row, e_.col))
                         #self.pysweep.handle_event(_gh("TileDepress"), e_)
