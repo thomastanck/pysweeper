@@ -3,6 +3,7 @@ import tkinter
 from pysweep.util import gamemode
 from pysweep import HashRandom, Timer, Menu
 
+import time
 import math
 import random
 
