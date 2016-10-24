@@ -173,7 +173,7 @@ class PySweeper:
         self.vidmod.del_video_file(self.vid)
         self.vid = self.vidmod.new_video_file(self.gamedisplay, game_mode_name, "Expert")
         self.vid.add_command(["NUMMINES", self.num_mines])
-        self.vid.start_after_nonmove()
+        self.vid.start_after_display_change()
 
     def start_game(self, row, col):
         # First click at row, col
