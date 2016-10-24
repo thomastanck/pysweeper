@@ -36,6 +36,8 @@ class GameDisplayWrapper:
         self.center_window()
         self.master.deiconify()
 
+        self.current_face = "happy"
+
     # GENERAL PROPERTIES
     ####################
     @property
@@ -170,8 +172,10 @@ class GameDisplayWrapper:
     def set_face_nervous(self):
         self.set_face("nervous")
     def set_face(self, face):
-        self.send_event(GameDisplayEvent("Face", time.time(), face))
-        self.face_button.set_face(face)
+        if self.current_face != face:
+            self.current_face = face
+            self.send_event(GameDisplayEvent("Face", time.time(), face))
+            self.face_button.set_face(face)
 
     # Counters
     def set_timer(self, t):
