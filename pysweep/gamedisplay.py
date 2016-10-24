@@ -251,11 +251,12 @@ class GameDisplay(tkinter.Frame):
 
         # Grid row 1: Left and right borders, Panel
         grid_row = 1
-        self.border_panel_left = BorderCanvas(
-            self, border_images['panel_l'], 26, 'v')
         self.panel = Panel(self, width=board_canvas_w)
+        panel_height = self.panel.get_size()[1]
+        self.border_panel_left = BorderCanvas(
+            self, border_images['panel_l'], panel_height, 'v')
         self.border_panel_right = BorderCanvas(
-            self, border_images['panel_r'], 26, 'v')
+            self, border_images['panel_r'], panel_height, 'v')
         self.border_panel_left.grid(row=grid_row, column=0)
         self.panel.grid(row=grid_row, column=1, sticky="nesw")
         self.border_panel_right.grid(row=grid_row, column=2)
@@ -403,9 +404,38 @@ class Board(tkinter.Frame):
                 self.tile_size[1]*self.board_height)
 
 
+class Digit:
+    digits = {}
+    digit_size = None
+    def __init__(self, mastercanvas, i):
+        self.mastercanvas = mastercanvas
+        self.i = i
+        self.init_digits()
+        width = self.digit_size[0]
+        self.image_reference = self.mastercanvas.create_image((i*width, 0), anchor='nw')
+        self.set_value('off')
+
+    def init_digits(self):
+        """ Load them pngs"""
+        if not Digit.digits:
+            for i in list(range(10)) + ['-', 'off']:
+                img = Image.open("{}/counter_{}.png".format(image_dir, i))
+                self.check_size(img)
+                Digit.digits[i] = ImageTk.PhotoImage(img)
+
+    def check_size(self, image):
+        if Digit.digit_size is None:
+            Digit.digit_size = image.size
+        else:
+            assert image.size == Digit.digit_size
+
+    def set_value(self, n):
+        self.mastercanvas.itemconfig(self.image_reference, image=Digit.digits[n])
+
 
 class Counter(tkinter.Frame):
     border_images = {}
+    digit_class = Digit
     def create_widgets(self):
         self.digits = []
         display_width = self.display_width
@@ -415,36 +445,22 @@ class Counter(tkinter.Frame):
         # Another way would be to use bind tags so we can listen to events from
         # the parent container (Counter), but it doesn't fit in nicely with
         # the current events system.
-        self.canvas = tkinter.Canvas(self, width=13*display_width, height=23,
-                         highlightthickness=0)
+        self.canvas = tkinter.Canvas(self, highlightthickness=0)
         for i in range(display_width):
-            digit = Digit(self.canvas, i)
+            digit = self.digit_class(self.canvas, i)
             self.digits.append(digit)
+        canvas_w, canvas_h = self.display_size
+        self.canvas.config(width=canvas_w, height=canvas_h)
         self.canvas.grid(row=1,column=1,columnspan=display_width)
+        
+        self.init_border_images()
 
-        # Left border
-        self.border_left = tkinter.Canvas(self, width=1, height=25,
-                                          highlightthickness=0)
-        self.border_left.create_image((0,0), anchor='nw',
-                                      image=self.border_images['l'])
-        # Top border
-        self.border_top = tkinter.Canvas(self, width=13*display_width,
-                                         height=1, highlightthickness=0)
-        for i in range(display_width):
-            self.border_top.create_image((13*i,0), anchor='nw',
-                                         image=self.border_images['t'])
-        # Bottom border
-        self.border_bot = tkinter.Canvas(self, width=13*display_width,
-                                         height=1, highlightthickness=0)
-        for i in range(display_width):
-            self.border_bot.create_image((13*i,0), anchor='nw',
-                                         image=self.border_images['b'])
-        # Right border
-        self.border_right = tkinter.Canvas(self, width=1, height=25,
-                                           highlightthickness=0)
-        self.border_right.create_image((0,0), anchor='nw',
-                                       image=self.border_images['r'])
-
+        self.border_left = BorderCanvas(self, self.border_images['l'], 1)
+        self.border_top = BorderCanvas(self, self.border_images['t'],
+                                       self.display_width, 'h')
+        self.border_bot = BorderCanvas(self, self.border_images['b'],
+                                       self.display_width, 'h')
+        self.border_right = BorderCanvas(self, self.border_images['r'], 1)
         # Grid the borders in
         self.border_left.grid(column=0, rowspan=3, row=0)
         self.border_top.grid(column=1, row=0, columnspan=display_width)
@@ -454,14 +470,14 @@ class Counter(tkinter.Frame):
     def __init__(self, master, display_width):
         super().__init__(master)
         self.display_width = display_width
-        self.init_border_images()
         self.create_widgets()
 
     def init_border_images(self):
         if not self.border_images:
             for key in ('l', 'r', 't', 'b'):
                 img = Image.open("{}/counter_border_{}.png".format(image_dir, key))
-                self.border_images[key] = ImageTk.PhotoImage(img)
+                self.border_images[key] = img
+                
 
     def set_value(self, n):
         digits = self.display_width
@@ -488,28 +504,29 @@ class Counter(tkinter.Frame):
         for j in range(i, digits):
             self.digits[digits-1-j].set_value('off')
 
+    def display_off(self):
+        for i in range(self.display_width):
+            self.digits[i].set_value('off')
 
-class Digit:
-    digits = {}
-    def __init__(self, mastercanvas, i):
-        self.mastercanvas = mastercanvas
-        self.i = i
-        self.init_digits()
-        self.image_reference = self.mastercanvas.create_image((i*13, 0), anchor='nw')
-        self.set_value(0)
+    def get_size(self):
+        width = self.border_images['l'].size[0]
+        width += self.display_size[0]
+        width += self.border_images['r'].size[0]
 
-    def init_digits(self):
-        if not Digit.digits:
-            for i in list(range(10)) + ['-', 'off']:
-                img = Image.open("{}/counter_{}.png".format(image_dir, i))
-                Digit.digits[i] = ImageTk.PhotoImage(img)
+        height = self.border_images['l'].size[1]
+        return (width, height)
 
-    def set_value(self, n):
-        self.mastercanvas.itemconfig(self.image_reference, image=Digit.digits[n])
+    @property
+    def display_size(self):
+        w, h = self.digit_class.digit_size
+        return (w*self.display_width, h)
+        
+
 
 class Panel(tkinter.Frame):
     def __init__(self, master, width):
-        super().__init__(master, width=width, height=26)
+        super().__init__(master)
+        self.width = width
         self.mine_counter = Counter(self, 8)
         self.mine_counter.grid(row=0, column=0, padx=3)
         self.face_button = FaceButton(self)
@@ -518,21 +535,40 @@ class Panel(tkinter.Frame):
         self.timer = Counter(self, 8)
         self.timer.grid(row=0, column=2, padx=3)
         self.config(background="#c0c0c0")
+        w, h = self.get_size()
+        self.config(width=w, height=h)
 
         self.mine_counter.set_value(0)
         self.timer.set_value(0)
 
+    def set_size(self, width, height):
+        self.config(width=width, height=height)
+
+    @property
+    def counter_size(self):
+        return self.counter.get_size()
+
+    def get_size(self):
+        counter_size = self.mine_counter.get_size()
+        face_size = self.face_button.get_size()
+        height = max(counter_size[1], face_size[1])
+        return self.width, height
+        
+
+
 class FaceButton(tkinter.Frame):
     face_images = {}
     def __init__(self, master):
-        super().__init__(master, width=26, height=26)
+        super().__init__(master)
         if not self.face_images:
             self.init_face_images()
         self.create_widgets()
+        w, h = self.get_size()
+        self.config(width=w, height=h)
 
     def create_widgets(self):
-        self.canvas = tkinter.Canvas(self, width=26, height=26,
-                                     highlightthickness=0)
+        w, h = self.get_size()
+        self.canvas = tkinter.Canvas(self, width=w, height=h, highlightthickness=0)
         self.canvas.pack()
         self.image_reference = self.canvas.create_image((0,0), anchor='nw')
         self.set_face('happy')
@@ -545,3 +581,8 @@ class FaceButton(tkinter.Frame):
     def set_face(self, face):
         img = self.face_images[face]
         self.canvas.itemconfig(self.image_reference, image=img)
+
+    def get_size(self):
+        happy_face = self.face_images['happy']
+        w, h = happy_face.width(), happy_face.height()        
+        return w, h
