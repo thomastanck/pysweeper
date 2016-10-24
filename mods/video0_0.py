@@ -65,6 +65,7 @@ def _seconds():
     return ["SECONDS", int(time.time())]
 
 def _gamedisplay_positions(gamedisplay):
+    gamedisplay.display.update_idletasks()
     widgets = [
         (gamedisplay.display, "DISPLAY"            , gamedisplay.display                    ),
         (gamedisplay.display, "PANEL"              , gamedisplay.panel                      ),
