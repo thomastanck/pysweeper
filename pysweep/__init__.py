@@ -1,4 +1,4 @@
-from pysweep.time import time
+from pysweep.time import time, seconds
 import pysweep.util as util
 
 from pysweep.menu import Menu

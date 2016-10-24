@@ -63,7 +63,7 @@ def _version():
 def _time():
     return ["TIME", pysweep.time()]
 def _seconds():
-    return ["SECONDS", pysweep.time() // 1000]
+    return ["SECONDS", pysweep.seconds()]
 
 def _gamedisplay_positions(gamedisplay):
     gamedisplay.display.update_idletasks()

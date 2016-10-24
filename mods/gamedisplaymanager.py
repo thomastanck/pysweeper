@@ -67,6 +67,7 @@ DisplayClick:        Called on RMB up over another part of the display
 
 """
 
+from pysweep.util import BoardClick
 
 # quickie macro to get the proper hook names
 def _gh(name): # get hook
@@ -81,37 +82,6 @@ LU = ("clicker", "LU")
 RD = ("clicker", "RD")
 RM = ("clicker", "RM")
 RU = ("clicker", "RU")
-
-
-
-class BoardClick:
-    # Stripped down version of the tkinter event, and adds some restrictions so it'll be easier to debug in the future
-    # One motivation for the attribute restrictions is that we frequently compute row/col out of x/y.
-    # In order to prevent mixing up events which are supposed to have x/y and events which are supposed to have row/col,
-    # we'll simply force BoardClick to use row/col only.
-    __isfrozen = False
-    tile_size = (16, 16)
-    def __setattr__(self, key, value):
-        if self.__isfrozen and not hasattr(self, key):
-            raise TypeError( "%r is a frozen class, cannot set %s" % (self, key))
-        object.__setattr__(self, key, value)
-
-    def __init__(self, event=None, time=0, row=0, col=0, lmb=False, rmb=False):
-        self.event = event
-        self.time = time
-        self.row = row
-        self.col = col
-        self.lmb = lmb
-        self.rmb = rmb
-        self.__isfrozen = True
-
-    def fromClickerEvent(self, e):
-        self.event = e.event # "LD", "LU", "M", etc.
-        self.time = e.time
-        self.row = e.y//self.tile_size[1]
-        self.col = e.x//self.tile_size[0]
-        self.lmb = e.lmb
-        self.rmb = e.rmb
 
 
 class GameDisplayManager:
