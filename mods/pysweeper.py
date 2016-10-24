@@ -336,12 +336,12 @@ class PySweeper:
 
         if (row, col) in self.flagged:
 
-        self.vid.add_command(["UNFLAG", time.time(), row, col])
+            self.vid.add_command(["UNFLAG", time.time(), row, col])
             self.flagged.remove((row, col))
             self.gamedisplay.set_tile_unopened(row, col)
         else:
 
-        self.vid.add_command(["FLAG", time.time(), row, col])
+            self.vid.add_command(["FLAG", time.time(), row, col])
             self.flagged.append((row, col))
             self.gamedisplay.set_tile_flag(row, col)
 
