@@ -95,7 +95,7 @@ def _gamedisplay_positions(gamedisplay):
                 tup[2].winfo_width(),
                 tup[2].winfo_height(),
             ],
-        zip(*widgets))
+        widgets)
 
 def _board_info(gamedisplay):
     return [
