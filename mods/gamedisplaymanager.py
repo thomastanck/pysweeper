@@ -328,8 +328,8 @@ class GameDisplayManager:
     def board_undepress_tiles(self, chord, e_):
         # Helper function
         while self.depressed_tiles:
-            e = BoardClick(e_.event, e_.time, *self.depressed_tiles.pop(), e_.lmb, e_.rmb)
-            # e.row, e.col = self.depressed_tiles.pop()
+            e = BoardClick(e_.event, e_.time, 0, 0, e_.lmb, e_.rmb)
+            e.row, e.col = self.depressed_tiles.pop()
             self.pysweep.handle_event(_gh("TileUndepress"), e)
             if chord:
                 self.pysweep.handle_event(_gh("TileChordUndepress"), e)

@@ -89,20 +89,20 @@ def _gamedisplay_positions(gamedisplay):
         (gamedisplay.display, "BORDER_BOT_RIGHT"   , gamedisplay.display.border_bot_right   ),
     ]
     return map(
-        lambda root,name,widget:
+        lambda tup:
             [
-                name,
-                widget.winfo_rootx() - root.winfo_rootx(),
-                widget.winfo_rooty() - root.winfo_rooty(),
-                widget.winfo_width(),
-                widget.winfo_height(),
+                tup[1],
+                tup[2].winfo_rootx() - tup[0].winfo_rootx(),
+                tup[2].winfo_rooty() - tup[0].winfo_rooty(),
+                tup[2].winfo_width(),
+                tup[2].winfo_height(),
             ],
-        *zip(*widgets))
+        zip(*widgets))
 
 def _board_info(gamedisplay):
     return [
-        ["TILESIZE",  *gamedisplay.tile_size ],
-        ["BOARDSIZE", *gamedisplay.board_size],
+        ["TILESIZE",  gamedisplay.tile_size[0] , gamedisplay.tile_size[1] ],
+        ["BOARDSIZE", gamedisplay.board_size[0], gamedisplay.board_size[1]],
     ]
 
 def _game_info(gamemode, gameoptions):
