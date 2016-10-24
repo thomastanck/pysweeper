@@ -197,7 +197,7 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
             self.vid.extend(_display_event(e))
 
     def add_command(self, command):
-        if type(command != list) or type(command[0] != str):
+        if type(command) != list or type(command[0]) != str:
             raise TypeError('Commands must be lists where the first element is a string')
         self.vid.append(command)
 
