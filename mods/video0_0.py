@@ -7,7 +7,8 @@ we can get this file to read in 0.0 format but give us updated events, etc., whi
 the new class reads in a new format and gives us the same events (or more).
 """
 
-import time
+import pysweep
+
 import json
 import zlib
 
@@ -60,9 +61,9 @@ def _video_version():
 def _version():
     return ["VERSION", pysweeper_version]
 def _time():
-    return ["TIME", time.time()]
+    return ["TIME", pysweep.time()]
 def _seconds():
-    return ["SECONDS", int(time.time())]
+    return ["SECONDS", pysweep.time() // 1000]
 
 def _gamedisplay_positions(gamedisplay):
     gamedisplay.display.update_idletasks()

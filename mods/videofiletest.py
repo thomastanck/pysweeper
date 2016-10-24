@@ -3,7 +3,6 @@ import tkinter
 from pysweep.util import gamemode
 from pysweep import HashRandom#, VideoFile
 
-import time
 import random
 
 game_mode_name = "Video File Test"

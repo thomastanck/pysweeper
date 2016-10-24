@@ -2,8 +2,8 @@ import tkinter
 
 from pysweep.util import gamemode
 from pysweep import HashRandom
+import pysweep
 
-import time
 import random
 
 game_mode_name = "Board Generator Test"
@@ -47,7 +47,7 @@ class BoardGeneratorTest:
         self.minecount = 0
 
         self.rng = HashRandom()
-        self.rng.update("TIME {}\n".format(time.time()))
+        self.rng.update("TIME {}\n".format(pysweep.time()))
         self.rng.update("RANDOM {}\n".format(random.random()))
 
         mines_left = 99
