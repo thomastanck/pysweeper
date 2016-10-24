@@ -1,4 +1,5 @@
 import tkinter
+import tkinter.filedialog
 
 from pysweep.util import gamemode
 
@@ -26,14 +27,16 @@ class Player:
     def on_enable(self, hn, e):
         print("enabled!")
         self.window = tkinter.Toplevel(self.master)
-        self.rewindbutton = tkinter.Button(self.window, text="Bek", command=self.rewind)
+        self.rewindbutton = tkinter.Button(self.window, text="Bekku", command=self.rewind)
         self.playbutton = tkinter.Button(self.window, text="Purei", command=self.play)
         self.forwardbutton = tkinter.Button(self.window, text="Foowaado", command=self.forward)
+        self.loadbutton = tkinter.Button(self.window, text="Loodo", command=self.load)
         # step forward backward, other images and stuff, etc
         # You'll probably want Frames and Canvases in here.
         self.rewindbutton.pack()
         self.playbutton.pack()
         self.forwardbutton.pack()
+        self.loadbutton.pack()
 
     @gamemode(game_mode_name)
     def on_disable(self, hn, e):
@@ -47,6 +50,14 @@ class Player:
         print("play pressed")
     def forward(self):
         print("forward pressed")
+    def load(self):
+        print("load pressed")
+        filename = tkinter.filedialog.askopenfilename()
+        print("filename: {}".format(filename))
+        f = open(filename)
+        contents = f.read()
+        print("contents:")
+        print(contents)
 
 
 mods = {"Player": Player}
