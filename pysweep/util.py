@@ -9,6 +9,13 @@ def gamemode(game_mode_name):
         return wrapper
     return _allow_events
 
+def own_game_mode(f):
+    def wrapper(self, *args, **kwargs):
+        if self.gamemodeselector.is_enabled(self.game_mode_name):
+            return f(self, *args, **kwargs)
+        else:
+            return
+    return wrapper
 
 
 class ClickerEvent:

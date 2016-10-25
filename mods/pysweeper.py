@@ -1,6 +1,6 @@
 import tkinter
 
-from pysweep.util import gamemode, BoardClick
+from pysweep.util import gamemode, own_game_mode, BoardClick
 from pysweep import HashRandom, Timer, Menu
 import pysweep
 
@@ -51,15 +51,17 @@ def opened(f):
             return
     return wrapper
 
-game_mode_name = "PySweeper"
-
 class PySweeper:
+    game_mode_name = "PySweeper"
     hooks = {}
     required_events = [
         ("pysweep", "<F2>"),
         ("pysweep", "<F3>"),
     ]
     required_protocols = []
+
+    rng_class = HashRandom
+    is_default_mode = True
 
     # board events: to board manager
     # pysweep motion: record to vid file
@@ -95,12 +97,13 @@ class PySweeper:
 
     def modsloaded(self, hn, e):
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
-        self.gamemodeselector.register_game_mode(game_mode_name, priority=0, default=True)
+        self.gamemodeselector.register_game_mode(self.game_mode_name,
+                                                 priority=0, default=self.is_default_mode)
 
         self.gamedisplay = self.pysweep.gamedisplay
 
         self.vidmod = self.pysweep.mods["VideoFile"]
-        self.vid = self.vidmod.new_video_file(self.gamedisplay, game_mode_name, "Expert")
+        self.vid = self.vidmod.new_video_file(self.gamedisplay, self.game_mode_name, "Expert")
 
         self.timer = Timer(self.master, self.timercallback, period=1, resolution=0.01)
 
@@ -121,14 +124,14 @@ class PySweeper:
         self.vid.add_command(["ADDSEED", repr(seed)])
         self.rng.update(repr(seed))
 
-    @gamemode(game_mode_name)
+    @own_game_mode
     def onenable(self, hn, e):
         self.new_game(hn, e)
 
         Menu.add_menu("Mode", self.menu)
         self.menu.invoke(1)
 
-    @gamemode(game_mode_name)
+    @own_game_mode
     def ondisable(self, hn, e):
         self.timer.stop_timer()
         self.gamedisplay.reset_board()
@@ -143,7 +146,7 @@ class PySweeper:
     def testingmode(self):
         self.testing = True
 
-    @gamemode(game_mode_name)
+    @own_game_mode
     def on_mouse_move(self, hn, e_):
         e_.x = e_.x + e_.widget.winfo_rootx() - self.gamedisplay.board.winfo_rootx()
         e_.y = e_.y + e_.widget.winfo_rooty() - self.gamedisplay.board.winfo_rooty()
@@ -153,7 +156,7 @@ class PySweeper:
             self.prev_pos = e.row, e.col
             self._add_seed(["MOVE", e.time//1000, e.row, e.col])
 
-    @gamemode(game_mode_name)
+    @own_game_mode
     def new_game(self, hn, e):
         width, height = self.gamedisplay.board_size
 
@@ -187,10 +190,10 @@ class PySweeper:
         if self.num_mines > area - 1:
             raise ValueException('More mines than spaces')
 
-        self.rng = HashRandom()
+        self.rng = self.rng_class()
 
         self.vidmod.del_video_file(self.vid)
-        self.vid = self.vidmod.new_video_file(self.gamedisplay, game_mode_name, "Expert")
+        self.vid = self.vidmod.new_video_file(self.gamedisplay, self.game_mode_name, "Expert")
         self._add_seed(["SECONDS", pysweep.seconds()])
         self.vid.add_command(["NUMMINES", self.num_mines])
         self._add_seed(["NUMMINES", self.num_mines])
@@ -256,7 +259,7 @@ class PySweeper:
 
         self.vid.stop()
 
-    @gamemode(game_mode_name)
+    @own_game_mode
     @notended
     def tile_depress(self, hn, e):
         self.gamedisplay.set_tile_number(e.row, e.col, 0)
@@ -272,7 +275,7 @@ class PySweeper:
     def face_undepress(self, hn, e):
         self.gamedisplay.set_face_happy()
 
-    @gamemode(game_mode_name)
+    @own_game_mode
     @notended
     @checkbounds
     @notopened
@@ -359,7 +362,7 @@ class PySweeper:
                 number += 1
         return number
 
-    @gamemode(game_mode_name)
+    @own_game_mode
     @notended
     @notopened
     def tile_toggle_flag(self, hn, e):
@@ -381,7 +384,7 @@ class PySweeper:
 
         self.gamedisplay.set_mine_counter(self.num_mines - len(self.flagged))
 
-    @gamemode(game_mode_name)
+    @own_game_mode
     @notended
     @opened
     def tile_chord(self, hn, e):
