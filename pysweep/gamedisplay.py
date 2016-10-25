@@ -241,7 +241,7 @@ class GameDisplay(tkinter.Frame):
         # the main playing area:
         self.board = Board(self, self.board_width, self.board_height)
         tile_size = self.board.tile_size
-        board_canvas_w, board_canvas_h = self.board.canvas_size
+        board_canvas_w, board_canvas_h = self.board.size
 
         # Grid row 0: Top border
         border_images = self.border_images
@@ -307,8 +307,8 @@ class GameDisplay(tkinter.Frame):
         super().__init__(master)
         self.load_border_images()
         self.create_widgets()
-        board_size = self.board.canvas_size
-        self.config(width=board_size[0], height=board_size[1])
+        #board_size = self.board.required_size
+        #self.config(width=board_size[0], height=board_size[1])
 
 
 
@@ -327,24 +327,24 @@ class Board(tkinter.Frame):
         self.tile_size = None
         self.update_canvas_queued = False
         self.load_tiles()
-        w, h = self.canvas_size
-        self.canvas = tkinter.Canvas(self, width=w, height=h,
-                                     highlightthickness=0)
+        self.canvas = tkinter.Canvas(self, highlightthickness=0)
         self.canvas_img_ref = self.canvas.create_image((0,0), anchor="nw")
         self.init_canvas()
 
-        self.canvas.pack()
+        self.canvas.pack()        
 
     def resize(self, width, height):
         self.board_width = width
         self.board_height = height
-        self.canvas.config(width=self.canvas_size[0], height=self.canvas_size[1])
         self.init_canvas()
 
     def init_canvas(self):
-        self.canvas_rgb = Image.new(size=self.canvas_size, mode="RGB")
+        self.canvas_rgb = Image.new(size=self.size, mode="RGB")
         self.canvas_img = ImageTk.PhotoImage(self.canvas_rgb)
         self.canvas.itemconfig(self.canvas_img_ref, image=self.canvas_img)
+        w, h = self.size
+        self.canvas.config(width=w, height=h)
+        self.canvas.config()
         for col in range(self.board_width):
             for row in range(self.board_height):
                 self.draw_tile(row, col, "unopened")
@@ -401,11 +401,17 @@ class Board(tkinter.Frame):
         for i in range(height):
             for j in range(width):
                 self.draw_tile(i, j, "unopened")
+    @property
+    def width(self):
+        return self.tile_size[0]*self.board_width
 
     @property
-    def canvas_size(self):
-        return (self.tile_size[0]*self.board_width,
-                self.tile_size[1]*self.board_height)
+    def height(self):
+        return self.tile_size[1]*self.board_height
+
+    @property
+    def size(self):
+        return (self.width, self.height)
 
 
 class Digit:
@@ -554,7 +560,7 @@ class Panel(tkinter.Frame):
 
     def get_size(self):
         counter_size = self.mine_counter.get_size()
-        face_size = self.face_button.get_size()
+        face_size = self.face_button.size
         height = max(counter_size[1], face_size[1])
         return self.width, height
         
@@ -562,17 +568,16 @@ class Panel(tkinter.Frame):
 
 class FaceButton(tkinter.Frame):
     face_images = {}
+    face_size = None
     def __init__(self, master):
         super().__init__(master)
         if not self.face_images:
             self.init_face_images()
         self.create_widgets()
-        w, h = self.get_size()
-        self.config(width=w, height=h)
 
     def create_widgets(self):
-        w, h = self.get_size()
-        self.canvas = tkinter.Canvas(self, width=w, height=h, highlightthickness=0)
+        self.canvas = tkinter.Canvas(self, width=self.width,
+                                     height=self.height, highlightthickness=0)
         self.canvas.pack()
         self.image_reference = self.canvas.create_image((0,0), anchor='nw')
         self.set_face('happy')
@@ -581,12 +586,23 @@ class FaceButton(tkinter.Frame):
         for key in ["happy", "pressed", "blast", "cool", "nervous"]:
             img = Image.open("{}/face_{}.png".format(image_dir, key))
             self.face_images[key] = ImageTk.PhotoImage(img)
+            if not self.face_size:
+                type(self).face_size = img.size
 
     def set_face(self, face):
         img = self.face_images[face]
         self.canvas.itemconfig(self.image_reference, image=img)
 
-    def get_size(self):
-        happy_face = self.face_images['happy']
-        w, h = happy_face.width(), happy_face.height()        
-        return w, h
+    @property
+    def size(self):
+        return self.face_size
+
+    @property
+    def width(self):
+        return self.face_size[0]
+
+    @property
+    def height(self):
+        return self.face_size[1]
+
+    
