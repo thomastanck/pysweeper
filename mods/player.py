@@ -1,6 +1,8 @@
 import tkinter
 import tkinter.filedialog
 
+import sys
+
 from pysweep.util import gamemode
 from pysweep import Timer
 import pysweep
@@ -50,6 +52,7 @@ class Player:
         self.timer = Timer(self.master, self.tick, period=0.001, resolution=0.001)
         self.vid = None
         self.vid_start = 0
+        self.vid_pos = 0
 
     def mods_loaded(self, hn, e):
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
@@ -59,17 +62,20 @@ class Player:
     def tick(self, elapsed, sincelasttick):
         if self.vid:
             if self.vid_start == 0:
-                # find vidstart
-                for event in self.vid:
+                # find vid_start
+                for event in self.vid.vid:
                      if event[0] in display_events:
-                         self.vidstart = event[1]
+                         self.vid_start = event[1]
+                         self.vid_pos = self.vid_start
                          break
             end = self.vid_start + elapsed
-            start = end - sincelasttick
-            for event in self.vid:
-                if event[0] in display_events and start <= event[1] < end:
+            start = self.vid_pos
+            for event in self.vid.vid:
+                if event[0] in display_events.keys() and start <= event[1] < end:
                     args = event[2:]
+                    print(event)
                     display_events[event[0]](self.gamedisplay, *args)
+            self.vid_pos = end
 
     @gamemode(game_mode_name)
     def on_enable(self, hn, e):
@@ -96,13 +102,27 @@ class Player:
         print("rewind pressed")
         self.timer.stop_timer()
         self.timer = Timer(self.master, self.tick, period=0.001, resolution=0.001)
-        self.tick(0,0)
+        self.vid_start = 0
+        self.vid_pos = 0
+        self.gamedisplay.reset_board()
+        self.gamedisplay.set_face_happy()
+        self.gamedisplay.set_timer(0)
+        self.gamedisplay.set_mine_counter(0)
+
     def play(self):
         print("play pressed")
+        self.timer.stop_timer()
+        self.timer = Timer(self.master, self.tick, period=0.001, resolution=0.001)
+        self.vid_start = 0
+        self.vid_pos = 0
+        self.gamedisplay.reset_board()
+        self.gamedisplay.set_face_happy()
+        self.gamedisplay.set_timer(0)
+        self.gamedisplay.set_mine_counter(0)
         self.timer.start_timer()
     def forward(self):
         print("forward pressed")
-        self.timer.stop()
+        self.timer.stop_timer()
         self.timer = Timer(self.master, self.tick, period=0.001, resolution=0.001)
         self.tick(sys.maxsize,sys.maxsize)
     def load(self):
@@ -111,8 +131,7 @@ class Player:
         print("filename: {}".format(filename))
         f = open(filename, 'rb')
         contents = f.read()
-        print("contents:")
-        print(contents)
+        self.rewind()
         self.vid = self.vidmod.new_video_file(self.pysweep.gamedisplay, "","")
         try:
             self.vid.vidbytes = contents
@@ -121,8 +140,6 @@ class Player:
                 self.vid.vidstr = contents.decode('utf-8')
             except:
                 raise ValueError('Failed to read video file')
-        print('Video file:')
-        print(self.vid.vid)
 
 
 mods = {"Player": Player}
