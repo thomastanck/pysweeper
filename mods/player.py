@@ -5,14 +5,6 @@ from pysweep.util import gamemode
 from pysweep import Timer
 import pysweep
 
-display_events = {
-    "TILENUMBER": num,
-    "TILEOTHER" : oth,
-    "COUNTER"   : coun,
-    "FACE"      : fac,
-    "TIMER"     : tim,
-}
-
 def num(gamedisplay, n, r, c):
     gamedisplay.set_tile_number(r, c, n)
 
@@ -27,6 +19,15 @@ def fac(gamedisplay, t):
 
 def tim(gamedisplay, n):
     gamedisplay.set_timer(n)
+
+
+display_events = {
+    "TILENUMBER": num,
+    "TILEOTHER" : oth,
+    "COUNTER"   : coun,
+    "FACE"      : fac,
+    "TIMER"     : tim,
+}
 
 game_mode_name = "Video Player"
 
