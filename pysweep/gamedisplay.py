@@ -183,7 +183,7 @@ class GameDisplayWrapper:
         self.timer.set_value(t)
 
     def set_mine_counter(self, t):
-        self.send_event(GameDisplayEvent("MineCounter", pysweep.time(), t))
+        self.send_event(GameDisplayEvent("Counter", pysweep.time(), t))
         self.mine_counter.set_value(t)
 
 class BorderCanvas(tkinter.Canvas):
