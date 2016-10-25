@@ -91,6 +91,7 @@ def _gamedisplay_positions(gamedisplay):
     return map(
         lambda tup:
             [
+                "DISPLAYMETA",
                 tup[1],
                 tup[2].winfo_rootx() - tup[0].winfo_rootx(),
                 tup[2].winfo_rooty() - tup[0].winfo_rooty(),
@@ -101,8 +102,8 @@ def _gamedisplay_positions(gamedisplay):
 
 def _board_info(gamedisplay):
     return [
-        ["TILESIZE",  gamedisplay.tile_size[0] , gamedisplay.tile_size[1] ],
-        ["BOARDSIZE", gamedisplay.board_size[0], gamedisplay.board_size[1]],
+        ["DISPLAYMETA", "TILESIZE",  gamedisplay.tile_size[0] , gamedisplay.tile_size[1] ],
+        ["DISPLAYMETA", "BOARDSIZE", gamedisplay.board_size[0], gamedisplay.board_size[1]],
     ]
 
 def _game_info(gamemode, gameoptions):
@@ -199,7 +200,8 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
     def add_command(self, command):
         if type(command) != list or type(command[0]) != str:
             raise TypeError('Commands must be lists where the first element is a string')
-        self.vid.append(command)
+        event = ["COMMAND"] + command
+        self.vid.append(event)
 
 
 mods = {"VideoFile0_0_0_0": VideoFileFactory, "VideoFile": VideoFileFactory}
