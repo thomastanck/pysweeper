@@ -2,6 +2,7 @@ import tkinter
 import tkinter.filedialog
 
 from pysweep.util import gamemode
+import pysweep
 
 game_mode_name = "Video Player"
 
@@ -21,6 +22,7 @@ class Player:
 
     def mods_loaded(self, hn, e):
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
+        self.vidmod = self.pysweep.mods["VideoFile"]
         self.gamemodeselector.register_game_mode(game_mode_name)
 
     @gamemode(game_mode_name)
@@ -58,6 +60,16 @@ class Player:
         contents = f.read()
         print("contents:")
         print(contents)
+        self.vid = self.vidmod.new_video_file(self.pysweep.gamedisplay, "","")
+        try:
+            self.vid.vidbytes = contents
+        except:
+            try:
+                self.vid.vidstr = contents.decode('utf-8')
+            except:
+                raise ValueError('Failed to read video file')
+        print('Video file:')
+        print(self.vid.vid)
 
 
 mods = {"Player": Player}
