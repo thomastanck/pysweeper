@@ -1,4 +1,5 @@
 import tkinter
+import tkinter.filedialog
 
 from pysweep.util import gamemode, own_game_mode, BoardClick
 from pysweep import HashRandom, Timer, Menu
@@ -85,7 +86,7 @@ class PySweeper:
             ("gamedisplaymanager", "FaceUndepress"): [self.face_undepress],
 
             ("pysweep", "<F2>"): [self.new_game],
-            ("pysweep", "<F3>"): [self.print_vid], # TODO: Create a UPK game. for now use it to print the video file :>
+            ("pysweep", "<F3>"): [self.save_vid], # TODO: Create a UPK game. for now use it to print the video file :>
 
             ("pysweep", "AllModsLoaded"): [self.modsloaded],
 
@@ -112,8 +113,11 @@ class PySweeper:
         self.menu.add_radiobutton(label="Playing Mode", variable=self.menuvar, command=self.playingmode)
         self.menu.add_radiobutton(label="Testing Mode", variable=self.menuvar, command=self.testingmode)
 
-    def print_vid(self, hn, e):
-        print(self.vid.vidstr)
+    @own_game_mode
+    def save_vid(self, hn, e):
+        f = tkinter.filedialog.asksaveasfile(mode='wb', defaultextension='.pyvf')
+        f.write(self.vid.vidbytes)
+        f.close()
 
     def timercallback(self, elapsed, sincelasttick):
         self.gamedisplay.set_timer(math.ceil(elapsed/1000))
