@@ -32,7 +32,7 @@ class Player:
         self.rewindbutton = tkinter.Button(self.window, text="Bekku", command=self.rewind)
         self.playbutton = tkinter.Button(self.window, text="Purei", command=self.play)
         self.forwardbutton = tkinter.Button(self.window, text="Foowaado", command=self.forward)
-        self.loadbutton = tkinter.Button(self.window, text="Loodo", command=self.load)
+        self.loadbutton = tkinter.Button(self.window, text="Roodo", command=self.load)
         # step forward backward, other images and stuff, etc
         # You'll probably want Frames and Canvases in here.
         self.rewindbutton.pack()
@@ -44,7 +44,7 @@ class Player:
     def on_disable(self, hn, e):
         print("disabled!")
         self.window.destroy()
-        self.window = null
+        del self.window
 
     def rewind(self):
         print("rewind pressed")
@@ -56,7 +56,7 @@ class Player:
         print("load pressed")
         filename = tkinter.filedialog.askopenfilename()
         print("filename: {}".format(filename))
-        f = open(filename)
+        f = open(filename, 'rb')
         contents = f.read()
         print("contents:")
         print(contents)
