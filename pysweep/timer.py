@@ -8,15 +8,19 @@ class Timer:
         self.period = int(period * 1000)
         self.resolution = int(resolution * 1000)
         self.start_time = 0
+        self.pause_time = 0
+        self.discounted_time = 0
         self.previous_tick_time = 0
         self.next_tick_time = 0
         self.stop_time = 0
-        self.timing_mode = False
+        self.timing_mode = 0
         self.poll_freq = max(self.resolution, 1) # poll at the requested resolution, converting to milliseconds.
 
     def start_timer(self):
         self.start_time = pysweep.time()
         self.previous_tick_time = self.start_time
+        self.pause_time = 0
+        self.discounted_time = 0
         self.next_tick_time = self.start_time # Used to have + self.period, but have it send two callbacks now so pysweeper can ceil the timer nicely :)
         self.callback(0, 0)
 
@@ -28,7 +32,7 @@ class Timer:
     def poll_timer(self):
         if self.timing_mode == True:
             curtime = pysweep.time()
-            elapsed = curtime - self.start_time
+            elapsed = curtime - self.start_time - self.discounted_time
             sincelasttick = curtime - self.previous_tick_time
             if curtime > self.next_tick_time:
                 self.previous_tick_time = curtime
@@ -38,7 +42,7 @@ class Timer:
             self.master.after(self.poll_freq, self.poll_timer)
 
     def stop_timer(self):
-        if not self.timing_mode:
+        if self.timing_mode == False:
             return # Do nothing if already stopped
         self.stop_time = pysweep.time()
         self.timing_mode = False
@@ -51,6 +55,33 @@ class Timer:
         self.stop_time = curtime
 
         self.callback(elapsed, sincelasttick)
+
+    def pause_timer(self):
+        if self.timing_mode == False:
+            return
+        self.timing_mode = False
+        curtime = pysweep.time()
+        self.pause_time = curtime
+        elapsed = curtime - self.start_time - self.discounted_time
+        sincelasttick = curtime - self.previous_tick_time
+        self.previous_tick_time = curtime
+        self.next_tick_time = self.period - sincelasttick
+
+        self.callback(elapsed, sincelasttick)
+        
+    def resume_timer(self):
+        if self.timing_mode == True:
+            return
+        curtime = pysweep.time()
+        self.discounted_time += curtime - self.pause_time
+        elapsed = curtime - self.start_time - self.discounted_time
+        self.previous_tick_time = curtime
+        self.next_tick_time += curtime
+        sincelasttick = 0
+
+        self.callback(elapsed, sincelasttick)
+
+        self.poll_timer()
 
     def kill_timer(self):
         self.stop_timer()

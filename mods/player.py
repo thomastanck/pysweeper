@@ -20,6 +20,8 @@ class Player:
             ("gamemode", "DisableGameMode"): [self.on_disable],
         }
 
+        self.timer = Timer(self.master, self.tick, period=0.001, resolution=0.001)
+
     def mods_loaded(self, hn, e):
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
         self.vidmod = self.pysweep.mods["VideoFile"]
