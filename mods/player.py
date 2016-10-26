@@ -1,35 +1,16 @@
+from PIL import Image, ImageTk
+
 import tkinter
 import tkinter.filedialog
 
 import sys
 
+import json
+
 from pysweep.util import gamemode
 from pysweep import Timer
 import pysweep
-
-def num(gamedisplay, n, r, c):
-    gamedisplay.set_tile_number(r, c, n)
-
-def oth(gamedisplay, t, r, c):
-    gamedisplay.set_tile_other(r, c, t)
-
-def coun(gamedisplay, n):
-    gamedisplay.set_mine_counter(n)
-
-def fac(gamedisplay, t):
-    gamedisplay.set_face(t)
-
-def tim(gamedisplay, n):
-    gamedisplay.set_timer(n)
-
-
-display_events = {
-    "TILENUMBER": num,
-    "TILEOTHER" : oth,
-    "COUNTER"   : coun,
-    "FACE"      : fac,
-    "TIMER"     : tim,
-}
+from pysweep.gamedisplay import image_dir
 
 game_mode_name = "Video Player"
 
@@ -49,32 +30,68 @@ class Player:
 
         self.gamedisplay = self.pysweep.gamedisplay
 
+
+        self.display_events = {
+            "TILENUMBER": self.num,
+            "TILEOTHER" : self.oth,
+            "COUNTER"   : self.coun,
+            "FACE"      : self.fac,
+            "TIMER"     : self.tim,
+            "MOVE"      : self.mov,
+        }
+
         self.timer = Timer(self.master, self.tick, period=0.001, resolution=0.001)
         self.vid = None
         self.vid_start = 0
         self.vid_pos = 0
+
+        print("{}/cursor.png".format(image_dir))
+        self.cursorimg = Image.open("{}/cursor.png".format(image_dir))
+        self.cursortk = ImageTk.PhotoImage(self.cursorimg)
+        self.cursoritem = self.gamedisplay.board.canvas.create_image((0, 0), anchor="nw", image=self.cursortk)
+        self.gamedisplay.board.canvas.itemconfig(self.cursoritem, state="hidden")
+        # self.cursorcanvas = tkinter.Canvas(self.gamedisplay.board, width=newsize[0], height=newsize[1])
 
     def mods_loaded(self, hn, e):
         self.gamemodeselector = self.pysweep.mods["GameModeSelector"]
         self.vidmod = self.pysweep.mods["VideoFile"]
         self.gamemodeselector.register_game_mode(game_mode_name)
 
+    def num(self, n, r, c):
+        self.gamedisplay.set_tile_number(r, c, n)
+
+    def oth(self, t, r, c):
+        self.gamedisplay.set_tile_other(r, c, t)
+
+    def coun(self, n):
+        self.gamedisplay.set_mine_counter(n)
+
+    def fac(self, t):
+        self.gamedisplay.set_face(t)
+
+    def tim(self, n):
+        self.gamedisplay.set_timer(n)
+
+    def mov(self, x, y):
+        self.gamedisplay.board.canvas.coords(self.cursoritem, x, y)
+
+
     def tick(self, elapsed, sincelasttick):
         if self.vid:
             if self.vid_start == 0:
-                # find vid_start
+                # find vid_start time
                 for event in self.vid.vid:
-                     if event[0] in display_events:
+                     if event[0] in self.display_events:
                          self.vid_start = event[1]
                          self.vid_pos = self.vid_start
                          break
             end = self.vid_start + elapsed
             start = self.vid_pos
             for event in self.vid.vid:
-                if event[0] in display_events.keys() and start <= event[1] < end:
+                if event[0] in self.display_events.keys() and start <= event[1] < end:
                     args = event[2:]
                     print(event)
-                    display_events[event[0]](self.gamedisplay, *args)
+                    self.display_events[event[0]](*args)
             self.vid_pos = end
 
     @gamemode(game_mode_name)
@@ -91,12 +108,14 @@ class Player:
         self.playbutton.pack()
         self.forwardbutton.pack()
         self.loadbutton.pack()
+        self.gamedisplay.board.canvas.itemconfig(self.cursoritem, state="normal")
 
     @gamemode(game_mode_name)
     def on_disable(self, hn, e):
         print("disabled!")
         self.window.destroy()
         del self.window
+        self.gamedisplay.board.canvas.itemconfig(self.cursoritem, state="hidden")
 
     def rewind(self):
         print("rewind pressed")

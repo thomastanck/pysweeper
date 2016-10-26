@@ -331,7 +331,7 @@ class Board(tkinter.Frame):
         self.canvas_img_ref = self.canvas.create_image((0,0), anchor="nw")
         self.init_canvas()
 
-        self.canvas.pack()        
+        self.canvas.pack()
 
     def resize(self, width, height):
         self.board_width = width
@@ -462,7 +462,7 @@ class Counter(tkinter.Frame):
         canvas_w, canvas_h = self.display_size
         self.canvas.config(width=canvas_w, height=canvas_h)
         self.canvas.grid(row=1,column=1,columnspan=display_width)
-        
+
         self.init_border_images()
 
         self.border_left = BorderCanvas(self, self.border_images['l'], 1)
@@ -487,7 +487,7 @@ class Counter(tkinter.Frame):
             for key in ('l', 'r', 't', 'b'):
                 img = Image.open("{}/counter_border_{}.png".format(image_dir, key))
                 self.border_images[key] = img
-                
+
 
     def set_value(self, n):
         digits = self.display_width
@@ -530,7 +530,7 @@ class Counter(tkinter.Frame):
     def display_size(self):
         w, h = self.digit_class.digit_size
         return (w*self.display_width, h)
-        
+
 
 
 class Panel(tkinter.Frame):
@@ -563,7 +563,7 @@ class Panel(tkinter.Frame):
         face_size = self.face_button.size
         height = max(counter_size[1], face_size[1])
         return self.width, height
-        
+
 
 
 class FaceButton(tkinter.Frame):
@@ -605,4 +605,4 @@ class FaceButton(tkinter.Frame):
     def height(self):
         return self.face_size[1]
 
-    
+
