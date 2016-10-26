@@ -32,18 +32,30 @@ class Player:
 
 
         self.display_events = {
-            "TILENUMBER": self.num,
-            "TILEOTHER" : self.oth,
-            "COUNTER"   : self.coun,
-            "FACE"      : self.fac,
-            "TIMER"     : self.tim,
-            "MOVE"      : self.mov,
+            "TILENUMBER" ,
+            "TILEOTHER"  ,
+            "COUNTER"    ,
+            "FACE"       ,
+            "TIMER"      ,
+        }
+        self.events = {
+            "TILENUMBER" : self.num,
+            "TILEOTHER"  : self.oth,
+            "COUNTER"    : self.coun,
+            "FACE"       : self.fac,
+            "TIMER"      : self.tim,
+            "MOVE"       : self.mov,
         }
 
         self.timer = Timer(self.master, self.tick, period=0.001, resolution=0.001)
         self.vid = None
         self.vid_start = 0
         self.vid_pos = 0
+
+        self.boardx = 0
+        self.boardy = 0
+        self.boardwidth = 0
+        self.boardheight = 0
 
         print("{}/cursor.png".format(image_dir))
         self.cursorimg = Image.open("{}/cursor.png".format(image_dir))
@@ -73,8 +85,20 @@ class Player:
         self.gamedisplay.set_timer(n)
 
     def mov(self, x, y):
+        x -= self.boardx
+        y -= self.boardy
+        if self.boardwidth != 0:
+            x *= self.gamedisplay.board.winfo_width() / self.boardwidth
+        if self.boardheight != 0:
+            y *= self.gamedisplay.board.winfo_height() / self.boardheight
         self.gamedisplay.board.canvas.coords(self.cursoritem, x, y)
 
+    def meta(self, widget, x, y, width, height):
+        if widget == "BOARD":
+            self.boardx = x
+            self.boardy = y
+            self.boardwidth = width
+            self.boardheight = height
 
     def tick(self, elapsed, sincelasttick):
         if self.vid:
@@ -88,10 +112,13 @@ class Player:
             end = self.vid_start + elapsed
             start = self.vid_pos
             for event in self.vid.vid:
-                if event[0] in self.display_events.keys() and start <= event[1] < end:
+                if event[0] == "DISPLAYMETA" and event[1] == "BOARD":
+                    args = event[1:]
+                    self.meta(*args)
+                if event[0] in self.events.keys() and start <= event[1] < end:
                     args = event[2:]
                     print(event)
-                    self.display_events[event[0]](*args)
+                    self.events[event[0]](*args)
             self.vid_pos = end
 
     @gamemode(game_mode_name)
@@ -127,6 +154,10 @@ class Player:
         self.gamedisplay.set_face_happy()
         self.gamedisplay.set_timer(0)
         self.gamedisplay.set_mine_counter(0)
+        self.boardx = 0
+        self.boardy = 0
+        self.boardwidth = 0
+        self.boardheight = 0
 
     def play(self):
         print("play pressed")
