@@ -268,6 +268,8 @@ class GameDisplayManager:
                 #self.depressed_tiles.append((e.row, e.col))
                 #self.pysweep.handle_event(_gh("TileDepress"), e)
                 #self.pysweep.handle_event(_gh("TileSingleDepress"), e)
+        else:
+            self.board_set_depressed(set(), e)
 
     def board_open(self, hn, e):
         # Undepress currently depressed cells

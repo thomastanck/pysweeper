@@ -140,6 +140,7 @@ class Player:
     @gamemode(game_mode_name)
     def on_disable(self, hn, e):
         print("disabled!")
+        self.rewind()
         self.window.destroy()
         del self.window
         self.gamedisplay.board.canvas.itemconfig(self.cursoritem, state="hidden")
