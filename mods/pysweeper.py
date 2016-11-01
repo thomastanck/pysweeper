@@ -1,7 +1,7 @@
 import tkinter
 import tkinter.filedialog
 
-from pysweep.util import gamemode, own_game_mode, BoardClick
+from pysweep.util import own_game_mode, BoardClick
 from pysweep import HashRandom, Timer, Menu
 import pysweep
 
@@ -268,14 +268,14 @@ class PySweeper:
     def tile_depress(self, hn, e):
         self.gamedisplay.set_tile_number(e.row, e.col, 0)
         self.gamedisplay.set_face_nervous()
-    @gamemode(game_mode_name)
+    @own_game_mode
     def tile_undepress(self, hn, e):
         self.gamedisplay.set_tile_unopened(e.row, e.col)
         self.gamedisplay.set_face_happy()
-    @gamemode(game_mode_name)
+    @own_game_mode
     def face_depress(self, hn, e):
         self.gamedisplay.set_face_pressed()
-    @gamemode(game_mode_name)
+    @own_game_mode
     def face_undepress(self, hn, e):
         self.gamedisplay.set_face_happy()
 
