@@ -96,7 +96,6 @@ class StatsBox(tkinter.Toplevel):
         self.resizable(width=False, height=False)
         self.transient(master)
         self._last_geometry = None
-        self.bind("<ButtonPress>", self.pressed)
 
     def hide(self):
         self._last_geometry = self.geometry()
