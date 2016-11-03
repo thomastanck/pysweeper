@@ -18,8 +18,10 @@ class BoardEditor(Face):
             ("gamedisplaymanager", "TileLU"): [self.toggle_square],
             ("gamedisplaymanager", "TileLD"): [self.tile_down],
         })
-        self.mine_count = 0
         self._stats_box_geometry = None
+
+        self.board = BoardToShow(self.gamedisplay.board.board_width,
+                                 self.gamedisplay.board.board_height)
 
     
     def modsloaded(self, hn, e):
@@ -33,14 +35,19 @@ class BoardEditor(Face):
 
         self.menu_toggles = {
             'stats_box': tkinter.IntVar(value=1),
-            'show_numbers': tkinter.IntVar()
+            'show_numbers': tkinter.IntVar(),
+            'use_flags': tkinter.IntVar()
         }
 
         self.menu.add_checkbutton(label="Toggle stats box",
                                   variable=self.menu_toggles['stats_box'],
                                   command=self.show_hide_stats_box)
         self.menu.add_checkbutton(label="Show numbers",
-                                  variable=self.menu_toggles['show_numbers'])
+                                  variable=self.menu_toggles['show_numbers'],
+                                  command=self.update)
+        self.menu.add_checkbutton(label="Use flags",
+                                  variable=self.menu_toggles['use_flags'],
+                                  command=self.update)
 
     def create_stats_box(self):
         self.stats_box = StatsBox(self, "Board stats")
@@ -61,15 +68,11 @@ class BoardEditor(Face):
     @own_game_mode
     def toggle_square(self, hn, e):
         row, col = e.row, e.col
-        if self.gamedisplay.is_tile_mine(row, col):
-            self.gamedisplay.set_tile_unopened(row, col)
-            self.mine_count -= 1
-        elif self.gamedisplay.is_tile_unopened(row, col):
-            self.gamedisplay.set_tile_mine(row, col)
-            self.mine_count += 1
+
+        self.board.toggle_square(row, col)
+        self.update()
 
         self.gamedisplay.set_face_happy()
-        self.gamedisplay.set_mine_counter(self.mine_count)
 
     @own_game_mode
     def tile_down(self, hn, e):
@@ -77,8 +80,6 @@ class BoardEditor(Face):
 
     def face_button(self, hn, e):
         self.gamedisplay.reset_board()
-        self.mine_count = 0
-        self.gamedisplay.set_mine_counter(self.mine_count)
 
     def load_board(self):
         print("load_board")
@@ -97,6 +98,25 @@ class BoardEditor(Face):
         self.menu_toggles['stats_box'].set(0 if val else 1)
         self.show_hide_stats_box()
 
+    def update(self):
+        use_flags = self.menu_toggles['use_flags'].get()
+        show_numbers = self.menu_toggles['show_numbers'].get()
+        for row, col, mine in self.board:
+            if mine:
+                if use_flags:
+                    self.gamedisplay.set_tile_flag(row, col)
+                else:
+                    self.gamedisplay.set_tile_mine(row, col)
+            else:
+                if show_numbers:
+                    number = self.board.num_neighbours(row, col)
+                    self.gamedisplay.set_tile_number(row, col, number)
+                else:
+                    self.gamedisplay.set_tile_unopened(row, col)
+        mines = self.board.mines
+        self.gamedisplay.set_mine_counter(mines)
+        self.stats_box.set_value('mines', mines)
+
 class StatsEntry:
     def __init__(self, label, variable_name, value=''):
         self.label = label
@@ -106,8 +126,8 @@ class StatsEntry:
     def create_label(self, parent):
         self.parent = parent
         style = {
-            'bd': 1,
-            'relief': 'solid'
+            'bd': 0,
+            'anchor': "nw"
         }
         self.label_label = tkinter.Label(parent, text=self.label, **style)
         self.value_label = tkinter.Label(parent, textvariable=self.value, **style)
@@ -116,12 +136,23 @@ class StatsEntry:
         self.label_label.grid(row=row, column=0, sticky="EW")
         self.value_label.grid(row=row, column=1, sticky="EW")
 
+    def set_value(self, value):
+        self.value.set(value)
+
 class StatsBox(tkinter.Toplevel):
     entries = [
+        StatsEntry("Mines", "mines", 0),
         StatsEntry("3bv", "bbbv", 123),
         StatsEntry("Openings", "openings"),
         StatsEntry("Islands", "islands"),
     ]
+
+    style = {
+        'bd': 0,
+        'relief': 'solid',
+        'padx': 10,
+        'pady': 4
+    }
 
     def __init__(self, parent, title):
         super().__init__(parent.master)
@@ -136,7 +167,7 @@ class StatsBox(tkinter.Toplevel):
         self.create_labels()
         for column in range(2):
             self.grid_columnconfigure(column, minsize=75)
-
+        self.config(**self.style)
 
     def hide(self):
         self._last_geometry = self.geometry()
@@ -151,6 +182,48 @@ class StatsBox(tkinter.Toplevel):
         for i, entry in enumerate(self.entries):
             entry.create_label(self)
             entry.grid(row=i)
+
+    def set_value(self, name, value):
+        for entry in self.entries:
+            if entry.variable_name == name:
+                break
+        else:
+            return
+        entry.set_value(value)
+
+class BoardToShow:
+    def __init__(self, width, height):
+        self.grid = [[0]*width for __ in range(height)]
+        self.display = [["unopened"]*width for __ in range(height)]
+
+    def num_neighbours(self, row, col):
+        val = 0
+        for r in self.grid[max(row-1, 0):row+2]:
+            for c in r[max(col-1, 0):col+2]:
+                val += c
+        return val
+
+    @property
+    def mines(self):
+        total = 0
+        for r in self.grid:
+            for c in r:
+                total += c
+        return total
+
+    def get(self, row, col):
+        return self.grid[row][col]
+
+    def toggle_square(self, row, col):
+        value = self.grid[row][col]
+        new_val = 0 if value else 1
+        self.grid[row][col] = new_val
+
+    def __iter__(self):
+        for row_num, row in enumerate(self.grid):
+            for col_num, mine in enumerate(row):
+                yield row_num, col_num, mine
+
 
         
 mods = {"BoardEditor": BoardEditor}
