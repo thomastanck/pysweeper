@@ -102,13 +102,15 @@ class BoardEditor(Face):
         self.menu_toggles['stats_box'].set(0 if val else 1)
         self.show_hide_stats_box()
 
-    def set_size(self):
+    def set_size(self, width, height):
         self.gamedisplay.set_size(width, height)
         self.board = BoardState(width, height)
         self.update()
 
     def set_size_dialog(self):
-        SetSizeDialog(self, self.set_size)
+        def callback(width, height):
+            return self.set_size(width, height)
+        SetSizeDialog(self, callback)
 
     def update(self):
         use_flags = self.menu_toggles['use_flags'].get()
@@ -209,6 +211,52 @@ class SetSizeDialog(tkinter.Toplevel):
         super().__init__(parent.master)
         self.callback = callback
         self.parent = parent
+        self.create_widgets()
+        self.bind("<Return>", self.set_size)
+        self.bind("<KP_Enter>", self.set_size)
+        self.bind("<Property>", self.set_geometry)
+        self.withdraw()
+
+    def pack(self, *args, **kwargs):
+        print("in pack")
+        super().pack(*args, **kwargs)
+
+    def set_geometry(self, *args, **kwargs):
+        master = self.parent.master
+        root_pos = master.winfo_x(), master.winfo_y()
+        root_size = master.winfo_width(), master.winfo_height()
+        req_size = self.winfo_reqwidth(), self.winfo_reqheight()
+
+        position = (root_pos[0] + root_size[0]//2 - req_size[0]//2,
+                    root_pos[1])
+        geometry = "{}x{}+{}+{}".format(*(req_size + position))
+        self.geometry(geometry)
+        self.deiconify()
+
+    def create_widgets(self):
+        tkinter.Label(self, text="Width").grid(row=0, column=0)
+        tkinter.Label(self, text="Height").grid(row=1, column=0)
+        width_var = self.width_var = tkinter.StringVar()
+        height_var = self.height_var = tkinter.StringVar()
+
+        width_entry = tkinter.Entry(self, textvariable=width_var)
+        tkinter.Entry(self, textvariable=height_var).grid(row=1, column=1)
+        width_entry.grid(row=0, column=1)
+        width_entry.focus()
+
+    def set_size(self, e):
+        print(e.keycode)
+        print(e.keysym)
+        width = self.width_var.get()
+        height = self.height_var.get()
+        try:
+            width = max(1, int(width))
+            height = max(1, int(height))
+        except ValueError:
+            pass
+        else:
+            self.callback(width, height)
+        self.destroy()
 
 
 class BoardState:
