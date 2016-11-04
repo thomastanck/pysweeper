@@ -75,6 +75,7 @@ class GameDisplayWrapper:
         self.display.pack_forget()
         self.display.destroy()
         self.display = GameDisplay(self.master, self.pysweep, width, height)
+        self.display.pack()
 
     def center_window(self):
         self.display.update_idletasks()

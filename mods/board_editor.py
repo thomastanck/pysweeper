@@ -20,8 +20,8 @@ class BoardEditor(Face):
         })
         self._stats_box_geometry = None
 
-        self.board = BoardToShow(self.gamedisplay.board.board_width,
-                                 self.gamedisplay.board.board_height)
+        self.board = BoardState(self.gamedisplay.board.board_width,
+                                self.gamedisplay.board.board_height)
 
     
     def modsloaded(self, hn, e):
@@ -48,6 +48,8 @@ class BoardEditor(Face):
         self.menu.add_checkbutton(label="Use flags",
                                   variable=self.menu_toggles['use_flags'],
                                   command=self.update)
+        self.menu.add_separator()
+        self.menu.add_command(label="Set size", command=self.set_size_dialog)
 
     def create_stats_box(self):
         self.stats_box = StatsBox(self, "Board stats")
@@ -58,6 +60,7 @@ class BoardEditor(Face):
         self.create_stats_box()
         if self._stats_box_geometry is not None:
             self.stats_box.geometry(self._stats_box_geometry)
+        self.update()
 
     @own_game_mode
     def ondisable(self, hn, e):
@@ -79,7 +82,8 @@ class BoardEditor(Face):
         self.gamedisplay.set_face_nervous()
 
     def face_button(self, hn, e):
-        self.gamedisplay.reset_board()
+        self.board.reset()
+        self.update()
 
     def load_board(self):
         print("load_board")
@@ -97,6 +101,14 @@ class BoardEditor(Face):
         val = self.menu_toggles['stats_box'].get()
         self.menu_toggles['stats_box'].set(0 if val else 1)
         self.show_hide_stats_box()
+
+    def set_size(self):
+        self.gamedisplay.set_size(width, height)
+        self.board = BoardState(width, height)
+        self.update()
+
+    def set_size_dialog(self):
+        SetSizeDialog(self, self.set_size)
 
     def update(self):
         use_flags = self.menu_toggles['use_flags'].get()
@@ -191,10 +203,17 @@ class StatsBox(tkinter.Toplevel):
             return
         entry.set_value(value)
 
-class BoardToShow:
+
+class SetSizeDialog(tkinter.Toplevel):
+    def __init__(self, parent, callback):
+        super().__init__(parent.master)
+        self.callback = callback
+        self.parent = parent
+
+
+class BoardState:
     def __init__(self, width, height):
         self.grid = [[0]*width for __ in range(height)]
-        self.display = [["unopened"]*width for __ in range(height)]
 
     def num_neighbours(self, row, col):
         val = 0
@@ -223,6 +242,11 @@ class BoardToShow:
         for row_num, row in enumerate(self.grid):
             for col_num, mine in enumerate(row):
                 yield row_num, col_num, mine
+
+    def reset(self):
+        for row in self.grid:
+            for i in range(len(row)):
+                row[i] = 0
 
 
         
