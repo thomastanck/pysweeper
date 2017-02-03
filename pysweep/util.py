@@ -29,12 +29,14 @@ class ClickerEvent:
             raise TypeError( "%r is a frozen class, cannot set %s" % (self, key))
         object.__setattr__(self, key, value)
 
-    def __init__(self, widget, event=None, time=0, x=0, y=0, lmb=False, rmb=False, inbounds=False):
+    def __init__(self, widget, event=None, time=0, x=0, y=0, x_root=0, y_root=0, lmb=False, rmb=False, inbounds=False):
         self.widget = widget
         self.event = event # "LD", "LU", "M", etc.
         self.time = time
         self.x = x
         self.y = y
+        self.x_root = x_root
+        self.y_root = y_root
         self.lmb = lmb
         self.rmb = rmb
         self.inbounds = inbounds

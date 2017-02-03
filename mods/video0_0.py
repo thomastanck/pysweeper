@@ -148,6 +148,8 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
     vid = []
 
     def __init__(self, gamedisplay, gamemode, gameoptions):
+        self.gamedisplay = gamedisplay
+
         # Put some stuff in quickly
         self.vid = []
         self.vid.append(_video_version())
@@ -190,6 +192,9 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
         # Don't worry about the hook name, clicker events contain them! :D
         if self.recording:
             if self.after_display_change:
+                e.x = e.x_root - self.gamedisplay.display.winfo_rootx()
+                e.y = e.y_root - self.gamedisplay.display.winfo_rooty()
+                e.widget = self.gamedisplay.display
                 self.vid.extend(_clicker_event(e))
 
     def display_event(self, e):

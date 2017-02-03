@@ -152,8 +152,9 @@ class PySweeper:
 
     @own_game_mode
     def on_mouse_move(self, hn, e_):
-        e_.x = e_.x + e_.widget.winfo_rootx() - self.gamedisplay.board.winfo_rootx()
-        e_.y = e_.y + e_.widget.winfo_rooty() - self.gamedisplay.board.winfo_rooty()
+        e_.x = e_.x_root - self.gamedisplay.board.winfo_rootx()
+        e_.y = e_.y_root - self.gamedisplay.board.winfo_rooty()
+        e_.widget = self.gamedisplay.board
         e = BoardClick()
         e.fromClickerEvent(e_)
         if (e.row, e.col) != self.prev_pos:

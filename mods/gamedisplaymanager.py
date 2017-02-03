@@ -131,8 +131,8 @@ class GameDisplayManager:
 
         for widget, handler in widget_handlers:
             # convert global position to widget position
-            x = e.x + e.widget.winfo_rootx() - widget.winfo_rootx()
-            y = e.y + e.widget.winfo_rooty() - widget.winfo_rooty()
+            x = e.x_root - widget.winfo_rootx()
+            y = e.y_root - widget.winfo_rooty()
 
             # get widget size
             width = widget.winfo_width()
@@ -144,8 +144,8 @@ class GameDisplayManager:
                         handler != self.current_widget_handler[1] and
                         hn != LD and hn != RD):
                     # convert global position to widget position, this time for the previous widget
-                    otherx = e.x + e.widget.winfo_rootx() - self.current_widget_handler[0].winfo_rootx()
-                    othery = e.y + e.widget.winfo_rooty() - self.current_widget_handler[0].winfo_rooty()
+                    otherx = e.x_root - self.current_widget_handler[0].winfo_rootx()
+                    othery = e.y_root - self.current_widget_handler[0].winfo_rooty()
                     othere = e
                     othere.widget = self.current_widget_handler[0]
                     othere.x, othere.y = otherx, othery

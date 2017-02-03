@@ -72,6 +72,7 @@ class Clicker:
         self.key_lmb = 0
         self.key_rmb = 0
         self.currentposition = (0, 0)
+        self.currentrootposition = (0, 0)
 
     @property
     def lmb(self):
@@ -92,8 +93,12 @@ class Clicker:
     # POSITION
     def onmove(self, hn, e):
         self.currentposition = (
-            e.x + e.widget.winfo_rootx() - self.gamedisplay.display.winfo_rootx(),
-            e.y + e.widget.winfo_rooty() - self.gamedisplay.display.winfo_rooty(),
+            e.x_root - self.gamedisplay.display.winfo_rootx(),
+            e.y_root - self.gamedisplay.display.winfo_rooty(),
+        )
+        self.currentrootposition = (
+            e.x_root,
+            e.y_root,
         )
         e.widget = self.gamedisplay.display
         e.x, e.y = self.currentposition
@@ -195,7 +200,7 @@ class Clicker:
         self.send_event(("clicker", "U"), e)
 
     def send_event(self, hn, e):
-        e = ClickerEvent(self.gamedisplay.display, hn[1], pysweep.time(), self.currentposition[0], self.currentposition[1], self.lmb, self.rmb)
+        e = ClickerEvent(self.gamedisplay.display, hn[1], pysweep.time(), self.currentposition[0], self.currentposition[1], self.currentrootposition[0], self.currentrootposition[1], self.lmb, self.rmb)
         # e.widget = self.gamedisplay.display
         # e.x, e.y = self.currentposition
         # e.lmb = self.lmb
