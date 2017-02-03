@@ -9,7 +9,10 @@ the new class reads in a new format and gives us the same events (or more).
 
 import pysweep
 
+from datetime import datetime
 import json
+import os
+import threading
 import zlib
 
 from pysweep import GameDisplayEvent
@@ -147,6 +150,9 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
 
     vid = []
 
+    auto_save = True
+    auto_save_dir = 'auto_saves'
+
     def __init__(self, gamedisplay, gamemode, gameoptions):
         self.gamedisplay = gamedisplay
 
@@ -172,6 +178,25 @@ class VideoFile0_0_0_0: # video file format 0.0, compatible with PySweeper 0.0
     def stop(self):
         self.recording = False
         self.after_display_change = False
+        if self.auto_save:
+            self.do_auto_save()
+
+    def do_auto_save(self):
+        date_format = "%Y_%m_%d__%H_%M_%S"
+        auto_file_name = datetime.now().strftime(date_format)
+        auto_file_name = "exp_{}.pyvf".format(auto_file_name)
+        save_location = os.path.join(
+            self.auto_save_dir,
+            auto_file_name
+        )
+        def perform_save_action():
+            if not os.path.exists(self.auto_save_dir):
+                os.mkdir(self.auto_save_dir)
+            with open(save_location, 'wb') as f:
+                f.write(self.vidbytes)
+
+        t = threading.Thread(target=perform_save_action)
+        t.start()
 
     @property
     def vidstr(self):
